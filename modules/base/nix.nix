@@ -24,6 +24,11 @@
         };
 
         nix.localNixpkgs = mkEnableOption "local nixpkgs";
+
+        nix.flakePath = mkOption {
+          type = types.str;
+          default = "/home/${config.prefs.user.name}/conf";
+        };
       };
 
       config = {
@@ -52,6 +57,11 @@
                 rev = inputs.nixpkgs.rev;
               }
           );
+        };
+
+        programs.nh = {
+          enable = true;
+          flake = config.prefs.nix.flakePath;
         };
 
         systemd.services.copy-nixpkgs = mkIf config.prefs.nix.localNixpkgs {

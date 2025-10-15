@@ -10,24 +10,15 @@
     };
   };
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
-
-  # { self, nixpkgs, ... }@inputs:
-  # {
-  #   nixosConfigurations = {
-  #     iso =
-  #       let
-  #         system = "x86_64-linux";
-  #       in
-  #       nixpkgs.lib.nixosSystem {
-  #         inherit system;
-  #         modules = [ ./modules/iso/default.nix ];
-  #         specialArgs = {
-  #           username = "user";
-  #           inherit system inputs;
-  #         };
-  #       };
-  #   };
-  #   iso = self.nixosConfigurations.iso.config.system.build.isoImage;
-  # };
+  outputs =
+    inputs':
+    let
+      lib' = inputs'.nixpkgs.lib.extend (import ./lib);
+      inputs = inputs' // {
+        nixpkgs = inputs'.nixpkgs // {
+          lib = lib';
+        };
+      };
+    in
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }

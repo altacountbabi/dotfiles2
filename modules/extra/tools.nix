@@ -7,17 +7,13 @@
       ...
     }:
     let
-      inherit (lib) mkEnableOption;
+      inherit (lib) mkDefaultEnableOption;
     in
     {
-      options.prefs =
-        let
-          mkDefaultEnableOption = args: (mkEnableOption args) // { default = true; };
-        in
-        {
-          tools.nix = mkDefaultEnableOption "nix-related tools";
-          tools.sys = mkDefaultEnableOption "system-related tools";
-        };
+      options.prefs = {
+        tools.nix = mkDefaultEnableOption "nix-related tools";
+        tools.sys = mkDefaultEnableOption "system-related tools";
+      };
 
       config = {
         environment.systemPackages =

@@ -1,3 +1,5 @@
+{ self, ... }:
+
 {
   flake.nixosModules.helix =
     {
@@ -32,6 +34,11 @@
         helix.configureRoot = mkOption {
           type = types.bool;
           default = true;
+        };
+
+        helix.package = mkOption {
+          type = types.package;
+          default = self.packages.helix;
         };
       };
 
