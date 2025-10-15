@@ -1,66 +1,69 @@
 {
-  flake.packages.helix =
+  perSystem =
+    { pkgs, ... }:
     {
-      nix-update-script,
-      installShellFiles,
-      versionCheckHook,
-      fetchFromGitHub,
-      rustPlatform,
-      lib,
-      git,
+      packages.helix =
+        let
+          inherit (pkgs)
+            nix-update-script
+            installShellFiles
+            versionCheckHook
+            fetchFromGitHub
+            rustPlatform
+            lib
+            git
+            ;
+        in
+        rustPlatform.buildRustPackage rec {
+          pname = "helix";
+          version = "25.01.1";
 
-      ...
-    }:
+          # This release tarball includes source code for the tree-sitter grammars,
+          # which is not ordinarily part of the repository.
+          src = fetchFromGitHub {
+            owner = "altacountbabi";
+            repo = "helix";
+            rev = "master";
+            sha256 = "sha256-vVhgzdo+T9rn3GuJmJhaWLusQ3DCSx8bESz+VAHc7C0=";
+          };
 
-    rustPlatform.buildRustPackage rec {
-      pname = "helix";
-      version = "25.01.1";
+          cargoHash = "sha256-isZHpeiUeVb7htmgeHAJFc6tGaodvPYkReA/WFtvl3k=";
 
-      # This release tarball includes source code for the tree-sitter grammars,
-      # which is not ordinarily part of the repository.
-      src = fetchFromGitHub {
-        owner = "altacountbabi";
-        repo = "helix";
-        rev = "master";
-        sha256 = "sha256-vVhgzdo+T9rn3GuJmJhaWLusQ3DCSx8bESz+VAHc7C0=";
-      };
+          nativeBuildInputs = [
+            git
+            installShellFiles
+          ];
 
-      cargoHash = "sha256-isZHpeiUeVb7htmgeHAJFc6tGaodvPYkReA/WFtvl3k=";
+          env = {
+            HELIX_DISABLE_AUTO_GRAMMAR_BUILD = "1";
+            HELIX_DEFAULT_RUNTIME = "${placeholder "out"}/lib/runtime";
+          };
 
-      nativeBuildInputs = [
-        git
-        installShellFiles
-      ];
+          postInstall = ''
+            mkdir -p $out/lib
+            cp -r runtime $out/lib
+            installShellCompletion contrib/completion/hx.{bash,fish,zsh}
+            mkdir -p $out/share/{applications,icons/hicolor/256x256/apps}
+            cp contrib/Helix.desktop $out/share/applications
+            cp contrib/helix.png $out/share/icons/hicolor/256x256/apps
+          '';
 
-      env = {
-        HELIX_DISABLE_AUTO_GRAMMAR_BUILD = "1";
-        HELIX_DEFAULT_RUNTIME = "${placeholder "out"}/lib/runtime";
-      };
+          nativeInstallCheckInputs = [ versionCheckHook ];
+          versionCheckProgram = "${placeholder "out"}/bin/hx";
+          versionCheckProgramArg = [ "--version" ];
+          doInstallCheck = true;
 
-      postInstall = ''
-        mkdir -p $out/lib
-        cp -r runtime $out/lib
-        installShellCompletion contrib/completion/hx.{bash,fish,zsh}
-        mkdir -p $out/share/{applications,icons/hicolor/256x256/apps}
-        cp contrib/Helix.desktop $out/share/applications
-        cp contrib/helix.png $out/share/icons/hicolor/256x256/apps
-      '';
+          passthru = {
+            updateScript = nix-update-script { };
+          };
 
-      nativeInstallCheckInputs = [ versionCheckHook ];
-      versionCheckProgram = "${placeholder "out"}/bin/hx";
-      versionCheckProgramArg = [ "--version" ];
-      doInstallCheck = true;
-
-      passthru = {
-        updateScript = nix-update-script { };
-      };
-
-      meta = {
-        description = "Post-modern modal text editor";
-        homepage = "https://helix-editor.com";
-        changelog = "https://github.com/helix-editor/helix/blob/${version}/CHANGELOG.md";
-        license = lib.licenses.mpl20;
-        mainProgram = "hx";
-      };
+          meta = {
+            description = "Post-modern modal text editor";
+            homepage = "https://helix-editor.com";
+            changelog = "https://github.com/helix-editor/helix/blob/${version}/CHANGELOG.md";
+            license = lib.licenses.mpl20;
+            mainProgram = "hx";
+          };
+        };
     };
 }

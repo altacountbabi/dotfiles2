@@ -38,7 +38,7 @@
 
         helix.package = mkOption {
           type = types.package;
-          default = self.packages.helix;
+          default = self.packages.${pkgs.system}.helix;
         };
       };
 
@@ -328,7 +328,7 @@
         in
         {
           environment.systemPackages = [
-            pkgs.helix
+            config.prefs.helix.package
           ];
 
           environment.sessionVariables = {
