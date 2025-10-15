@@ -83,7 +83,7 @@
                 alias clone = git clone --depth 1 # Shallow git clone
                 alias shell = nix-shell --command "nu"
                 alias lg = lazygit
-                alias switch = nh os switch ~/new
+                alias switch = nh os switch
 
                 alias ffmpeg = ffmpeg -hide_banner
                 alias ffprobe = ffprobe -hide_banner
