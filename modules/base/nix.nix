@@ -59,10 +59,8 @@
           );
         };
 
-        programs.nh = {
-          enable = true;
-          flake = config.prefs.nix.flakePath;
-        };
+        programs.nh.enable = true;
+        environment.sessionVariables.NH_FLAKE = config.prefs.nix.flakePath;
 
         systemd.services.copy-nixpkgs = mkIf config.prefs.nix.localNixpkgs {
           description = "copy nixpkgs to store early";
