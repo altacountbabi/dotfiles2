@@ -7,7 +7,7 @@
   };
 
   flake.nixosModules.depozitHost =
-    { config, ... }:
+    { ... }:
     {
       imports = with self.nixosModules; [
         base
@@ -21,19 +21,6 @@
 
         ./_hardware.nix
       ];
-
-      hardware.graphics.enable = true;
-      hardware.nvidia = {
-        modesetting.enable = true;
-        powerManagement.enable = false;
-        powerManagement.finegrained = false;
-
-        open = false;
-
-        nvidiaSettings = true;
-
-        package = config.boot.kernelPackages.nvidiaPackages.stable;
-      };
 
       prefs.network.hostname = "depozit";
     };
