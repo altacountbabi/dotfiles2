@@ -1,8 +1,7 @@
 { inputs, self, ... }:
 
 {
-  flake.nixosConfigurations.depozit = inputs.nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
+  flake.nixosConfigurations.depozit = inputs.nixpkgs.lib.nixosSystem self {
     modules = [ self.nixosModules.depozitHost ];
   };
 
@@ -10,7 +9,6 @@
     { ... }:
     {
       imports = with self.nixosModules; [
-        base
         systemd-boot
         tools
         ssh

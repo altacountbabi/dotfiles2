@@ -1,13 +1,12 @@
 { inputs, self, ... }:
 
 {
-  flake.nixosConfigurations.iso = inputs.nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
+  flake.nixosConfigurations.iso = inputs.nixpkgs.lib.nixosSystem self {
     modules = [ self.nixosModules.isoHost ];
   };
   flake.iso = self.nixosConfigurations.iso.config.system.build.isoImage;
-  flake.nixosConfigurations.isoRelease = inputs.nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
+
+  flake.nixosConfigurations.isoRelease = inputs.nixpkgs.lib.nixosSystem self {
     modules = [
       self.nixosModules.isoHost
       (_: {
@@ -23,13 +22,14 @@
     { config, lib, ... }:
     {
       imports = with self.nixosModules; [
-        base
         systemd-boot
         plymouth
         tools
 
         nushell
         helix
+
+        niri
 
         iso # Module which provides `system.build.isoImage`
       ];
