@@ -30,14 +30,23 @@
         helix
 
         niri
+        sddm
+        sddm-silent
+
+        zen
 
         iso # Module which provides `system.build.isoImage`
       ];
 
       prefs.nix.localNixpkgs = true;
 
+      prefs.monitors."Virtual-1" = {
+        width = 1920;
+        height = 1080;
+      };
+
       # Copy config to user's home directory
-      system.activationScripts.copyConfig.text =
+      system.activationScripts.copy-config.text =
         let
           src = lib.cleanSourceWith {
             filter = name: type: (type != "symlink" && name != "result");
