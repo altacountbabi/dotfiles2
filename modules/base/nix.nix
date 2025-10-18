@@ -64,7 +64,8 @@
 
         systemd.services.copy-nixpkgs = mkIf config.prefs.nix.localNixpkgs {
           description = "copy nixpkgs to store early";
-          after = [ "network.target" ];
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
           wantedBy = [ "basic.target" ];
           serviceConfig = {
             Type = "simple";
