@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ self, inputs, ... }:
 
 {
   flake.nixosModules.base =
@@ -13,6 +13,8 @@
         mkIf
         mkOption
         mkEnableOption
+        mkDefaultEnableOption
+        optionalAttrs
         types
         ;
     in
@@ -29,19 +31,26 @@
           type = types.str;
           default = "/home/${config.prefs.user.name}/conf";
         };
+
+        nix.customBinaryCache = mkDefaultEnableOption "use custom binary cache";
       };
 
       config = {
         nix = {
           inherit (config.prefs.nix) package;
-          settings = {
-            experimental-features = [
-              "pipe-operators"
-              "nix-command"
-              "flakes"
-            ];
-            warn-dirty = false;
-          };
+          settings =
+            {
+              experimental-features = [
+                "pipe-operators"
+                "nix-command"
+                "flakes"
+              ];
+              warn-dirty = false;
+            }
+            // (optionalAttrs config.prefs.nix.customBinaryCache {
+              substituters = [ "http://av1.space:5000" ];
+              trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
+            });
           channel.enable = false;
           registry.nixpkgs.to = lib.mkForce (
             if config.prefs.nix.localNixpkgs then
@@ -73,7 +82,12 @@
           };
         };
 
-        nixpkgs.config.allowUnfree = true;
+        nixpkgs = {
+          config.allowUnfree = true;
+          overlays = self.overlays |> builtins.attrValues;
+        };
+
+        documentation.enable = false;
 
         system.stateVersion = "25.11";
       };

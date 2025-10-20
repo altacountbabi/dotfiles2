@@ -111,6 +111,23 @@
                     hx ...$args
                   }
                 }
+
+                # Single command to cat files and list directories
+                def l [...paths] {
+                  if ($paths | is-empty) {
+                    ls
+                  } else {
+                    for p in $paths {
+                      if ($p | path type) == 'file' {
+                        cat $p
+                      } else if ($p | path type) == 'dir' {
+                        print (ls $p | table) -n
+                      } else {
+                        print $"(ansi red)error:(ansi reset) ($p) not found"
+                      }
+                    }
+                  }
+                }
               '';
 
             xdg.config.files."nushell/config.nu".text = # nu

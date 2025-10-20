@@ -1,12 +1,12 @@
 { inputs, self, ... }:
 
 {
-  flake.nixosConfigurations.iso = inputs.nixpkgs.lib.nixosSystem self {
+  flake.nixosConfigurations.iso = inputs.nixpkgs.lib.nixosSystem {
     modules = [ self.nixosModules.isoHost ];
   };
   flake.iso = self.nixosConfigurations.iso.config.system.build.isoImage;
 
-  flake.nixosConfigurations.isoRelease = inputs.nixpkgs.lib.nixosSystem self {
+  flake.nixosConfigurations.isoRelease = inputs.nixpkgs.lib.nixosSystem {
     modules = [
       self.nixosModules.isoHost
       (_: {
@@ -19,21 +19,15 @@
   flake.isoRelease = self.nixosConfigurations.isoRelease.config.system.build.isoImage;
 
   flake.nixosModules.isoHost =
-    { config, lib, ... }:
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
     {
       imports = with self.nixosModules; [
-        systemd-boot
-        plymouth
-        tools
-
-        nushell
-        helix
-
-        niri
-        sddm
-        sddm-silent
-
-        zen
+        desktop
 
         iso # Module which provides `system.build.isoImage`
       ];
@@ -44,6 +38,18 @@
         width = 1920;
         height = 1080;
       };
+
+      prefs.git.user = {
+        name = "altacountbabi";
+        email = "altacountbabi@users.noreply.github.com";
+      };
+
+      environment.systemPackages = [
+        (pkgs.nushellScript {
+          name = "test-script";
+          text = "print `hello world`";
+        })
+      ];
 
       # Copy config to user's home directory
       system.activationScripts.copy-config.text =

@@ -29,7 +29,7 @@
                 file
                 tree
                 htop
-                helix
+                btop
                 duf
                 bat
               ];

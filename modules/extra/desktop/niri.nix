@@ -1,4 +1,4 @@
-{ self, ... }:
+{ self, inputs, ... }:
 
 {
   flake.nixosModules.niri =
@@ -25,6 +25,12 @@
           enable = true;
           package = config.prefs.niri.package;
         };
+
+        environment.systemPackages = with pkgs; [
+          adwaita-icon-theme
+          inputs.vicinae.packages.${system}.default
+          inputs.quickshell.packages.${system}.default
+        ];
 
         hjem.users.${config.prefs.user.name} = {
           xdg.config.files."niri/config.kdl".text =
@@ -57,12 +63,11 @@
               ${monitors}
 
               // Startup apps
-              spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "/home/real/Pictures/wallpapers/plant.jpg"
+              spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${../../../plant.jpg}"
               spawn-at-startup "${pkgs.xwayland-satellite}/bin/xwayland-satellite"
               spawn-at-startup "${pkgs.mako}/bin/mako"
               spawn-at-startup "polkit-gnome-authentication-agent-1"
               spawn-at-startup "gnome-keyring-daemon"
-              spawn-at-startup "zen"
               spawn-at-startup "discord"
               spawn-at-startup "wezterm-mux-server"
               spawn-at-startup "input-event-daemon"

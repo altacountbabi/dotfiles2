@@ -9,13 +9,20 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # SDDM Theme
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Apps
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
+    vicinae.url = "github:vicinaehq/vicinae";
   };
 
   outputs =

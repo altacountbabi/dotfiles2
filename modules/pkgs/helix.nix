@@ -43,9 +43,6 @@
             mkdir -p $out/lib
             cp -r runtime $out/lib
             installShellCompletion contrib/completion/hx.{bash,fish,zsh}
-            mkdir -p $out/share/{applications,icons/hicolor/256x256/apps}
-            cp contrib/Helix.desktop $out/share/applications
-            cp contrib/helix.png $out/share/icons/hicolor/256x256/apps
           '';
 
           nativeInstallCheckInputs = [ versionCheckHook ];

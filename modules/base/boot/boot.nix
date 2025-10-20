@@ -18,6 +18,9 @@
 
       config = {
         boot.loader.timeout = config.prefs.boot.timeout;
+
+        # TODO: Fix systemd-based initrd for ISOs
+        boot.initrd.systemd.enable = config.prefs.iso == null;
       };
     };
 }

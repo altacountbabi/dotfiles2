@@ -1,5 +1,3 @@
-{ inputs, ... }:
-
 {
   systems = [
     "aarch64-linux"
