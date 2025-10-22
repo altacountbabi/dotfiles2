@@ -7,12 +7,12 @@
       ...
     }:
     let
-      inherit (lib) mkDefaultEnableOption;
+      inherit (lib) mkOpt types;
     in
     {
       options.prefs = {
-        tools.nix = mkDefaultEnableOption "nix-related tools";
-        tools.sys = mkDefaultEnableOption "system-related tools";
+        tools.nix = mkOpt types.bool true "Whether to install nix-related tools";
+        tools.sys = mkOpt types.bool true "Whether to install system-related tools";
       };
 
       config = {
@@ -35,9 +35,9 @@
               ];
             };
           in
-          lib.concatLists (
-            lib.mapAttrsToList (name: pkgs: lib.optionals (config.prefs.tools.${name} or false) pkgs) packages
-          );
+          packages
+          |> lib.mapAttrsToList (name: pkgs: lib.optionals (config.prefs.tools.${name} or false) pkgs)
+          |> lib.concatLists;
       };
     };
 }

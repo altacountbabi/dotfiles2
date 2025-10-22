@@ -16,8 +16,11 @@
       prefs.network.hostname = "depozit";
 
       prefs.git.user = {
-        name = "altacountbabi";
+        name = "Whoman";
         email = "altacountbabi@users.noreply.github.com";
       };
+
+      prefs.timeZone = "Europe/Bucharest";
+      prefs.language.secondary = "ro_RO.UTF-8";
     };
 }

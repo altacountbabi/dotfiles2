@@ -7,24 +7,13 @@
       ...
     }:
     let
-      inherit (lib) mkIf mkOption types;
+      inherit (lib) mkIf mkOpt types;
     in
     {
       options.prefs = {
-        nushell.aliases = mkOption {
-          type = types.attrsOf types.str;
-          default = { };
-        };
-
-        nushell.package = mkOption {
-          type = types.package;
-          default = pkgs.nushell;
-        };
-
-        nushell.configureRoot = mkOption {
-          type = types.bool;
-          default = true;
-        };
+        nushell.package = mkOpt types.package pkgs.nushell "The package to use for nushell";
+        nushell.aliases = mkOpt (types.attrsOf types.str) { } "Which alises to add to the nushell config";
+        nushell.configureRoot = mkOpt types.bool true "Whether to configure nushell for the root user";
       };
 
       config =

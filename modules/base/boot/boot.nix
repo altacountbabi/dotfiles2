@@ -6,14 +6,13 @@
       ...
     }:
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mkOpt types;
     in
     {
       options.prefs = {
-        boot.timeout = mkOption {
-          type = types.int;
-          default = 0;
-        };
+        boot.timeout =
+          mkOpt types.int 0
+            "Timeout (in seconds) until bootloader boots the default menu item. Use null if the loader menu should be displayed indefinitely.";
       };
 
       config = {

@@ -26,7 +26,8 @@
                   "flipped-180" = "flipped-rotate-180";
                   "flipped-270" = "flipped-rotate-270";
                 };
-                monitors = config.prefs.monitors;
+                monitors = config.prefs.monitors |> lib.filterAttrs (_: x: x.enable);
+
                 westonConfig = lib.generators.toINI { listsAsDuplicateKeys = true; } {
                   output = {
                     name = builtins.attrNames monitors;

@@ -2,14 +2,11 @@
   flake.nixosModules.base =
     { config, lib, ... }:
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mkOpt types;
     in
     {
       options.prefs = {
-        network.hostname = mkOption {
-          type = types.str;
-          default = "nixos";
-        };
+        network.hostname = mkOpt types.str "nixos" "The name of the machine";
       };
 
       config = {

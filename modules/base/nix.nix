@@ -11,28 +11,25 @@
     let
       inherit (lib)
         mkIf
-        mkOption
-        mkEnableOption
-        mkDefaultEnableOption
+        mkOpt
         optionalAttrs
         types
         ;
     in
     {
       options.prefs = {
-        nix.package = mkOption {
-          type = types.package;
-          default = pkgs.nixVersions.latest;
-        };
+        nix.package = mkOpt types.package pkgs.nixVersions.latest "The package to use for nix";
+        nix.localNixpkgs =
+          mkOpt types.bool false
+            "Whether to make a local copy of nixpkgs from the flake inputs";
 
-        nix.localNixpkgs = mkEnableOption "local nixpkgs";
+        nix.flakePath =
+          mkOpt types.str "/home/${config.prefs.user.name}/conf"
+            "The path to the flake containing this config";
 
-        nix.flakePath = mkOption {
-          type = types.str;
-          default = "/home/${config.prefs.user.name}/conf";
-        };
-
-        nix.customBinaryCache = mkDefaultEnableOption "use custom binary cache";
+        nix.customBinaryCache =
+          mkOpt types.bool true
+            "Whether to use our custom binary cache as to not re-compile everything for small patches";
       };
 
       config = {

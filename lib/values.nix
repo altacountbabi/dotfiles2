@@ -21,6 +21,4 @@ rec {
 
   enabled = merge { enable = true; };
   disabled = merge { enable = false; };
-
-  mkDefaultEnableOption = args: (mkEnableOption args) // { default = true; };
 }

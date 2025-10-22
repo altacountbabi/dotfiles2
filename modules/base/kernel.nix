@@ -7,20 +7,13 @@
       ...
     }:
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mkOpt types;
     in
     {
       # TODO: Add kernel customization options (disabling VT, cpu-native optimisations, etc..)
       options.prefs = {
-        kernel.latest = mkOption {
-          type = types.bool;
-          default = true;
-        };
-
-        kernel.params = mkOption {
-          type = types.listOf types.str;
-          default = [ ];
-        };
+        kernel.latest = mkOpt types.bool true "Whether to use the latest kernel or the LTS kernel.";
+        kernel.params = mkOpt (types.listOf types.str) [ ] "Parameters added to the kernel command line.";
       };
 
       config = {

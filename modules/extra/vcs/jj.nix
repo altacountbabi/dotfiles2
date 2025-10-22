@@ -7,24 +7,16 @@
       ...
     }:
     let
-      inherit (lib) optionalAttrs mkOption types;
+      inherit (lib) optionalAttrs mkOpt types;
     in
     {
       options.prefs = {
-        jj.user.name = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-        };
+        jj.user.name = mkOpt (types.nullOr types.str) null "The username to use when creating jj commits";
+        jj.user.email = mkOpt (types.nullOr types.str) null "The email to use when creating jj commits";
 
-        jj.user.email = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-        };
-
-        jj.extraConfig = mkOption {
-          type = types.attrsOf types.anything;
-          default = { };
-        };
+        jj.extraConfig =
+          mkOpt (types.attrsOf types.anything) { }
+            "Extra properties to set in the jj config";
       };
 
       config = {

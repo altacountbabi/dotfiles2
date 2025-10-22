@@ -9,22 +9,19 @@
       inherit (lib)
         mkIf
         mapAttrs'
-        mkOption
+        mkOpt
         types
         ;
     in
     {
       options.prefs = {
-        autostart = mkOption {
-          type = types.attrsOf (
-            types.oneOf [
-              types.str
-              types.path
-              types.package
-            ]
-          );
-          default = { };
-        };
+        autostart = mkOpt (types.attrsOf (
+          types.oneOf [
+            types.str
+            types.path
+            types.package
+          ]
+        )) { } "List of programs to start once a graphical session begins.";
       };
 
       config = mkIf (config.prefs.autostart != [ ]) {

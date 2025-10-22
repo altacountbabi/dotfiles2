@@ -9,15 +9,12 @@
       ...
     }:
     let
-      inherit (lib) mkOption types mapAttrsToList;
+      inherit (lib) mkOpt types mapAttrsToList;
       inherit (lib.strings) floatToString optionalString concatStringsSep;
     in
     {
       options.prefs = {
-        niri.package = mkOption {
-          type = types.package;
-          default = self.packages.${pkgs.system}.niri;
-        };
+        niri.package = mkOpt types.package self.packages.${pkgs.system}.niri "The package to use for niri";
       };
 
       config = {
@@ -41,7 +38,7 @@
                   name: data:
                   let
                     options = [
-                      (optionalString (!data.enabled) "off")
+                      (optionalString (!data.enable) "off")
                       "mode \"${data.width |> toString}x${data.height |> toString}@${data.refreshRate |> floatToString}\""
                       "scale ${data.scale |> floatToString}"
                       "transform \"${data.transform |> toString}\""

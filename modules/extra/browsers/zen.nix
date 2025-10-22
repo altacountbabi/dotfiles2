@@ -9,14 +9,13 @@
       ...
     }:
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mkOpt types;
     in
     {
       options.prefs = {
-        zen.package = mkOption {
-          type = types.package;
-          default = inputs.zen-browser.packages.${pkgs.system}.default;
-        };
+        zen.package =
+          mkOpt types.package inputs.zen-browser.packages.${pkgs.system}.default
+            "The package to use for zen browser";
       };
 
       config = {

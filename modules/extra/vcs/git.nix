@@ -9,24 +9,16 @@
     let
       inherit (lib)
         optionalAttrs
-        mkDefaultEnableOption
-        mkOption
+        mkOpt
         types
         ;
     in
     {
       options.prefs = {
-        git.user.name = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-        };
+        git.user.name = mkOpt (types.nullOr types.str) null "The username to use when creating git commits";
+        git.user.email = mkOpt (types.nullOr types.str) null "The email to use when creating git commits";
 
-        git.user.email = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-        };
-
-        git.githubAuth = mkDefaultEnableOption "authenticating with `gh` cli tool";
+        git.githubAuth = mkOpt types.bool true "Whether to allow authenticating with the `gh` cli tool";
       };
 
       config = {

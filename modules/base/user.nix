@@ -7,45 +7,30 @@
       ...
     }:
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mkOpt types;
     in
     {
       options.prefs = {
-        user.name = mkOption {
-          type = types.str;
-          default = "user";
-        };
+        user.name = mkOpt types.str "user" "The name of the default user";
+        user.displayName =
+          mkOpt types.str "User"
+            "The name displayed on the login screen for the default user";
 
-        user.displayName = mkOption {
-          type = types.str;
-          default = "User";
-        };
+        user.initialPassword = mkOpt types.str "123" "The initial password for the default user";
 
-        user.groups = mkOption {
-          type = types.listOf types.str;
-          default = [
-            "wheel"
-            "video"
-            "input"
-          ];
-        };
-
-        user.shell = mkOption {
-          type = types.package;
-          default = pkgs.bash;
-        };
-
-        user.initialPassword = mkOption {
-          type = types.str;
-          default = "123";
-        };
+        user.groups = mkOpt (types.listOf types.str) [ ] "The groups that the default user is in";
+        user.shell = mkOpt types.package pkgs.bash "The shell of the default user";
       };
 
       config = {
         users.users.${config.prefs.user.name} = {
           isNormalUser = true;
           description = config.prefs.user.displayName;
-          extraGroups = config.prefs.user.groups;
+          extraGroups = config.prefs.user.groups ++ [
+            "wheel"
+            "video"
+            "input"
+          ];
 
           inherit (config.prefs.user) shell initialPassword;
         };

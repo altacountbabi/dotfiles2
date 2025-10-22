@@ -10,59 +10,45 @@
       ...
     }:
     let
-      inherit (lib) mkOption types;
+      inherit (lib) mkOpt mkOption types;
     in
     {
       options.prefs = {
-        iso.compressImage = lib.mkOption {
-          default = false;
-          type = lib.types.bool;
-          description = ''
-            Whether the ISO image should be compressed using
-            {command}`zstd`.
-          '';
-        };
+        iso.compressImage =
+          mkOpt types.bool false
+            "Whether the ISO image should be compressed using `zstd`";
 
-        iso.squashfsCompression = lib.mkOption {
-          default = "gzip -Xcompression-level 1";
-          type = lib.types.nullOr lib.types.str;
-          example = "zstd -Xcompression-level 19";
-          description = ''
+        iso.squashfsCompression =
+          (mkOpt (types.nullOr types.str) "gzip -Xcompression-level 1" ''
             Compression settings to use for the squashfs nix store.
             `null` disables compression
-          '';
-        };
+          '')
+          // {
+            example = "zstd -Xcompression-level 19";
+          };
 
-        iso.contents = mkOption {
-          type = types.listOf (
-            types.submodule {
-              options = {
-                source = mkOption {
-                  type = types.oneOf [
-                    types.path
-                    types.string
-                  ];
-                };
-                target = mkOption {
-                  type = types.oneOf [
-                    types.path
-                    types.string
-                  ];
-                };
+        iso.contents = mkOpt (types.listOf (
+          types.submodule {
+            options = {
+              source = mkOption {
+                type = types.oneOf [
+                  types.path
+                  types.string
+                ];
               };
-            }
-          );
-          description = ''
-            Files to be copied to fixed locations in the generated ISO image.
-          '';
-        };
+              target = mkOption {
+                type = types.oneOf [
+                  types.path
+                  types.string
+                ];
+              };
+            };
+          }
+        )) [ ] "Files to be copied to fixed locations in the generated ISO image";
 
-        iso.storeContents = lib.mkOption {
-          type = types.listOf types.package;
-          description = ''
-            Additional packages to be included in the nix store in the generated ISO image.
-          '';
-        };
+        iso.storeContents =
+          mkOpt (types.listOf types.package) [ ]
+            "Additional packages to be included in the nix store in the generated ISO image";
       };
 
       config =

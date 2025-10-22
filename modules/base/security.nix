@@ -5,16 +5,13 @@
       inherit (lib)
         mkIf
         mkDefault
-        mkOption
+        mkOpt
         types
         ;
     in
     {
       options.prefs = {
-        sudo-rs.enable = mkOption {
-          type = types.bool;
-          default = true;
-        };
+        sudo-rs.enable = mkOpt types.bool true "Whether to use sudo-rs instead of sudo";
       };
 
       config = {
