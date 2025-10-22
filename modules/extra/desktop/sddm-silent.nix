@@ -11,7 +11,7 @@
       theme = inputs.silentSDDM.packages.${pkgs.system}.default.override (
         let
           # TODO: Make this use a common option, not a hard-coded wallpaper.
-          plantBgPath = ../../../plant.jpg;
+          plantBgPath = /${config.root}/plant.jpg;
           plantBg = pkgs.runCommandLocal "plant" { } ''
             	cp ${plantBgPath} $out
           '';

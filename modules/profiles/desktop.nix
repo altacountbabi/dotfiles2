@@ -16,7 +16,7 @@
       sddm-silent
 
       wezterm
-      zen
+      helium
     ];
   };
 }

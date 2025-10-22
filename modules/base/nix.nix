@@ -48,7 +48,14 @@
               substituters = [ "http://av1.space:5000" ];
               trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
             });
+
           channel.enable = false;
+
+          registry.conf.to = {
+            type = "path";
+            path = config.cleanRoot;
+          };
+
           registry.nixpkgs.to = lib.mkForce (
             if config.prefs.nix.localNixpkgs then
               {
@@ -67,6 +74,9 @@
 
         programs.nh.enable = true;
         environment.sessionVariables.NH_FLAKE = config.prefs.nix.flakePath;
+        environment.shellAliases = {
+          switch = "nh os switch";
+        };
 
         systemd.services.copy-nixpkgs = mkIf config.prefs.nix.localNixpkgs {
           description = "copy nixpkgs to store early";

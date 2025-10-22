@@ -12,15 +12,58 @@
     {
       options.prefs = {
         nushell.package = mkOpt types.package pkgs.nushell "The package to use for nushell";
-        nushell.aliases = mkOpt (types.attrsOf types.str) { } "Which alises to add to the nushell config";
+        nushell.extraConfig = mkOpt (types.listOf types.str) [ ] "Extra items to add to the config";
         nushell.configureRoot = mkOpt types.bool true "Whether to configure nushell for the root user";
       };
 
       config =
         let
           userConf = {
-            xdg.config.files."nushell/env.nu".text = # nu
+            xdg.config.files."nushell/env.nu".text =
+              let
+                aliases =
+                  config.environment.shellAliases
+                  |> lib.filterAttrs (_: v: v != "")
+                  |> lib.mapAttrsToList (k: v: "alias ${k} = ${v}")
+                  |> builtins.concatStringsSep "\n";
+                extraConfig = config.prefs.nushell.extraConfig |> builtins.concatStringsSep "\n";
+              in
+              # nu
               ''
+                ${aliases}
+
+                ${extraConfig}
+
+                alias ffmpeg = ffmpeg -hide_banner
+                alias ffprobe = ffprobe -hide_banner
+
+                alias cal = cal --week-start mo
+
+                def --env mkcd [dir: path] {
+                  mkdir $dir; cd $dir
+                }
+
+                def psn [name: string] {
+                  ps | where ($it.name | str contains $name)
+                }
+
+                # Single command to cat files and list directories
+                def l [...paths] {
+                  if ($paths | is-empty) {
+                    ls
+                  } else {
+                    for p in $paths {
+                      if ($p | path type) == 'file' {
+                        cat $p
+                      } else if ($p | path type) == 'dir' {
+                        print (ls $p | table) -n
+                      } else {
+                        print $"(ansi red)error:(ansi reset) ($p) not found"
+                      }
+                    }
+                  }
+                }
+
                 $env.PROMPT_COMMAND = {||
                   let dir = match (do -i { $env.PWD | path relative-to $nu.home-path }) {
                     null => $env.PWD
@@ -63,60 +106,6 @@
                 $env.NU_PLUGIN_DIRS = [
                   ($nu.default-config-dir | path join 'plugins')
                 ]
-
-                alias cat = bat
-                alias df = duf
-                alias search = nix-search
-                alias tree = tree -lC # Make `tree` follow symlinks and always use colors
-                alias less = less -R # make `less` show colors
-                alias clone = git clone --depth 1 # Shallow git clone
-                alias shell = nix-shell --command "nu"
-                alias lg = lazygit
-                alias switch = nh os switch
-
-                alias ffmpeg = ffmpeg -hide_banner
-                alias ffprobe = ffprobe -hide_banner
-
-                alias cal = cal --week-start mo
-
-                alias ns = nom-shell -p --command "nu"
-                def nsr [pkg] {
-                  nix run $"nixpkgs#($pkg)" --log-format internal-json -v o+e>| nom --json
-                }
-
-                def --env mkcd [dir: path] {
-                  mkdir $dir; cd $dir
-                }
-
-                def psn [name: string] {
-                  ps | where ($it.name | str contains $name)
-                }
-
-                # Alias to helix
-                def v [...args] {
-                  if ($args | is-empty) {
-                    hx .
-                  } else {
-                    hx ...$args
-                  }
-                }
-
-                # Single command to cat files and list directories
-                def l [...paths] {
-                  if ($paths | is-empty) {
-                    ls
-                  } else {
-                    for p in $paths {
-                      if ($p | path type) == 'file' {
-                        cat $p
-                      } else if ($p | path type) == 'dir' {
-                        print (ls $p | table) -n
-                      } else {
-                        print $"(ansi red)error:(ansi reset) ($p) not found"
-                      }
-                    }
-                  }
-                }
               '';
 
             xdg.config.files."nushell/config.nu".text = # nu
@@ -230,6 +219,13 @@
         in
         {
           prefs.user.shell = config.prefs.nushell.package;
+
+          # Remove pre-defined shell aliases from nixpkgs but still allow for shell aliases in this config.
+          environment.shellAliases = {
+            ls = "";
+            ll = "";
+            l = "";
+          };
 
           hjem.users.${config.prefs.user.name} = userConf;
           hjem.users.root = mkIf config.prefs.nushell.configureRoot (

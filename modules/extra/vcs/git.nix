@@ -22,6 +22,11 @@
       };
 
       config = {
+        environment.shellAliases = {
+          clone = "git clone --depth 1";
+          lg = "lazygit";
+        };
+
         environment.systemPackages = with pkgs; [
           lazygit
           difftastic

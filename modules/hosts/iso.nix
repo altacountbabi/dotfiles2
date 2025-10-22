@@ -21,8 +21,6 @@
   flake.nixosModules.isoHost =
     {
       config,
-      pkgs,
-      lib,
       ...
     }:
     {
@@ -44,20 +42,12 @@
         email = "altacountbabi@users.noreply.github.com";
       };
 
-      environment.systemPackages = [
-        (pkgs.nushellScript {
-          name = "test-script";
-          text = "print `hello world`";
-        })
-      ];
+      prefs.helix.buildGrammars = false;
 
       # Copy config to user's home directory
       system.activationScripts.copy-config.text =
         let
-          src = lib.cleanSourceWith {
-            filter = name: type: (type != "symlink" && name != "result");
-            src = ../..;
-          };
+          src = config.cleanRoot;
           username = config.prefs.user.name;
         in
         ''

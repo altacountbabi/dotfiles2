@@ -1,4 +1,4 @@
-{ self, inputs, ... }:
+{ inputs, ... }:
 
 {
   flake.nixosModules.niri =
@@ -14,7 +14,7 @@
     in
     {
       options.prefs = {
-        niri.package = mkOpt types.package self.packages.${pkgs.system}.niri "The package to use for niri";
+        niri.package = mkOpt types.package pkgs.niri "The package to use for niri";
       };
 
       config = {
@@ -24,8 +24,10 @@
         };
 
         environment.systemPackages = with pkgs; [
+          xwayland-satellite
+          rofi
+
           adwaita-icon-theme
-          inputs.vicinae.packages.${system}.default
           inputs.quickshell.packages.${system}.default
         ];
 
@@ -68,7 +70,6 @@
               spawn-at-startup "discord"
               spawn-at-startup "wezterm-mux-server"
               spawn-at-startup "input-event-daemon"
-              spawn-at-startup "vicinae" "server"
 
               // Window rules
               window-rule {
@@ -260,7 +261,10 @@
                 // Apps
                 Mod+Return { spawn "wezterm" "start" "--always-new-process"; }
                 Mod+Shift+Return { spawn "wezterm" "connect" "unix"; }
-                Mod+Space { spawn "vicinae" "toggle"; }
+                Mod+Space { spawn "rofi" \
+                  "-show" "drun" \
+                  "-display-drun" "Run"
+              	}
                 Mod+Comma { spawn "rofi" \
                   "-show" "emoji" \
                   "-modi" "emoji" \

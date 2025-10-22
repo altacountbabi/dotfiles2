@@ -27,6 +27,10 @@
           in
           mkOpt (types.listOf (types.enum languages)) languages "List of languages to configure in helix";
 
+        helix.buildGrammars =
+          mkOpt types.bool true
+            "Whether to automatically build tree-sitter grammars in the background";
+
         helix.preferredEditor =
           mkOpt types.bool true
             "Whether to set the `EDITOR` environment variable to helix";
@@ -43,6 +47,35 @@
 
         environment.sessionVariables = {
           EDITOR = mkIf config.prefs.helix.preferredEditor "hx";
+        };
+
+        environment.shellAliases.v = "hx";
+        prefs.nushell.extraConfig = [
+          ''
+            def v --wrapped [...args] {
+              if ($args | is-empty) {
+                hx .
+              } else {
+                hx ...$args
+              }
+            }
+          ''
+        ];
+
+        systemd.services.helix-grammars = mkIf config.prefs.helix.buildGrammars {
+          description = "build tree-sitter grammars for helix";
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
+          wantedBy = [ "basic.target" ];
+          path = with pkgs; [
+            git
+            gcc
+            config.prefs.helix.package
+          ];
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${pkgs.bash}/bin/bash -c 'hx -g fetch; hx -g build'";
+          };
         };
 
         hjem.users.${config.prefs.user.name} = {
