@@ -78,10 +78,8 @@
               spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${../../../plant.jpg}"
               spawn-at-startup "${pkgs.xwayland-satellite}/bin/xwayland-satellite"
               spawn-at-startup "${pkgs.mako}/bin/mako"
-              spawn-at-startup "polkit-gnome-authentication-agent-1"
+              spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
               spawn-at-startup "gnome-keyring-daemon"
-              spawn-at-startup "discord"
-              spawn-at-startup "wezterm-mux-server"
               spawn-at-startup "input-event-daemon"
 
               // Window rules
@@ -157,10 +155,6 @@
                 mouse {
                   accel-speed 0.0
                   accel-profile "flat"
-                }
-
-                touch {
-                  map-to-output "HDMI-A-1"
                 }
 
                 workspace-auto-back-and-forth

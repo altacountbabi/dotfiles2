@@ -11,9 +11,7 @@
           wezterm
         ];
 
-        fonts.packages = with pkgs; [
-          nerd-fonts.fira-code
-        ];
+        prefs.autostart.wezterm-mux-server = "${pkgs.wezterm}/bin/wezterm-mux-server";
 
         hjem.users.${config.prefs.user.name} = {
           xdg.config.files."wezterm/wezterm.lua".text = # lua

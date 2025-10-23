@@ -9,7 +9,7 @@
       ...
     }:
     let
-      inherit (lib) mkOpt types;
+      inherit (lib) mkIf mkOpt types;
     in
     {
       options.prefs = {
@@ -17,12 +17,15 @@
           withVencord = true;
           commandLineArgs = "--enable-features=UseOzonePlatform --ozone-platform=wayland";
         }) "The package to use for discord";
+        discord.autostart = mkOpt types.bool false "Whether to automatically start discord at startup";
       };
 
       config = {
         environment.systemPackages = [
           config.prefs.discord.package
         ];
+
+        prefs.autostart.discord = mkIf config.prefs.discord.autostart config.prefs.discord.package;
 
         hjem.users.${config.prefs.user.name} = {
           # Discord config
