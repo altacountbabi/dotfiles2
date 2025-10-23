@@ -12,8 +12,8 @@
       jj
 
       niri
-      sddm
-      sddm-silent
+      fonts
+      getty
 
       wezterm
       helium

@@ -9,7 +9,12 @@
       ...
     }:
     let
-      inherit (lib) mkOpt types mapAttrsToList;
+      inherit (lib)
+        mkIf
+        mkOpt
+        types
+        mapAttrsToList
+        ;
       inherit (lib.strings) floatToString optionalString concatStringsSep;
     in
     {
@@ -22,6 +27,14 @@
           enable = true;
           package = config.prefs.niri.package;
         };
+
+        prefs.nushell.extraConfig = mkIf config.prefs.getty.autologin [
+          ''
+            if ((tty | complete | get stdout) == "/dev/tty1\n") {
+              niri-session o+e>| ignore
+            }
+          ''
+        ];
 
         environment.systemPackages = with pkgs; [
           xwayland-satellite
@@ -261,23 +274,16 @@
                 // Apps
                 Mod+Return { spawn "wezterm" "start" "--always-new-process"; }
                 Mod+Shift+Return { spawn "wezterm" "connect" "unix"; }
-                Mod+Space { spawn "rofi" \
-                  "-show" "drun" \
-                  "-display-drun" "Run"
-              	}
+                 Mod+Space { spawn "rofi" \
+                   "-show" "drun" \
+                   "-display-drun" "Run"
+                }
                 Mod+Comma { spawn "rofi" \
                   "-show" "emoji" \
                   "-modi" "emoji" \
                   "-kb-secondary-copy" "" \
                   "-kb-custom-1" "Ctrl+c" \
                   "-display-emoji" "Emoji"
-                }
-                Mod+C { spawn "rofi" \
-                  "-show" "calc" \
-                  "-modi" "calc" \
-                  "-no-show-match" \
-                  "-no-sort" \
-                  "-display-calc" ">"
                 }
                 Mod+M { spawn "youtube-music"; }
                 Mod+B { spawn "wezterm" "start" "bluetui"; }
@@ -322,6 +328,15 @@
                 xcursor-size 24
               }
             '';
+
+          xdg.config.files."mako/config".text = ''
+            anchor=bottom-center
+            background-color=#000000
+            border-color=#9F9F9F
+            border-radius=10
+            default-timeout=2500
+            layer=overlay
+          '';
         };
       };
     };

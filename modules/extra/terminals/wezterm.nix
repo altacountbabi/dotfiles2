@@ -45,8 +45,9 @@
               config.line_height = 1.2
               config.font_size = 13
               config.font = wezterm.font_with_fallback {
-                { family = 'FiraCode Nerd Font', weight = 'Medium' },
-                'JetBrains Mono',
+                { family = '${
+                  config.fonts.fontconfig.defaultFonts.monospace |> builtins.head
+                }', weight = 'Medium' },
                 'Noto Color Emoji',
                 'Symbols Nerd Font Mono',
               }

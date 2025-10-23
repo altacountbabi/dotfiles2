@@ -100,17 +100,6 @@
               ];
             }}
             EOF
-
-            cat > $out/loader/entries/nixos-tty.conf <<EOF
-            ${mkBootEntry {
-              title = "${config.system.nixos.distroName} (TTY)";
-              sortKey = "02-nixos-tty";
-              params = [
-                "systemd.mask=display-manager.service"
-                "plymouth.enable=0"
-              ];
-            }}
-            EOF
           '';
 
           efiImg =

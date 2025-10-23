@@ -26,6 +26,7 @@
     {
       imports = with self.nixosModules; [
         desktop
+        discord
 
         iso # Module which provides `system.build.isoImage`
       ];

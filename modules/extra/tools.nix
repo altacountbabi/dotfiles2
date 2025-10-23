@@ -47,6 +47,7 @@
                 nixfmt
               ];
               sys = with pkgs; [
+                libnotify
                 file
                 tree
                 htop
