@@ -59,6 +59,7 @@
                       "transform \"${data.transform |> toString}\""
                       "position x=${data.x |> toString} y=${data.y |> toString}"
                       (optionalString data.vrr "variable-refresh-rate")
+                      "backdrop-color \"#000000\""
                     ];
                   in
                   # kdl
