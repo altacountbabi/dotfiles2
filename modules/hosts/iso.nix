@@ -21,15 +21,24 @@
   flake.nixosModules.isoHost =
     {
       config,
+      lib,
       ...
     }:
     {
-      imports = with self.nixosModules; [
-        desktop
-        discord
+      imports = lib.mkHost (
+        with self.nixosModules;
+        {
+          profile = self.profiles.desktop;
+          include = [ iso ];
+          exclude = [
+            printing
 
-        iso # Module which provides `system.build.isoImage`
-      ];
+            discord
+            sober
+            zen
+          ];
+        }
+      );
 
       prefs.nix.localNixpkgs = true;
 

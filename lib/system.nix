@@ -10,4 +10,15 @@ final: prev:
       inherit system;
       modules = modules;
     };
+
+  mkHost =
+    {
+      profile,
+      include ? [ ],
+      exclude ? [ ],
+    }:
+    let
+      included = profile ++ include;
+    in
+    included |> prev.subtractLists exclude;
 }

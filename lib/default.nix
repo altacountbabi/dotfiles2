@@ -1,9 +1,13 @@
 final: prev:
 
 let
-  system = import ./system.nix final prev;
-  values = import ./values.nix final prev;
-  options = import ./options.nix final prev;
-  gitINI = import ./gitINI.nix final prev;
+  importPaths = [
+    ./system.nix
+    ./values.nix
+    ./options.nix
+    ./gitINI.nix
+  ];
+
+  imported = builtins.foldl' (acc: path: acc // import path final prev) { } importPaths;
 in
-system // values // options // gitINI
+imported

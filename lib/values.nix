@@ -1,7 +1,9 @@
+# Basic constants
+
 final: prev:
 
 let
-  inherit (final) mkEnableOption mkMerge;
+  inherit (final) mkMerge;
 in
 rec {
   # When the block has a `_type` attribute in the NixOS

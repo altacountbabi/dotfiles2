@@ -6,12 +6,18 @@
   };
 
   flake.nixosModules.depozitHost =
-    { ... }:
+    { lib, ... }:
     {
-      imports = with self.nixosModules; [
-        server
-        ./_hardware.nix
-      ];
+      imports = lib.mkHost (
+        with self.nixosModules;
+        {
+          profile = self.profiles.server;
+          include = [
+            iso
+            ./_hardware.nix
+          ];
+        }
+      );
 
       prefs.network.hostname = "depozit";
 

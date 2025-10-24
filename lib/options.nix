@@ -1,3 +1,5 @@
+# Add shorthand for `mkOption`
+
 final: prev:
 
 let

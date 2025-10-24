@@ -1,0 +1,48 @@
+{ self, ... }:
+
+{
+  flake.profiles = rec {
+    bootable = with self.nixosModules; [
+      base
+      systemd-boot
+    ];
+    minimal =
+      with self.nixosModules;
+      [
+        tools
+        nushell
+        helix
+      ]
+      ++ bootable;
+    desktop =
+      with self.nixosModules;
+      [
+        plymouth
+
+        ssh
+        git
+        jj
+
+        printing
+
+        niri
+        fonts
+        getty
+
+        wezterm
+        discord
+        helium
+        sober
+        zen
+      ]
+      ++ minimal;
+    server =
+      with self.nixosModules;
+      [
+        ssh
+        git
+        jj
+      ]
+      ++ minimal;
+  };
+}
