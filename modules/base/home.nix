@@ -4,6 +4,7 @@
   flake.nixosModules.base =
     {
       config,
+      pkgs,
       ...
     }:
     {
@@ -15,6 +16,8 @@
             username = config.prefs.user.name;
           in
           {
+            linker = inputs.hjem.packages.${pkgs.system}.smfh;
+
             users.${username} = {
               enable = true;
               directory = "/home/${username}";
