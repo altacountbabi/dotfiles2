@@ -35,6 +35,7 @@
 
             discord
             sober
+            steam
             zen
           ];
         }

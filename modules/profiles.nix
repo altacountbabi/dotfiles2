@@ -33,6 +33,7 @@
         discord
         helium
         sober
+        steam
         zen
       ]
       ++ minimal;
