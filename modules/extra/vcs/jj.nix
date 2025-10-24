@@ -27,6 +27,23 @@
           difftastic
         ];
 
+        environment.shellAliases = {
+          jjs = "jj status --no-pager";
+          jjd = "jj describe";
+          jjdf = "jj diff";
+          jjn = "jj new; jj bookmark move --from @- --to @";
+          jjp = "jj git push";
+        };
+
+        prefs.nushell.excludedAliases = [ "jjn" ];
+        prefs.nushell.extraConfig = [
+          ''
+            def jjn --wrapped [...args] {
+              jj new ...$args; jj bookmark move --from @- --to @ ...$args
+            }
+          ''
+        ];
+
         hjem.users.${config.prefs.user.name} = {
           xdg.config.files."jj/config.toml".source = (pkgs.formats.toml { }).generate "config.toml" (
             {

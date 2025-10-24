@@ -50,6 +50,7 @@
         };
 
         environment.shellAliases.v = "hx";
+        prefs.nushell.excludedAliases = [ "v" ];
         prefs.nushell.extraConfig = [
           ''
             def v --wrapped [...args] {

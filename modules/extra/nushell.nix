@@ -18,6 +18,9 @@
       options.prefs = {
         nushell.package = mkOpt types.package pkgs.nushell "The package to use for nushell";
         nushell.extraConfig = mkOpt (types.listOf types.str) [ ] "Extra items to add to the config";
+        nushell.excludedAliases =
+          mkOpt (types.listOf types.str) [ ]
+            "Aliases from `environment.shellAliases` to exclude from the config";
         nushell.configureRoot = mkOpt types.bool true "Whether to configure nushell for the root user";
       };
 
@@ -28,7 +31,7 @@
               let
                 aliases =
                   config.environment.shellAliases
-                  |> lib.filterAttrs (_: v: v != "")
+                  |> lib.filterAttrs (k: v: v != "" && !(builtins.elem k config.prefs.nushell.excludedAliases))
                   |> lib.mapAttrsToList (k: v: "alias ${k} = ${v}")
                   |> builtins.concatStringsSep "\n";
                 extraConfig = config.prefs.nushell.extraConfig |> builtins.concatStringsSep "\n";
