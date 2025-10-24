@@ -32,10 +32,10 @@
           include = [ iso ];
           exclude = [
             printing
-
+            facter
             discord
-            sober
             steam
+            sober
             zen
           ];
         }
