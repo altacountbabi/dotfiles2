@@ -28,10 +28,10 @@
         ];
 
         environment.shellAliases = {
-          jjs = "jj status --no-pager";
+          jjs = "jj status";
           jjd = "jj describe";
           jjdf = "jj diff";
-          jjn = "jj new; jj bookmark move --from @- --to @";
+          jjb = "jj bookmark move --from @- --to @";
           jjp = "jj git push";
         };
 
