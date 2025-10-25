@@ -72,6 +72,17 @@
                   }
                 }
 
+                # Resolve a symlink for a file
+                def unlink [path: path] {
+                  let original = (ls -l $path | get target.0);
+                  cp $original .unlink-tmp
+                  mv .unlink-tmp $path
+
+                  if ($original | into string | str starts-with "/nix/store") {
+                    chmod +w $path
+                  }
+                }
+
                 $env.PROMPT_COMMAND = {||
                   let dir = match (do -i { $env.PWD | path relative-to $nu.home-path }) {
                     null => $env.PWD
