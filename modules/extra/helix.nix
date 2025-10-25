@@ -1,4 +1,4 @@
-{ self, ... }:
+{ inputs, ... }:
 
 {
   flake.nixosModules.helix =
@@ -27,16 +27,12 @@
           in
           mkOpt (types.listOf (types.enum languages)) languages "List of languages to configure in helix";
 
-        helix.buildGrammars =
-          mkOpt types.bool true
-            "Whether to automatically build tree-sitter grammars in the background";
-
         helix.preferredEditor =
           mkOpt types.bool true
             "Whether to set the `EDITOR` environment variable to helix";
 
         helix.package =
-          mkOpt types.package self.packages.${pkgs.system}.helix
+          mkOpt types.package inputs.helix.packages.${pkgs.system}.default
             "The package to use for helix";
       };
 
@@ -63,26 +59,10 @@
           ''
         ];
 
-        systemd.services.helix-grammars = mkIf config.prefs.helix.buildGrammars {
-          description = "build tree-sitter grammars for helix";
-          after = [ "network-online.target" ];
-          wants = [ "network-online.target" ];
-          wantedBy = [ "basic.target" ];
-          path = with pkgs; [
-            git
-            gcc
-            config.prefs.helix.package
-          ];
-          serviceConfig = {
-            Type = "simple";
-            ExecStart = "${pkgs.bash}/bin/bash -c 'hx -g fetch; hx -g build'";
-          };
-        };
-
         hjem.users.${config.prefs.user.name} = {
           xdg.config.files."helix/config.toml".source =
             {
-              theme = "themer";
+              ${if config.themesEnabled then "theme" else null} = "themer";
 
               editor = {
                 bufferline = "multiple";
@@ -171,57 +151,59 @@
             }
             |> (pkgs.formats.toml { }).generate "config.toml";
 
-          xdg.config.files."helix/languages.toml".source = (pkgs.formats.toml { }).generate "config.toml" (
-            let
-              hasLanguage = language: builtins.any (x: x == language) config.prefs.helix.languages;
+          xdg.config.files."helix/languages.toml".source =
+            (
+              let
+                hasLanguage = language: builtins.any (x: x == language) config.prefs.helix.languages;
 
-              languages = {
-                nix = {
-                  languages = [
-                    {
-                      name = "nix";
-                      language-servers = [ "nixd" ];
-                      formatter.command = pkgs.nixfmt |> getExe;
-                      auto-format = true;
-                    }
-                  ];
-                  lsps.nixd = {
-                    command = "${pkgs.nixd |> getExe}";
-                    args = [ "--inlay-hints=true" ];
+                languages = {
+                  nix = {
+                    languages = [
+                      {
+                        name = "nix";
+                        language-servers = [ "nixd" ];
+                        formatter.command = pkgs.nixfmt |> getExe;
+                        auto-format = true;
+                      }
+                    ];
+                    lsps.nixd = {
+                      command = "${pkgs.nixd |> getExe}";
+                      args = [ "--inlay-hints=true" ];
 
-                    config.nixd.diagnostic.suppress = [ "sema-extra-with" ];
-                    config.nixd.nixpkgs.expr = "import (builtins.getFlake \"/home/user/conf\")inputs.nixpkgs { }";
+                      config.nixd.diagnostic.suppress = [ "sema-extra-with" ];
+                      config.nixd.nixpkgs.expr = "import (builtins.getFlake \"/home/user/conf\")inputs.nixpkgs { }";
+                    };
+                  };
+                  nu = {
+                    languages = [
+                      {
+                        name = "nu";
+                        language-servers = [ "nu" ];
+                        formatter.command = "${pkgs.nufmt |> getExe} --stdin";
+                        auto-format = true;
+                      }
+                    ];
+                    lsps.nu = {
+                      command = "${pkgs.nushell |> getExe} --lsp";
+                    };
                   };
                 };
-                nu = {
-                  languages = [
-                    {
-                      name = "nu";
-                      language-servers = [ "nu" ];
-                      formatter.command = "${pkgs.nufmt |> getExe} --stdin";
-                      auto-format = true;
-                    }
-                  ];
-                  lsps.nu = {
-                    command = "${pkgs.nushell |> getExe} --lsp";
-                  };
-                };
-              };
 
-              enabledLanguages = languages |> lib.filterAttrs (name: _: hasLanguage name);
-            in
-            {
-              language =
-                enabledLanguages
-                |> builtins.mapAttrs (_name: value: value.languages)
-                |> builtins.attrValues
-                |> builtins.concatLists;
-              language-servers =
-                enabledLanguages
-                |> builtins.attrValues
-                |> builtins.foldl' (acc: value: acc // (value."lsps" or { })) { };
-            }
-          );
+                enabledLanguages = languages |> lib.filterAttrs (name: _: hasLanguage name);
+              in
+              {
+                language =
+                  enabledLanguages
+                  |> builtins.mapAttrs (_name: value: value.languages)
+                  |> builtins.attrValues
+                  |> builtins.concatLists;
+                language-servers =
+                  enabledLanguages
+                  |> builtins.attrValues
+                  |> builtins.foldl' (acc: value: acc // (value."lsps" or { })) { };
+              }
+            )
+            |> (pkgs.formats.toml { }).generate "languages.toml";
 
           xdg.config.files."helix/themes/themer.toml".source =
             (pkgs.formats.toml { }).generate "themer.toml"

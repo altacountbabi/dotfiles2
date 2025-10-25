@@ -41,6 +41,8 @@
         }
       );
 
+      prefs.theme.wallpaper = "${config.root}/plant.jpg";
+
       prefs.nix.localNixpkgs = true;
 
       prefs.monitors."Virtual-1" = {
@@ -52,8 +54,6 @@
         name = "altacountbabi";
         email = "altacountbabi@users.noreply.github.com";
       };
-
-      prefs.helix.buildGrammars = false;
 
       # Copy config to user's home directory
       system.activationScripts.copy-config.text =

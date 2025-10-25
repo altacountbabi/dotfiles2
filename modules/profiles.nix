@@ -18,6 +18,8 @@
     desktop =
       with self.nixosModules;
       [
+        theme
+
         plymouth
 
         ssh

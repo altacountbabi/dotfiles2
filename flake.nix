@@ -26,6 +26,7 @@
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     helium.url = "github:FKouhai/helium2nix/main";
     nixcord.url = "github:kaylorben/nixcord";
+    helix.url = "github:altacountbabi/helix";
   };
 
   outputs =

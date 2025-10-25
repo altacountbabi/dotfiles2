@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ self, inputs, ... }:
 
 {
   flake.nixosModules.niri =
@@ -14,10 +14,16 @@
         mkOpt
         types
         mapAttrsToList
+        getExe
         ;
       inherit (lib.strings) floatToString optionalString concatStringsSep;
     in
     {
+      imports = with self.nixosModules; [
+        rofi
+        mako
+      ];
+
       options.prefs = {
         niri.package = mkOpt types.package pkgs.niri "The package to use for niri";
       };
@@ -38,7 +44,6 @@
 
         environment.systemPackages = with pkgs; [
           xwayland-satellite
-          rofi
 
           adwaita-icon-theme
           inputs.quickshell.packages.${system}.default
@@ -76,12 +81,10 @@
               ${monitors}
 
               // Startup apps
-              spawn-at-startup "${pkgs.swaybg}/bin/swaybg" "-i" "${../../../plant.jpg}"
-              spawn-at-startup "${pkgs.xwayland-satellite}/bin/xwayland-satellite"
-              spawn-at-startup "${pkgs.mako}/bin/mako"
+              spawn-at-startup "${pkgs.swaybg |> getExe}" "-i" "${../../../plant.jpg}"
+              spawn-at-startup "${pkgs.xwayland-satellite |> getExe}"
               spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-              spawn-at-startup "gnome-keyring-daemon"
-              spawn-at-startup "input-event-daemon"
+              spawn-at-startup "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon"
 
               // Window rules
               window-rule {
@@ -99,13 +102,14 @@
               window-rule {
                 match title="MainPicker"
                 match title=".*Properties.*"
-                match app-id="Rofi"
 
                 open-floating true
               }
 
               window-rule {
                 match app-id="zen(-twilight)?"
+                match app-id="helium"
+
                 open-on-workspace "browser"
               }
 
@@ -269,10 +273,7 @@
                 // Apps
                 Mod+Return { spawn "wezterm" "start" "--always-new-process"; }
                 Mod+Shift+Return { spawn "wezterm" "connect" "unix"; }
-                 Mod+Space { spawn "rofi" \
-                   "-show" "drun" \
-                   "-display-drun" "Run"
-                }
+                Mod+Space { spawn "rofi" "-show" "drun"; }
                 Mod+Comma { spawn "rofi" \
                   "-show" "emoji" \
                   "-modi" "emoji" \
@@ -323,15 +324,6 @@
                 xcursor-size 24
               }
             '';
-
-          xdg.config.files."mako/config".text = ''
-            anchor=bottom-center
-            background-color=#000000
-            border-color=#9F9F9F
-            border-radius=10
-            default-timeout=2500
-            layer=overlay
-          '';
         };
       };
     };

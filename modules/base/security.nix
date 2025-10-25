@@ -11,13 +11,14 @@
     in
     {
       options.prefs = {
-        sudo-rs.enable = mkOpt types.bool true "Whether to use sudo-rs instead of sudo";
+        sudo-rs = mkOpt types.bool true "Whether to use sudo-rs instead of sudo";
+        hardened-malloc = mkOpt types.bool true "Whether to use graphene hardened malloc";
       };
 
       config = {
         security.polkit.enable = mkDefault true;
         security.rtkit.enable = mkDefault true;
-        security.sudo-rs = mkIf config.prefs.sudo-rs.enable {
+        security.sudo-rs = mkIf config.prefs.sudo-rs {
           enable = true;
           execWheelOnly = true;
           extraConfig = # sudo
@@ -71,6 +72,8 @@
             }
           ];
         };
+
+        environment.memoryAllocator.provider = mkIf config.prefs.hardened-malloc "graphene-hardened";
       };
     };
 }
