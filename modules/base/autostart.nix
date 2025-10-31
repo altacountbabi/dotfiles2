@@ -29,7 +29,7 @@
           config.prefs.autostart
           |> mapAttrs' (
             name: value: {
-              inherit name;
+              name = "autostart-${name}";
               value = {
                 description = "Autostart service for ${name}";
                 wantedBy = [ "graphical-session.target" ];
