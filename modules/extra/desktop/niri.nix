@@ -39,23 +39,9 @@
           package = config.prefs.niri.package;
         };
 
-        prefs.nushell.extraConfig = mkIf config.prefs.getty.autologin [
-          ''
-            if ((tty | complete | get stdout) == "/dev/tty1\n") {
-              niri-session o+e>| ignore
-            }
-          ''
-        ];
-
-        environment.systemPackages = with pkgs; [
-          xwayland-satellite
-
-          adwaita-icon-theme
-          inputs.quickshell.packages.${system}.default
-        ];
-
-        hjem.users.${config.prefs.user.name} = {
-          xdg.config.files."niri/config.kdl".text =
+        environment.sessionVariables.NIRI_CONFIG = pkgs.writeTextFile {
+          name = "config.kdl";
+          text =
             let
               monitors =
                 config.prefs.monitors
@@ -330,6 +316,22 @@
               }
             '';
         };
+
+        environment.systemPackages = with pkgs; [
+          adwaita-icon-theme
+          inputs.quickshell.packages.${system}.default
+        ];
+
+        prefs.nushell.extraConfig = mkIf config.prefs.getty.autologin [
+          # nushell
+          ''
+            if ((tty | complete | get stdout) == "/dev/tty1\n") {
+              niri-session o+e>| ignore
+            }
+          ''
+        ];
+
+        # TODO: Add auto-login for other shells too, or better yet, just use a systemd unit
       };
     };
 }

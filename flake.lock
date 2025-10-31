@@ -571,17 +571,14 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1761859128,
-        "narHash": "sha256-eMR95KB3SpVJS5MHd0e8rr8ycssZKTSzPFgcs4UhR3E=",
-        "owner": "lassulus",
-        "repo": "wrappers",
-        "rev": "0f28135647a3d8837094ac6181d391661331e0aa",
-        "type": "github"
+        "lastModified": 1762201514,
+        "narHash": "sha256-HhFusADg5vEFRvqTQFlmcVKzuat3sTEInSmyonvtOxg=",
+        "path": "/home/real/src/wrappers",
+        "type": "path"
       },
       "original": {
-        "owner": "lassulus",
-        "repo": "wrappers",
-        "type": "github"
+        "path": "/home/real/src/wrappers",
+        "type": "path"
       }
     },
     "zen-browser": {

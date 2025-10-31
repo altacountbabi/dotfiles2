@@ -1,3 +1,5 @@
+{ inputs, ... }:
+
 {
   flake.nixosModules.base =
     { lib, ... }:
@@ -22,41 +24,18 @@
       lib,
       ...
     }:
-    {
-      environment.systemPackages = with pkgs; [
-        jujutsu
-        lazyjj
-
-        difftastic
-      ];
-
-      environment.shellAliases = {
-        jjs = "jj status";
-        jjd = "jj describe";
-        jjdf = "jj diff";
-        jjb = "jj bookmark move --from @- --to @";
-        jjp = "jj git push";
-      };
-
-      prefs.nushell.excludedAliases = [ "jjn" ];
-      prefs.nushell.extraConfig = [
-        ''
-          def jjn --wrapped [...args] {
-            jj new ...$args; jj bookmark move --from @- --to @ ...$args
-          }
-        ''
-      ];
-
-      hjem.users.${config.prefs.user.name} = {
-        xdg.config.files."jj/config.toml".source = (pkgs.formats.toml { }).generate "config.toml" (
-          {
+    let
+      wrapped =
+        (inputs.wrappers.wrapperModules.jujutsu.apply {
+          inherit pkgs;
+          settings = {
             ui.default-command = [
               "log"
               "-r"
               "all()"
             ];
             ui.diff-formatter = [
-              "difft"
+              "${pkgs.difftastic |> lib.getExe}"
               "--color=always"
               "$left"
               "$right"
@@ -70,8 +49,30 @@
           // (lib.optionalAttrs (config.prefs.jj.user.email != null) {
             user.email = config.prefs.jj.user.email;
           })
-          // config.prefs.jj.extraConfig
-        );
+          // config.prefs.jj.extraConfig;
+        }).wrapper;
+    in
+    {
+      environment.systemPackages = with pkgs; [
+        wrapped
+      ];
+
+      environment.shellAliases = {
+        jjs = "jj status";
+        jjd = "jj describe";
+        jjdf = "jj diff";
+        jjb = "jj bookmark move --from @- --to @";
+        jjp = "jj git push";
       };
+
+      prefs.nushell.excludedAliases = [ "jjn" ];
+      prefs.nushell.extraConfig = [
+        # nushell
+        ''
+          def jjn --wrapped [...args] {
+            jj new ...$args; jj bookmark move --from @- --to @ ...$args
+          }
+        ''
+      ];
     };
 }

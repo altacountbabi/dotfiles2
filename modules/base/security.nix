@@ -12,7 +12,6 @@
     {
       options.prefs = {
         sudo-rs = mkOpt types.bool true "Whether to use sudo-rs instead of sudo";
-        hardened-malloc = mkOpt types.bool true "Whether to use graphene hardened malloc";
       };
 
       config = {
@@ -72,8 +71,6 @@
             }
           ];
         };
-
-        environment.memoryAllocator.provider = mkIf config.prefs.hardened-malloc "graphene-hardened";
       };
     };
 }

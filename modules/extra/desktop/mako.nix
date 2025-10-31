@@ -1,3 +1,5 @@
+{ inputs, ... }:
+
 {
   flake.nixosModules.mako =
     {
@@ -6,28 +8,29 @@
       lib,
       ...
     }:
-    {
-      environment.systemPackages = with pkgs; [ mako ];
+    let
+      wrapped =
+        (inputs.wrappers.wrapperModules.mako.apply {
+          inherit pkgs;
 
-      prefs.autostart.mako = "mako";
+          settings = {
+            anchor = "bottom-center";
+            default-timeout = 2500;
+            layer = "overlay";
 
-      hjem.users.${config.prefs.user.name} = {
-        xdg.config.files."mako/config".text =
-          ''
-            anchor=bottom-center
-            default-timeout=2500
-            layer=overlay
-
-            border-radius=10
-            border-size=1
-          ''
-          + (lib.optionalString config.themesEnabled (
+            border-radius = 10;
+            border-size = 1;
+          }
+          // (lib.optionalAttrs config.themesEnabled (
             with config.prefs.theme.colors;
-            ''
-              background-color=${background}
-              border-color=${outline}
-            ''
+            {
+              background-color = background;
+              border-color = outline;
+            }
           ));
-      };
+        }).wrapper;
+    in
+    {
+      prefs.autostart.mako = wrapped;
     };
 }

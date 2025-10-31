@@ -34,7 +34,6 @@
       lib,
       ...
     }:
-    with inputs.wrappers.wrapperModules;
     let
       inherit (lib)
         getExe
@@ -42,7 +41,7 @@
         ;
 
       wrapped =
-        (helix.apply {
+        (inputs.wrappers.wrapperModules.helix.apply {
           inherit pkgs;
           inherit (config.prefs.helix) package;
 
