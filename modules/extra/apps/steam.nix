@@ -1,4 +1,19 @@
 {
+
+  flake.nixosModules.base =
+    {
+      lib,
+      ...
+    }:
+    let
+      inherit (lib) mkOpt types;
+    in
+    {
+      options.prefs = {
+        steam.autostart = mkOpt types.bool false "Whether to automatically start steam at startup";
+      };
+    };
+
   flake.nixosModules.steam =
     {
       config,
@@ -7,12 +22,9 @@
       ...
     }:
     let
-      inherit (lib) mkIf mkOpt types;
+      inherit (lib) mkIf;
     in
     {
-      options.prefs = {
-        steam.autostart = mkOpt types.bool false "Whether to automatically start steam at startup";
-      };
 
       config = {
         programs.steam = {
@@ -20,7 +32,7 @@
           extraCompatPackages = with pkgs; [ proton-ge-bin ];
         };
 
-        prefs.autostart.helium = mkIf config.prefs.steam.autostart "steam";
+        prefs.autostart.steam = mkIf config.prefs.steam.autostart "steam";
       };
     };
 }

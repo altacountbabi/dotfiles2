@@ -11,6 +11,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    wrappers.url = "github:lassulus/wrappers";
+
     # SDDM Theme
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";

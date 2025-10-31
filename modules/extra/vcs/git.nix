@@ -1,17 +1,8 @@
 {
-  flake.nixosModules.git =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
+  flake.nixosModules.base =
+    { lib, ... }:
     let
-      inherit (lib)
-        optionalAttrs
-        mkOpt
-        types
-        ;
+      inherit (lib) mkOpt types;
     in
     {
       options.prefs = {
@@ -20,47 +11,54 @@
 
         git.githubAuth = mkOpt types.bool true "Whether to allow authenticating with the `gh` cli tool";
       };
+    };
 
-      config = {
-        environment.shellAliases = {
-          clone = "git clone --depth 1";
-          lg = "lazygit";
-        };
+  flake.nixosModules.git =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    {
+      environment.shellAliases = {
+        clone = "git clone --depth 1";
+        lg = "lazygit";
+      };
 
-        environment.systemPackages = with pkgs; [
-          lazygit
-          difftastic
-        ];
+      environment.systemPackages = with pkgs; [
+        lazygit
+        difftastic
+      ];
 
-        programs.git = {
-          enable = true;
-          config =
-            {
-              init.defaultBranch = "main";
-              url = {
-                "https://github.com/" = {
-                  insteadOf = [
-                    "gh:"
-                    "github:"
-                  ];
-                };
+      programs.git = {
+        enable = true;
+        config =
+          {
+            init.defaultBranch = "main";
+            url = {
+              "https://github.com/" = {
+                insteadOf = [
+                  "gh:"
+                  "github:"
+                ];
               };
+            };
 
-              diff.external = "difft";
+            diff.external = "difft";
 
-              inherit (config.prefs.git) user;
-            }
-            // (optionalAttrs config.prefs.git.githubAuth {
-              credential."https://github.com".helper = [
-                null
-                "!${pkgs.gh}/bin/gh auth git-credential"
-              ];
-              credential."https://gist.github.com".helper = [
-                null
-                "!${pkgs.gh}/bin/gh auth git-credential"
-              ];
-            });
-        };
+            inherit (config.prefs.git) user;
+          }
+          // (lib.optionalAttrs config.prefs.git.githubAuth {
+            credential."https://github.com".helper = [
+              null
+              "!${pkgs.gh}/bin/gh auth git-credential"
+            ];
+            credential."https://gist.github.com".helper = [
+              null
+              "!${pkgs.gh}/bin/gh auth git-credential"
+            ];
+          });
       };
     };
 }

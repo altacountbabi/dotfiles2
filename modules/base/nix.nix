@@ -12,7 +12,6 @@
       inherit (lib)
         mkIf
         mkOpt
-        optionalAttrs
         types
         ;
     in
@@ -44,7 +43,7 @@
               ];
               warn-dirty = false;
             }
-            // (optionalAttrs config.prefs.nix.customBinaryCache {
+            // (lib.optionalAttrs config.prefs.nix.customBinaryCache {
               substituters = [ "http://av1.space:5000" ];
               trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
             });

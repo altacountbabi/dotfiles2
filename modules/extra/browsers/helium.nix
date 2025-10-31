@@ -1,15 +1,10 @@
 { inputs, ... }:
 
 {
-  flake.nixosModules.helium =
-    {
-      config,
-      lib,
-      pkgs,
-      ...
-    }:
+  flake.nixosModules.base =
+    { pkgs, lib, ... }:
     let
-      inherit (lib) mkIf mkOpt types;
+      inherit (lib) mkOpt types;
     in
     {
       options.prefs = {
@@ -20,13 +15,22 @@
           mkOpt types.bool false
             "Whether to automatically start helium browser at startup";
       };
+    };
 
-      config = {
-        environment.systemPackages = [
-          config.prefs.helium.package
-        ];
+  flake.nixosModules.helium =
+    {
+      config,
+      lib,
+      ...
+    }:
+    let
+      inherit (lib) mkIf;
+    in
+    {
+      environment.systemPackages = [
+        config.prefs.helium.package
+      ];
 
-        prefs.autostart.helium = mkIf config.prefs.helium.autostart config.prefs.helium.package;
-      };
+      prefs.autostart.helium = mkIf config.prefs.helium.autostart config.prefs.helium.package;
     };
 }

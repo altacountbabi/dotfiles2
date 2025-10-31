@@ -6,19 +6,6 @@
     in
     {
       options.themesEnabled = mkOpt types.bool false "Whether or not themes are enabled";
-    };
-
-  flake.nixosModules.theme =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
       options.prefs = {
         theme.wallpaper = mkOpt (types.nullOr types.path) null "Path to wallpaper image";
 
@@ -94,6 +81,15 @@
           };
       };
 
+    };
+
+  flake.nixosModules.theme =
+    {
+      config,
+      pkgs,
+      ...
+    }:
+    {
       config =
         let
           matugenTemplate = pkgs.writeTextFile {

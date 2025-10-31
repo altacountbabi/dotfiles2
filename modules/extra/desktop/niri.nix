@@ -1,6 +1,17 @@
 { self, inputs, ... }:
 
 {
+  flake.nixosModules.base =
+    { pkgs, lib, ... }:
+    let
+      inherit (lib) mkOpt types;
+    in
+    {
+      options.prefs = {
+        niri.package = mkOpt types.package pkgs.niri "The package to use for niri";
+      };
+    };
+
   flake.nixosModules.niri =
     {
       config,
@@ -11,8 +22,6 @@
     let
       inherit (lib)
         mkIf
-        mkOpt
-        types
         mapAttrsToList
         getExe
         ;
@@ -23,10 +32,6 @@
         rofi
         mako
       ];
-
-      options.prefs = {
-        niri.package = mkOpt types.package pkgs.niri "The package to use for niri";
-      };
 
       config = {
         programs.niri = {

@@ -1,6 +1,17 @@
 { inputs, ... }:
 
 {
+  flake.nixosModules.base =
+    { lib, ... }:
+    let
+      inherit (lib) mkOpt types;
+    in
+    {
+      options.prefs = {
+        facterReport = mkOpt (types.nullOr types.path) null "Path to facter report";
+      };
+    };
+
   flake.nixosModules.facter =
     {
       config,
@@ -8,14 +19,12 @@
       ...
     }:
     let
-      inherit (lib) mkIf mkOpt types;
+      inherit (lib) mkIf;
     in
     {
       imports = [
         inputs.nixos-facter-modules.nixosModules.facter
       ];
-
-      options.prefs.facterReport = mkOpt (types.nullOr types.path) null "Path to facter report";
 
       config = {
         facter.reportPath = mkIf (config.prefs.facterReport != null) config.prefs.facterReport;
