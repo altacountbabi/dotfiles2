@@ -11,6 +11,7 @@
       options.prefs = {
         tools.nix = mkOpt types.bool true "Whether to install nix-related tools";
         tools.sys = mkOpt types.bool true "Whether to install system-related tools";
+        tools.ffmpeg = mkOpt types.bool true "Whether to install ffmpeg";
       };
     };
 
@@ -25,7 +26,6 @@
       inherit (lib) mkIf;
     in
     {
-
       config = {
         environment.shellAliases =
           (lib.optionalAttrs config.prefs.tools.sys {
@@ -38,6 +38,11 @@
             shell = "nom-shell --run nu";
             ns = "nom-shell -p --run nu";
             search = "nix-search";
+          })
+          // (lib.optionalAttrs config.prefs.tools.ffmpeg {
+            ffmpeg = "ffmpeg -hide_banner";
+            ffprobe = "ffprobe -hide_banner";
+            ffplay = "ffplay -hide_banner";
           });
 
         prefs.nushell.extraConfig = mkIf config.prefs.tools.nix [
@@ -65,6 +70,9 @@
                 btop
                 duf
                 bat
+              ];
+              ffmpeg = with pkgs; [
+                ffmpeg-full
               ];
             };
           in
