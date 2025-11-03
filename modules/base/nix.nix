@@ -34,19 +34,18 @@
       config = {
         nix = {
           inherit (config.prefs.nix) package;
-          settings =
-            {
-              experimental-features = [
-                "pipe-operators"
-                "nix-command"
-                "flakes"
-              ];
-              warn-dirty = false;
-            }
-            // (lib.optionalAttrs config.prefs.nix.customBinaryCache {
-              substituters = [ "http://av1.space:5000" ];
-              trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
-            });
+          settings = {
+            experimental-features = [
+              "pipe-operators"
+              "nix-command"
+              "flakes"
+            ];
+            warn-dirty = false;
+          }
+          // (lib.optionalAttrs config.prefs.nix.customBinaryCache {
+            substituters = [ "http://av1.space:5000" ];
+            trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
+          });
 
           channel.enable = false;
 

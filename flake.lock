@@ -571,8 +571,8 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1762201514,
-        "narHash": "sha256-HhFusADg5vEFRvqTQFlmcVKzuat3sTEInSmyonvtOxg=",
+        "lastModified": 1762211546,
+        "narHash": "sha256-VEQqTpORLm5rCvpnPcMSwnbYoDI+YpDZxFag+AvB43I=",
         "path": "/home/real/src/wrappers",
         "type": "path"
       },
