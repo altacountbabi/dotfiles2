@@ -1,4 +1,4 @@
-{ self, inputs, ... }:
+{ inputs, self, ... }:
 
 {
   flake.nixosModules.base =
@@ -36,7 +36,7 @@
       config =
         let
           niriConfig = pkgs.writeTextFile {
-            name = "config.kdl";
+            name = "niri-config";
             text =
               let
                 monitors =
@@ -62,13 +62,19 @@
                     ''
                   )
                   |> concatStringsSep "\n";
+
+                packages = self.packages.${pkgs.system};
+                notify-info = packages.notify-info |> getExe;
+                playerctl = pkgs.playerctl |> getExe;
+                volume = packages.volume |> getExe;
+                cycle-sinks = packages.cycle-sinks |> getExe;
               in
               # kdl
               ''
                 ${monitors}
 
                 // Startup apps
-                spawn-at-startup "${pkgs.swaybg |> getExe}" "-i" "${../../../plant.jpg}"
+                spawn-at-startup "${pkgs.swaybg |> getExe}" "-i" "${config.root}/plant.jpg"
                 spawn-at-startup "${pkgs.xwayland-satellite |> getExe}"
                 spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
                 spawn-at-startup "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon"
@@ -258,7 +264,7 @@
                   Mod+A { toggle-overview; }
 
                   // Apps
-                  Mod+Return { spawn "wezterm" "start" "--always-new-process"; }
+                  Mod+Return { spawn "wezterm" "start"; }
                   Mod+Shift+Return { spawn "wezterm" "connect" "unix"; }
                   Mod+Space { spawn "rofi" "-show" "drun"; }
                   Mod+Comma { spawn "rofi" \
@@ -277,23 +283,22 @@
                   Alt+Print { screenshot-window; }
 
                   // Scripts
-                  Mod+Shift+B { spawn "/home/real/.scripts/razer-battery-info.nu"; }
-                  Mod+Escape { spawn "/home/real/.scripts/notify-info.nu"; }
+                  Mod+Escape { spawn "${notify-info}"; }
 
                   // Audio
-                  Alt+7 { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
-                  Alt+8 { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
-                  Alt+9 { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
-                  XF86AudioPrev { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
-                  XF86AudioPlay { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
-                  XF86AudioNext { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
-                  Alt+0 allow-when-locked=true { spawn "/home/real/.scripts/volume.nu" "mute"; }
-                  Alt+Minus allow-when-locked=true { spawn "/home/real/.scripts/volume.nu" "decrease" "5"; }
-                  Alt+Equal allow-when-locked=true { spawn "/home/real/.scripts/volume.nu" "increase" "5"; }
-                  XF86AudioMute allow-when-locked=true { spawn "/home/real/.scripts/volume.nu" "mute"; }
-                  XF86AudioLowerVolume allow-when-locked=true { spawn "/home/real/.scripts/volume.nu" "decrease" "5"; }
-                  XF86AudioRaiseVolume allow-when-locked=true { spawn "/home/real/.scripts/volume.nu" "increase" "5"; }
-                  Mod+O { spawn "/home/real/.scripts/cycle-sinks.nu"; }
+                  Alt+7 { spawn "${playerctl}" "previous"; }
+                  Alt+8 { spawn "${playerctl}" "play-pause"; }
+                  Alt+9 { spawn "${playerctl}" "next"; }
+                  XF86AudioPrev { spawn "${playerctl}" "previous"; }
+                  XF86AudioPlay { spawn "${playerctl}" "play-pause"; }
+                  XF86AudioNext { spawn "${playerctl}" "next"; }
+                  Alt+0 allow-when-locked=true { spawn "${volume}" "mute"; }
+                  Alt+Minus allow-when-locked=true { spawn "${volume}" "decrease" "5"; }
+                  Alt+Equal allow-when-locked=true { spawn "${volume}" "increase" "5"; }
+                  XF86AudioMute allow-when-locked=true { spawn "${volume}" "mute"; }
+                  XF86AudioLowerVolume allow-when-locked=true { spawn "${volume}" "decrease" "5"; }
+                  XF86AudioRaiseVolume allow-when-locked=true { spawn "${volume}" "increase" "5"; }
+                  Mod+O { spawn "${cycle-sinks}"; }
 
                   // Other
                   Mod+Shift+P { power-off-monitors; }
