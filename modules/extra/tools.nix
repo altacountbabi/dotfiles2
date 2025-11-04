@@ -36,8 +36,6 @@
           })
           // (lib.optionalAttrs config.prefs.tools.nix {
             shell = "nom-shell --run nu";
-            ns = "nom-shell -p --run nu";
-            search = "nix-search";
           })
           // (lib.optionalAttrs config.prefs.tools.ffmpeg {
             ffmpeg = "ffmpeg -hide_banner";
@@ -58,10 +56,18 @@
             packages = {
               nix = with pkgs; [
                 nix-output-monitor
-                nix-search
                 nix-tree
                 nixfmt
                 nixd
+
+                (writeShellApplication {
+                  name = "ns";
+                  runtimeInputs = with pkgs; [
+                    fzf
+                    nix-search-tv
+                  ];
+                  text = ''exec "${pkgs.nix-search-tv.src}/nixpkgs.sh" "$@"'';
+                })
               ];
               sys = with pkgs; [
                 libnotify
