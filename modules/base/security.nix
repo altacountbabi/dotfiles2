@@ -17,6 +17,7 @@
       config = {
         security.polkit.enable = mkDefault true;
         security.rtkit.enable = mkDefault true;
+
         security.sudo-rs = mkIf config.prefs.sudo-rs {
           enable = true;
           execWheelOnly = true;
@@ -70,6 +71,10 @@
                 ];
             }
           ];
+        };
+
+        environment.shellAliases = {
+          run0 = "run0 --background=0";
         };
       };
     };
