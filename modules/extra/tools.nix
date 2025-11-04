@@ -59,8 +59,9 @@
               nix = with pkgs; [
                 nix-output-monitor
                 nix-search
-                nixd
+                nix-tree
                 nixfmt
+                nixd
               ];
               sys = with pkgs; [
                 libnotify

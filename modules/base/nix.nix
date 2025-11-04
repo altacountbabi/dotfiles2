@@ -70,6 +70,11 @@
           );
         };
 
+        system.tools = {
+          nixos-option.enable = false;
+          nixos-version.enable = false;
+        };
+
         programs.nh.enable = true;
         environment.sessionVariables.NH_FLAKE = config.prefs.nix.flakePath;
         environment.shellAliases = {
