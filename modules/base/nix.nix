@@ -47,6 +47,17 @@
             trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
           });
 
+          gc = {
+            automatic = true;
+            dates = "weekly";
+            options = "--delete-older-than 7d";
+          };
+
+          optimise = {
+            automatic = true;
+            dates = "weekly";
+          };
+
           channel.enable = false;
 
           registry.conf.to = {
