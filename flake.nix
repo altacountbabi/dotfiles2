@@ -6,11 +6,6 @@
 
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
 
-    hjem = {
-      url = "github:feel-co/hjem";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     wrappers.url = "path:/home/real/src/wrappers";
 
     # SDDM Theme

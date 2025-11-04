@@ -31,6 +31,6 @@
 
       prefs.autostart.zen = mkIf config.prefs.zen.autostart config.prefs.zen.package;
 
-      # TODO: Create profile with hjem
+      # TODO: Create profile
     };
 }
