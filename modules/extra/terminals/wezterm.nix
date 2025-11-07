@@ -14,100 +14,97 @@
 
           "wezterm.lua".content =
             let
-              themeDir = pkgs.writeTextFile {
-                name = "wezterm-theme";
-                destination = "/themer.toml";
-                text = # toml
-                  ''
-                    [colors]
+              theme = (pkgs.formats.toml { }).generate "wezterm-theme" (
+                with config.prefs.theme.colors;
+                let
+                  isLight = config.prefs.theme.polarity == "light";
+                in
+                {
+                  colors = {
+                    foreground = text;
+                    background = base;
+
+                    cursor_fg = if isLight then base else crust;
+                    cursor_bg = rosewater;
+                    cursor_border = rosewater;
+
+                    selection_fg = text;
+                    selection_bg = surface2;
+
+                    scrollbar_thumb = surface2;
+
+                    split = overlay0;
+
                     ansi = [
-                      "#1d3535",
-                      "#f38ba8",
-                      "#a6e3a1",
-                      "#f9e2af",
-                      "#89b4fa",
-                      "#f5c2e7",
-                      "#94e2d5",
-                      "#9ebab9",
-                    ]
-                    background = "#001110"
+                      (if isLight then subtext1 else surface1)
+                      red
+                      green
+                      yellow
+                      blue
+                      pink
+                      teal
+                      (if isLight then surface2 else subtext1)
+                    ];
+
                     brights = [
-                      "#314a49",
-                      "#f38ba8",
-                      "#a6e3a1",
-                      "#f9e2af",
-                      "#89b4fa",
-                      "#f5c2e7",
-                      "#94e2d5",
-                      "#87a2a1",
-                    ]
-                    compose_cursor = "#f2cdcd"
-                    cursor_bg = "#f5e0dc"
-                    cursor_border = "#f5e0dc"
-                    cursor_fg = "#000404"
-                    foreground = "#b6d2d2"
-                    scrollbar_thumb = "#314a49"
-                    selection_bg = "#314a49"
-                    selection_fg = "#b6d2d2"
-                    split = "#455f5e"
-                    visual_bell = "#092322"
+                      (if isLight then subtext0 else surface2)
+                      red
+                      green
+                      yellow
+                      blue
+                      pink
+                      teal
+                      (if isLight then surface1 else subtext0)
+                    ];
 
-                    [colors.indexed]
-                    16 = "#fab387"
-                    17 = "#f5e0dc"
+                    indexed = {
+                      "16" = peach;
+                      "17" = rosewater;
+                    };
 
-                    [colors.tab_bar]
-                    background = "#000404"
-                    inactive_tab_edge = "#092322"
+                    compose_cursor = flamingo;
 
-                    [colors.tab_bar.active_tab]
-                    bg_color = "#259038"
-                    fg_color = "#000404"
-                    intensity = "Normal"
-                    italic = false
-                    strikethrough = false
-                    underline = "None"
+                    tab_bar = {
+                      background = crust;
+                      active_tab = {
+                        bg_color = accent;
+                        fg_color = crust;
+                      };
+                      inactive_tab = {
+                        bg_color = mantle;
+                        fg_color = text;
+                      };
+                      inactive_tab_hover = {
+                        bg_color = base;
+                        fg_color = text;
+                      };
+                      new_tab = {
+                        bg_color = surface0;
+                        fg_color = text;
+                      };
+                      new_tab_hover = {
+                        bg_color = surface1;
+                        fg_color = text;
+                      };
+                      inactive_tab_edge = surface0;
+                    };
 
-                    [colors.tab_bar.inactive_tab]
-                    bg_color = "#010606"
-                    fg_color = "#b6d2d2"
-                    intensity = "Normal"
-                    italic = false
-                    strikethrough = false
-                    underline = "None"
+                    visual_bell = surface0;
+                  };
 
-                    [colors.tab_bar.inactive_tab_hover]
-                    bg_color = "#001110"
-                    fg_color = "#b6d2d2"
-                    intensity = "Normal"
-                    italic = false
-                    strikethrough = false
-                    underline = "None"
-
-                    [colors.tab_bar.new_tab]
-                    bg_color = "#092322"
-                    fg_color = "#b6d2d2"
-                    intensity = "Normal"
-                    italic = false
-                    strikethrough = false
-                    underline = "None"
-
-                    [colors.tab_bar.new_tab_hover]
-                    bg_color = "#1d3535"
-                    fg_color = "#b6d2d2"
-                    intensity = "Normal"
-                    italic = false
-                    strikethrough = false
-                    underline = "None"
-
-                    [metadata]
-                    aliases = []
-                    author = "alatcountbabi (https://github.com/alatcountbabi)"
-                    name = "Themer"
-                    origin_url = "https://github.com/alatcountbabi/themer"
-                    wezterm_version = "20220807-113146-c2fee766"
-                  '';
-              };
+                  metadata = {
+                    aliases = [ ];
+                    author = "alatcountbabi (https://github.com/alatcountbabi)";
+                    name = "Themer";
+                    origin_url = "https://github.com/alatcountbabi/dotfiles2";
+                    wezterm_version = "20220807-113146-c2fee766";
+                  };
+                }
+              );
+              themeDir = pkgs.runCommand "wezterm-theme-dir" { inherit theme; } ''
+                mkdir -p $out
+                cp "$theme" "$out/themer.toml"
+              '';
             in
             # lua
             ''

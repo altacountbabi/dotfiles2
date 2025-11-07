@@ -11,16 +11,15 @@
       theme = inputs.silentSDDM.packages.${pkgs.system}.default.override (
         let
           # TODO: Make this use a common option, not a hard-coded wallpaper.
-          plantBgPath = /${config.root}/plant.jpg;
-          plantBg = pkgs.runCommandLocal "plant" { } ''
-            	cp ${plantBgPath} $out
+          wallpaper = pkgs.runCommand "plant" { inherit (config.prefs.theme) wallpaper; } ''
+            	cp $wallpaper $out
           '';
         in
         {
-          extraBackgrounds = [ plantBg ];
+          extraBackgrounds = [ config.prefs.theme.wallpaper ];
           theme-overrides = {
-            LoginScreen.background = plantBg.name;
-            LockScreen.background = plantBg.name;
+            LoginScreen.background = wallpaper.name;
+            LockScreen.background = wallpaper.name;
           };
         }
       );

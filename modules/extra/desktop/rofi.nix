@@ -37,10 +37,10 @@
 
                 width = 750;
 
-                bg = mkLiteral background;
-                bg-alt = mkLiteral surface_container_high;
-                fg = mkLiteral on_background;
-                fg-alt = mkLiteral on_surface_variant;
+                bg = mkLiteral base;
+                bg-alt = mkLiteral surface0;
+                fg = mkLiteral text;
+                fg-alt = mkLiteral subtext0;
 
                 background-color = mkLiteral "@bg";
                 text-color = mkLiteral "@fg";
@@ -88,7 +88,7 @@
                 |> map mkLiteral;
 
               "element-icon selected, element-text selected" = {
-                background-color = mkLiteral surface_container;
+                background-color = mkLiteral surface1;
               };
 
               element-icon = {

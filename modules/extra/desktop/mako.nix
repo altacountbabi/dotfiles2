@@ -24,8 +24,8 @@
           // (lib.optionalAttrs config.themesEnabled (
             with config.prefs.theme.colors;
             {
-              background-color = background;
-              border-color = outline;
+              background-color = base;
+              border-color = overlay0;
             }
           ));
         }).wrapper;

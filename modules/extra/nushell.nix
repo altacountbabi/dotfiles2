@@ -13,7 +13,6 @@
         nushell.excludedAliases =
           mkOpt (types.listOf types.str) [ ]
             "Aliases from `environment.shellAliases` to exclude from the config";
-        nushell.configureRoot = mkOpt types.bool true "Whether to configure nushell for the root user";
       };
     };
 
