@@ -1,6 +1,6 @@
 {
   flake.nixosModules.base =
-    { lib, ... }:
+    { config, lib, ... }:
     let
       inherit (lib) mkOpt types;
     in
@@ -18,7 +18,7 @@
           let
             color = mkOpt types.str "";
           in
-          rec {
+          {
             rosewater = color "Rosewater";
             flamingo = color "Flamingo";
             pink = color "Pink";
@@ -50,7 +50,7 @@
             mantle = color "Mantle";
             crust = color "Crust";
 
-            accent = mauve;
+            accent = mkOpt types.str config.prefs.theme.colors.mauve "Accent";
           };
       };
     };
