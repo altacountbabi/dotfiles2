@@ -74,7 +74,7 @@
                 ${monitors}
 
                 // Startup apps
-                spawn-at-startup "${pkgs.swaybg |> getExe}" "-i" "${config.root}/plant.jpg"
+                spawn-at-startup "${pkgs.swaybg |> getExe}" "-i" "${config.prefs.theme.wallpaper}"
                 spawn-at-startup "${pkgs.xwayland-satellite |> getExe}"
                 spawn-at-startup "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
                 spawn-at-startup "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon"

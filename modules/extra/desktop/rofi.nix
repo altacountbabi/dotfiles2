@@ -106,10 +106,35 @@
               };
             };
         }).wrapper;
+
+      powerDesktopEntries =
+        let
+          mkEntry =
+            id: exec: name:
+            (pkgs.formats.ini { }).generate "${id}.desktop" {
+              "Desktop Entry" = {
+                Exec = exec;
+                Name = name;
+                Terminal = false;
+                Type = "Application";
+                Version = "1.4";
+              };
+            };
+          poweroff = mkEntry "poweroff" "systemctl poweroff" "Shutdown / Power off";
+          reboot = mkEntry "reboot" "systemctl reboot" "Restart / Reboot";
+          suspend = mkEntry "suspend" "systemctl suspend" "Sleep / Suspend";
+        in
+        pkgs.runCommand "write-desktop-entry" { inherit poweroff reboot suspend; } ''
+          mkdir -p $out/share/applications
+          cp "$poweroff" "$out/share/applications/poweroff.desktop"
+          cp "$reboot" "$out/share/applications/reboot.desktop"
+          cp "$suspend" "$out/share/applications/suspend.desktop"
+        '';
     in
     {
       environment.systemPackages = [
         wrapped
+        powerDesktopEntries
       ];
     };
 }

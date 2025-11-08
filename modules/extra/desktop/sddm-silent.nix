@@ -11,9 +11,9 @@
       theme = inputs.silentSDDM.packages.${pkgs.system}.default.override (
         let
           # TODO: Make this use a common option, not a hard-coded wallpaper.
-          wallpaper = pkgs.runCommand "plant" { inherit (config.prefs.theme) wallpaper; } ''
-            	cp $wallpaper $out
-          '';
+          wallpaper = pkgs.runCommand "wallpaper" {
+            inherit (config.prefs.theme) wallpaper;
+          } "cp $wallpaper $out";
         in
         {
           extraBackgrounds = [ config.prefs.theme.wallpaper ];
