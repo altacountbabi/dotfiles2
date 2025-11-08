@@ -29,6 +29,7 @@
     in
     {
       imports = with self.nixosModules; [
+        gtk
         rofi
         mako
       ];
