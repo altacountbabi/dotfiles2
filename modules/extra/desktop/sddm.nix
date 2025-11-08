@@ -33,12 +33,11 @@
                   mode =
                     builtins.attrValues monitors
                     |> map (
-                      x: "${x.width |> toString}x${x.height |> toString}@${x.refreshRate |> lib.strings.floatToString}"
+                      x: "${toString x.width}x${toString x.height}@${x.refreshRate |> lib.strings.floatToString}"
                     );
                   scale = builtins.attrValues monitors |> map (x: x.scale);
                   transform =
-                    builtins.attrValues monitors
-                    |> map (x: westonTransformNames.${x.transform |> toString} or "normal");
+                    builtins.attrValues monitors |> map (x: westonTransformNames.${toString x.transform} or "normal");
                 };
 
                 keyboard = {

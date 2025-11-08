@@ -46,10 +46,10 @@
                     let
                       options = [
                         (optionalString (!data.enable) "off")
-                        "mode \"${data.width |> toString}x${data.height |> toString}@${data.refreshRate |> floatToString}\""
+                        "mode \"${toString data.width}x${toString data.height}@${data.refreshRate |> floatToString}\""
                         "scale ${data.scale |> floatToString}"
-                        "transform \"${data.transform |> toString}\""
-                        "position x=${data.x |> toString} y=${data.y |> toString}"
+                        "transform \"${toString data.transform}\""
+                        "position x=${toString data.x} y=${toString data.y}"
                         (optionalString data.vrr "variable-refresh-rate")
                         "backdrop-color \"#000000\""
                       ];

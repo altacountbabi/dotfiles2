@@ -86,7 +86,7 @@
 
         cat > $out/loader/loader.conf <<EOF
         default nixos
-        timeout ${config.boot.loader.timeout or 5 |> toString}
+        timeout ${toString config.boot.loader.timeout or 5}
         console-mode keep
         EOF
 
