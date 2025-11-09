@@ -31,6 +31,10 @@
         }).wrapper;
     in
     {
+      environment.systemPackages = [
+        wrapped
+      ];
+
       prefs.autostart.mako = wrapped;
     };
 }
