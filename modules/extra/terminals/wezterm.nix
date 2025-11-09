@@ -176,6 +176,6 @@
         wrapped
       ];
 
-      prefs.autostart.wezterm-mux-server = "${pkgs.wezterm}/bin/wezterm-mux-server";
+      prefs.autostart.wezterm-mux-server = "${wrapped}/bin/wezterm-mux-server";
     };
 }
