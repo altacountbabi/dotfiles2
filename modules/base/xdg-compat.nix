@@ -145,12 +145,14 @@
     ];
 
   flake.overlays.xdg-compat = final: prev: {
-    wget = inputs.wrappers.lib.wrapPackage {
-      pkgs = prev;
-      package = prev.wget;
-
-      flagSeparator = "=";
-      flags.hsts-file = "$XDG_STATE_HOME/wget-hsts";
+    # I would use `wrapPackage` from the wrappers flake here, but that uses `lib.escapeShellArg` which wraps everything in quotes, which triggers SC2016
+    wget = prev.symlinkJoin {
+      name = "wget-wrapped";
+      paths = [ prev.wget ];
+      buildInputs = [ prev.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/wget --add-flags "--hsts-file=\$XDG_STATE_HOME/wget-hsts"
+      '';
     };
   };
 }

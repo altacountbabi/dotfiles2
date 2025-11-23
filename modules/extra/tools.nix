@@ -106,7 +106,7 @@
           };
 
           environment.systemPackages = with pkgs; [
-            ffmpeg-full
+            ffmpeg
           ];
         })
       ];

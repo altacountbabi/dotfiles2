@@ -10,7 +10,7 @@
     in
     {
       options.prefs = {
-        steam.autostart = mkOpt types.bool false "Whether to automatically start steam at startup";
+        apps.steam.autostart = mkOpt types.bool false "Whether to automatically start steam at startup";
       };
     };
 
@@ -32,7 +32,7 @@
           extraCompatPackages = with pkgs; [ proton-ge-bin ];
         };
 
-        prefs.autostart.steam = mkIf config.prefs.steam.autostart "steam";
+        prefs.autostart.apps.steam = mkIf config.prefs.apps.steam.autostart "steam";
       };
     };
 }

@@ -64,7 +64,7 @@
                   )
                   |> concatStringsSep "\n";
 
-                packages = self.packages.${pkgs.system};
+                packages = self.packages.${pkgs.stdenv.hostPlatform.system};
                 notify-info = packages.notify-info |> getExe;
                 playerctl = pkgs.playerctl |> getExe;
                 volume = packages.volume |> getExe;
@@ -340,7 +340,7 @@
 
           environment.systemPackages = with pkgs; [
             adwaita-icon-theme
-            inputs.quickshell.packages.${system}.default
+            inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
 
           prefs.nushell.extraConfig = mkIf config.prefs.getty.autologin [

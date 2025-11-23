@@ -25,7 +25,7 @@
         material-symbols
         twemoji-color-font
 
-        self.packages.${pkgs.system}.segoe-ui
+        self.packages.${pkgs.stdenv.hostPlatform.system}.segoe-ui
       ];
     };
 }

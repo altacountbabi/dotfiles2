@@ -9,7 +9,7 @@
         name = "notify-info";
         packages = with pkgs; [
           libnotify
-          self.packages.${pkgs.system}.volume
+          self.packages.${pkgs.stdenv.hostPlatform.system}.volume
         ];
         text = # nushell
           ''

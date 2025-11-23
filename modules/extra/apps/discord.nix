@@ -9,12 +9,14 @@
     in
     {
       options.prefs = {
-        discord.package = mkOpt types.package (inputs.nixcord.packages.${pkgs.system}.discord.override {
-          withVencord = true;
-          withOpenASAR = true;
-          commandLineArgs = "--enable-features=UseOzonePlatform --ozone-platform=wayland";
-        }) "The package to use for discord";
-        discord.autostart = mkOpt types.bool false "Whether to automatically start discord at startup";
+        apps.discord = {
+          package = mkOpt types.package (inputs.nixcord.packages.${pkgs.stdenv.hostPlatform.system}.discord.override {
+            withVencord = true;
+            withOpenASAR = true;
+            commandLineArgs = "--enable-features=UseOzonePlatform --ozone-platform=wayland";
+          }) "The package to use for discord";
+          autostart = mkOpt types.bool false "Whether to automatically start discord at startup";
+        };
       };
     };
 
@@ -26,8 +28,6 @@
       ...
     }:
     let
-      inherit (lib) mkIf;
-
       openASARSettings =
         {
           DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING = true;
@@ -209,7 +209,8 @@
         }
         |> (pkgs.formats.json { }).generate "vencord-settings.json";
 
-      package = config.prefs.discord.package;
+      # FIXME: Replace proot with setting xdg home to /etc/xdg here and write configs with `environment.etc`
+      package = config.prefs.apps.discord.package;
       wrapped = pkgs.stdenv.mkDerivation {
         pname = "discord-wrapped";
         inherit (package) version;
@@ -247,6 +248,6 @@
         wrapped
       ];
 
-      prefs.autostart.discord = mkIf config.prefs.discord.autostart config.prefs.discord.package;
+      prefs.autostart.apps.discord = lib.mkIf config.prefs.apps.discord.autostart config.prefs.apps.discord.package;
     };
 }

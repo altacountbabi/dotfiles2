@@ -8,7 +8,7 @@
       ...
     }:
     let
-      theme = inputs.silentSDDM.packages.${pkgs.system}.default.override (
+      theme = inputs.silentSDDM.packages.${pkgs.stdenv.hostPlatform.system}.default.override (
         let
           # TODO: Make this use a common option, not a hard-coded wallpaper.
           wallpaper = pkgs.runCommand "wallpaper" {

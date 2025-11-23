@@ -22,7 +22,7 @@
             "Whether to set the `EDITOR` environment variable to helix";
 
         helix.package =
-          mkOpt types.package inputs.helix.packages.${pkgs.system}.default
+          mkOpt types.package inputs.helix.packages.${pkgs.stdenv.hostPlatform.system}.default
             "The package to use for helix";
       };
     };
@@ -388,11 +388,11 @@
               fg = "blue";
             };
 
-            "ui.virtual" = "overlay;0";
+            "ui.virtual" = "overlay0";
             "ui.virtual.ruler" = {
               bg = "surface0";
             };
-            "ui.virtual.indent-guide" = "surface;0";
+            "ui.virtual.indent-guide" = "surface0";
             "ui.virtual.inlay-hint" = {
               fg = "surface1";
               bg = "mantle";

@@ -5,7 +5,7 @@
       services.flatpak.enable = true;
 
       systemd.services.install-sober-flatpak = {
-        description = "install sober flatpak";
+        description = "Install sober flatpak";
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
         wantedBy = [ "basic.target" ];
