@@ -1,16 +1,36 @@
 { inputs, ... }:
 
 {
+  flake.nixosModules.base =
+    {
+      pkgs,
+      lib,
+      ...
+    }:
+    let
+      inherit (lib) mkOpt types;
+    in
+    {
+      options.prefs = {
+        apps.wezterm = {
+          package = mkOpt types.package pkgs.wezterm "The wezterm package";
+          default = mkOpt types.bool false "Whether to have wezterm be the default terminal";
+        };
+      };
+    };
+
   flake.nixosModules.wezterm =
     {
       config,
       pkgs,
+      lib,
       ...
     }:
     let
       wrapped =
         (inputs.wrappers.wrapperModules.wezterm.apply {
           inherit pkgs;
+          inherit (config.prefs.apps.wezterm) package;
 
           "wezterm.lua".content =
             let
@@ -172,9 +192,13 @@
         }).wrapper;
     in
     {
-      environment.systemPackages = [
-        wrapped
-      ];
+      prefs.apps.wezterm.default = true;
+
+      environment.systemPackages = [ wrapped ];
+
+      xdg.mime.defaultApplications = lib.mkIf config.prefs.apps.wezterm.default {
+        "x-scheme-handler/terminal" = "wezterm.desktop";
+      };
 
       prefs.autostart.wezterm-mux-server = "${wrapped}/bin/wezterm-mux-server";
     };
