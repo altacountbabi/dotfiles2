@@ -15,6 +15,14 @@
         helix
       ]
       ++ bootable;
+    server =
+      with self.nixosModules;
+      [
+        ssh
+        git
+        jj
+      ]
+      ++ minimal;
     desktop =
       with self.nixosModules;
       [
@@ -32,20 +40,16 @@
         fonts
         getty
 
+        # Apps
+        nautilus
         wezterm
         discord
         helium
-        sober
         steam
+        sober
+        loupe
         zen
-      ]
-      ++ minimal;
-    server =
-      with self.nixosModules;
-      [
-        ssh
-        git
-        jj
+        mpv
       ]
       ++ minimal;
   };

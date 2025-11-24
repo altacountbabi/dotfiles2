@@ -17,6 +17,12 @@
         "file managers" = [
           "nautilus"
         ];
+        "image viewers" = [
+          "loupe"
+        ];
+        "video players" = [
+          "mpv"
+        ];
       };
     in
     {

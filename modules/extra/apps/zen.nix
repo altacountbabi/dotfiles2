@@ -28,6 +28,8 @@
       inherit (lib) mkIf;
     in
     {
+      prefs.apps.zen.default = true;
+
       environment.systemPackages = [
         config.prefs.apps.zen.package
       ];

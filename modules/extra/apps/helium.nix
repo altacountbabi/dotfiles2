@@ -25,6 +25,8 @@
       ...
     }:
     {
+      prefs.apps.helium.default = true;
+
       environment.systemPackages = [
         config.prefs.apps.helium.package
       ];
