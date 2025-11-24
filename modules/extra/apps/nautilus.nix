@@ -12,7 +12,6 @@
       options.prefs = {
         apps.nautilus = {
           package = mkOpt types.package pkgs.nautilus "The nautilus package";
-          default = mkOpt types.bool false "Whether to have nautilus be the default file manager";
         };
       };
     };
@@ -24,11 +23,14 @@
       ...
     }:
     {
-      prefs.apps.nautilus.default = true;
+      programs.nautilus-open-any-terminal = lib.mkIf (config.prefs.defaultApps.terminal != null) {
+        enable = true;
+        terminal = config.prefs.defaultApps.terminal;
+      };
 
       environment.systemPackages = [ config.prefs.apps.nautilus.package ];
 
-      xdg.mime.defaultApplications = lib.mkIf config.prefs.apps.nautilus.default {
+      xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.files == "nautilus") {
         "inode/directory" = "org.gnome.Nautilus.desktop";
       };
     };

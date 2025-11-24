@@ -1,38 +1,25 @@
 {
   flake.nixosModules.base =
-    { config, lib, ... }:
+    { lib, ... }:
     let
-      checkDefaults =
-        apps:
-        let
-          selectedApps = apps |> map (name: config.prefs.apps.${name});
-          defaultAppsCount = selectedApps |> lib.count (app: app.default);
-        in
-        defaultAppsCount > 1;
-      classes = {
-        "browsers" = [
-          "zen"
-          "helium"
-        ];
-        "file managers" = [
-          "nautilus"
-        ];
-        "image viewers" = [
-          "loupe"
-        ];
-        "video players" = [
-          "mpv"
-        ];
-      };
+      inherit (lib) mkOpt types;
     in
     {
-      assertions =
-        classes
-        |> lib.mapAttrsToList (
-          class: apps: {
-            assertion = !(checkDefaults apps);
-            message = "Multiple ${class} are set to be the default";
+      options.prefs = {
+        defaultApps =
+          {
+            browser = [
+              "zen"
+              "helium"
+            ];
+            files = [ "nautilus" ];
+            image = [ "loupe" ];
+            video = [ "mpv" ];
+            terminal = [ "wezterm" ];
           }
-        );
+          |> (lib.mapAttrs (
+            class: apps: mkOpt (types.nullOr (types.enum apps)) null "The default app for class \"${class}\""
+          ));
+      };
     };
 }

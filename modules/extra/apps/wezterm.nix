@@ -14,7 +14,6 @@
       options.prefs = {
         apps.wezterm = {
           package = mkOpt types.package pkgs.wezterm "The wezterm package";
-          default = mkOpt types.bool false "Whether to have wezterm be the default terminal";
         };
       };
     };
@@ -192,11 +191,9 @@
         }).wrapper;
     in
     {
-      prefs.apps.wezterm.default = true;
-
       environment.systemPackages = [ wrapped ];
 
-      xdg.mime.defaultApplications = lib.mkIf config.prefs.apps.wezterm.default {
+      xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.terminal == "wezterm") {
         "x-scheme-handler/terminal" = "wezterm.desktop";
       };
 

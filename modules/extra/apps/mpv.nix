@@ -12,7 +12,6 @@
       options.prefs = {
         apps.mpv = {
           package = mkOpt types.package pkgs.mpv "The mpv package";
-          default = mkOpt types.bool false "Whether to have mpv be the default video player";
         };
       };
     };
@@ -24,11 +23,9 @@
       ...
     }:
     {
-      prefs.apps.mpv.default = true;
-
       environment.systemPackages = [ config.prefs.apps.mpv.package ];
 
-      xdg.mime.defaultApplications = lib.mkIf config.prefs.apps.mpv.default {
+      xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.video == "mpv") {
         "video/mp4=mpv.desktop" = "mpv.desktop";
       };
     };
