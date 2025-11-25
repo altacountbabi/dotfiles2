@@ -1,17 +1,20 @@
+{ self, ... }:
+
 {
-  flake.nixosModules.base =
-    { config, lib, ... }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.prefs = {
-        network.hostname = mkOpt types.str "nixos" "The name of the machine";
+  flake.nixosModules = self.mkModule "base" {
+    path = "network";
+
+    opts =
+      { mkOpt, types, ... }:
+      {
+        hostname = mkOpt types.str "nixos" "The name of the host";
       };
 
-      config = {
-        networking.hostName = config.prefs.network.hostname;
+    cfg =
+      { cfg, ... }:
+      {
+        networking.hostName = cfg.hostname;
         networking.networkmanager.enable = true;
       };
-    };
+  };
 }

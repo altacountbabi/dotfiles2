@@ -1,38 +1,36 @@
+{ self, ... }:
+
 {
+  flake.nixosModules = self.mkModule "steam" {
+    path = "apps.steam";
 
-  flake.nixosModules.base =
-    {
-      lib,
-      ...
-    }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.prefs = {
-        apps.steam.autostart = mkOpt types.bool false "Whether to automatically start steam at startup";
+    opts =
+      {
+        pkgs,
+        mkOpt,
+        types,
+        ...
+      }:
+      {
+        package = mkOpt types.package pkgs.steam "The package to use for steam browser";
+        autostart = mkOpt types.bool false "Whether to automatically start steam at startup";
       };
-    };
 
-  flake.nixosModules.steam =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      inherit (lib) mkIf;
-    in
-    {
-
-      config = {
+    cfg =
+      {
+        pkgs,
+        lib,
+        cfg,
+        ...
+      }:
+      {
         programs.steam = {
           enable = true;
+          inherit (cfg) package;
           extraCompatPackages = with pkgs; [ proton-ge-bin ];
         };
 
-        prefs.autostart.apps.steam = mkIf config.prefs.apps.steam.autostart "steam";
+        prefs.autostart.apps.steam = lib.mkIf cfg.autostart "steam";
       };
-    };
+  };
 }

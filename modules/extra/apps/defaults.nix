@@ -1,11 +1,15 @@
+{ self, ... }:
+
 {
-  flake.nixosModules.base =
-    { lib, ... }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.prefs = {
+  flake.nixosModules = self.mkModule "base" {
+    opts =
+      {
+        lib,
+        mkOpt,
+        types,
+        ...
+      }:
+      {
         defaultApps =
           {
             browser = [
@@ -21,5 +25,6 @@
             class: apps: mkOpt (types.nullOr (types.enum apps)) null "The default app for class \"${class}\""
           ));
       };
-    };
+  };
+
 }

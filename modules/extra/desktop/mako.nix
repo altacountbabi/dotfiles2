@@ -21,7 +21,7 @@
             border-radius = 10;
             border-size = 1;
           }
-          // (lib.optionalAttrs config.themesEnabled (
+          // (lib.optionalAttrs config.prefs.theme.enabled (
             with config.prefs.theme.colors;
             {
               background-color = base;

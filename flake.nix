@@ -4,8 +4,6 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
 
-    nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
-
     wrappers.url = "path:/home/real/src/wrappers";
 
     # SDDM Theme

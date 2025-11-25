@@ -1,20 +1,27 @@
-{
-  flake.nixosModules.base =
-    { config, lib, ... }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.themesEnabled = mkOpt types.bool false "Whether or not themes are enabled";
-      options.prefs = {
-        theme.wallpaper = mkOpt (types.nullOr types.path) null "Path to wallpaper image";
+{ self, ... }:
 
-        theme.polarity = mkOpt (types.enum [
+{
+  flake.nixosModules = self.mkModule "theme" {
+    path = "theme";
+
+    opts =
+      {
+        config,
+        mkOpt,
+        types,
+        ...
+      }:
+      {
+        enabled = mkOpt types.bool false "Whether or not themes are enabled";
+
+        wallpaper = mkOpt (types.nullOr types.path) null "Path to wallpaper image";
+
+        polarity = mkOpt (types.enum [
           "dark"
           "light"
         ]) "dark" "Polarity of the theme";
 
-        theme.colors =
+        colors =
           let
             color = mkOpt types.str "";
           in
@@ -53,45 +60,48 @@
             accent = mkOpt types.str config.prefs.theme.colors.mauve "Accent";
           };
       };
-    };
 
-  flake.nixosModules.theme =
-    { ... }:
-    {
-      config =
-        let
-          colors = {
-            rosewater = "#f5e0dc";
-            flamingo = "#f2cdcd";
-            pink = "#f5c2e7";
-            mauve = "#cba6f7";
-            red = "#f38ba8";
-            maroon = "#eba0ac";
-            peach = "#fab387";
-            yellow = "#f9e2af";
-            green = "#a6e3a1";
-            teal = "#94e2d5";
-            sky = "#89dceb";
-            sapphire = "#74c7ec";
-            blue = "#89b4fa";
-            lavender = "#b4befe";
-            text = "#b6d2d2";
-            subtext1 = "#9ebab9";
-            subtext0 = "#87a2a1";
-            overlay2 = "#708b8a";
-            overlay1 = "#5a7474";
-            overlay0 = "#455f5e";
-            surface2 = "#314a49";
-            surface1 = "#1d3535";
-            surface0 = "#092322";
-            base = "#001110";
-            mantle = "#010606";
-            crust = "#000404";
-          };
-        in
-        {
-          themesEnabled = true;
-          prefs.theme.colors = colors;
+    cfg =
+      _:
+      let
+        colors = {
+          rosewater = "#f5e0dc";
+          flamingo = "#f2cdcd";
+          pink = "#f5c2e7";
+          mauve = "#cba6f7";
+          red = "#f38ba8";
+          maroon = "#eba0ac";
+          peach = "#fab387";
+          yellow = "#f9e2af";
+          green = "#a6e3a1";
+          teal = "#94e2d5";
+          sky = "#89dceb";
+          sapphire = "#74c7ec";
+          blue = "#89b4fa";
+          lavender = "#b4befe";
+
+          text = "#b6d2d2";
+          subtext1 = "#9ebab9";
+          subtext0 = "#87a2a1";
+
+          overlay2 = "#708b8a";
+          overlay1 = "#5a7474";
+          overlay0 = "#455f5e";
+
+          surface2 = "#314a49";
+          surface1 = "#1d3535";
+          surface0 = "#092322";
+
+          base = "#001110";
+          mantle = "#010606";
+          crust = "#000404";
         };
-    };
+      in
+      {
+        prefs.theme = {
+          enabled = true;
+          inherit colors;
+        };
+      };
+  };
 }

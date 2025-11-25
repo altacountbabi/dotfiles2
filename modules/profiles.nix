@@ -5,7 +5,6 @@
     bootable = with self.nixosModules; [
       base
       systemd-boot
-      facter
     ];
     minimal =
       with self.nixosModules;

@@ -1,14 +1,10 @@
+{ self, ... }:
+
 {
-  flake.nixosModules.base =
-    {
-      lib,
-      ...
-    }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.prefs = {
+  flake.nixosModules = self.mkModule "base" {
+    opts =
+      { mkOpt, types, ... }:
+      {
         monitors = mkOpt (types.attrsOf (
           types.submodule {
             options = {
@@ -41,5 +37,5 @@
           }
         )) { } "Host-specific monitor config";
       };
-    };
+  };
 }

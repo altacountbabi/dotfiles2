@@ -1,202 +1,201 @@
-{ inputs, ... }:
+{ self, inputs, ... }:
 
 {
-  flake.nixosModules.base =
-    {
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.prefs = {
-        apps.wezterm = {
-          package = mkOpt types.package pkgs.wezterm "The wezterm package";
-        };
+  flake.nixosModules = self.mkModule "wezterm" {
+    path = "apps.wezterm";
+
+    opts =
+      {
+        pkgs,
+        mkOpt,
+        types,
+        ...
+      }:
+      {
+        package = mkOpt types.package pkgs.wezterm "The wezterm package";
       };
-    };
 
-  flake.nixosModules.wezterm =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      wrapped =
-        (inputs.wrappers.wrapperModules.wezterm.apply {
-          inherit pkgs;
-          inherit (config.prefs.apps.wezterm) package;
+    cfg =
+      {
+        config,
+        pkgs,
+        lib,
+        cfg,
+        ...
+      }:
+      let
+        wrapped =
+          (inputs.wrappers.wrapperModules.wezterm.apply {
+            inherit pkgs;
+            inherit (cfg) package;
 
-          "wezterm.lua".content =
-            let
-              theme = (pkgs.formats.toml { }).generate "wezterm-theme" (
-                with config.prefs.theme.colors;
-                let
-                  isLight = config.prefs.theme.polarity == "light";
-                in
-                {
-                  colors = {
-                    foreground = text;
-                    background = base;
+            "wezterm.lua".content =
+              let
+                theme = (pkgs.formats.toml { }).generate "wezterm-theme" (
+                  with config.prefs.theme.colors;
+                  let
+                    isLight = config.prefs.theme.polarity == "light";
+                  in
+                  {
+                    colors = {
+                      foreground = text;
+                      background = base;
 
-                    cursor_fg = if isLight then base else crust;
-                    cursor_bg = rosewater;
-                    cursor_border = rosewater;
+                      cursor_fg = if isLight then base else crust;
+                      cursor_bg = rosewater;
+                      cursor_border = rosewater;
 
-                    selection_fg = text;
-                    selection_bg = surface2;
+                      selection_fg = text;
+                      selection_bg = surface2;
 
-                    scrollbar_thumb = surface2;
+                      scrollbar_thumb = surface2;
 
-                    split = overlay0;
+                      split = overlay0;
 
-                    ansi = [
-                      (if isLight then subtext1 else surface1)
-                      red
-                      green
-                      yellow
-                      blue
-                      pink
-                      teal
-                      (if isLight then surface2 else subtext1)
-                    ];
+                      ansi = [
+                        (if isLight then subtext1 else surface1)
+                        red
+                        green
+                        yellow
+                        blue
+                        pink
+                        teal
+                        (if isLight then surface2 else subtext1)
+                      ];
 
-                    brights = [
-                      (if isLight then subtext0 else surface2)
-                      red
-                      green
-                      yellow
-                      blue
-                      pink
-                      teal
-                      (if isLight then surface1 else subtext0)
-                    ];
+                      brights = [
+                        (if isLight then subtext0 else surface2)
+                        red
+                        green
+                        yellow
+                        blue
+                        pink
+                        teal
+                        (if isLight then surface1 else subtext0)
+                      ];
 
-                    indexed = {
-                      "16" = peach;
-                      "17" = rosewater;
+                      indexed = {
+                        "16" = peach;
+                        "17" = rosewater;
+                      };
+
+                      compose_cursor = flamingo;
+
+                      tab_bar = {
+                        background = crust;
+                        active_tab = {
+                          bg_color = accent;
+                          fg_color = crust;
+                        };
+                        inactive_tab = {
+                          bg_color = mantle;
+                          fg_color = text;
+                        };
+                        inactive_tab_hover = {
+                          bg_color = base;
+                          fg_color = text;
+                        };
+                        new_tab = {
+                          bg_color = surface0;
+                          fg_color = text;
+                        };
+                        new_tab_hover = {
+                          bg_color = surface1;
+                          fg_color = text;
+                        };
+                        inactive_tab_edge = surface0;
+                      };
+
+                      visual_bell = surface0;
                     };
 
-                    compose_cursor = flamingo;
-
-                    tab_bar = {
-                      background = crust;
-                      active_tab = {
-                        bg_color = accent;
-                        fg_color = crust;
-                      };
-                      inactive_tab = {
-                        bg_color = mantle;
-                        fg_color = text;
-                      };
-                      inactive_tab_hover = {
-                        bg_color = base;
-                        fg_color = text;
-                      };
-                      new_tab = {
-                        bg_color = surface0;
-                        fg_color = text;
-                      };
-                      new_tab_hover = {
-                        bg_color = surface1;
-                        fg_color = text;
-                      };
-                      inactive_tab_edge = surface0;
+                    metadata = {
+                      aliases = [ ];
+                      author = "alatcountbabi (https://github.com/alatcountbabi)";
+                      name = "Themer";
+                      origin_url = "https://github.com/alatcountbabi/dotfiles2";
+                      wezterm_version = "20220807-113146-c2fee766";
                     };
+                  }
+                );
+                themeDir = pkgs.runCommand "wezterm-theme-dir" { inherit theme; } ''
+                  mkdir -p $out
+                  cp "$theme" "$out/themer.toml"
+                '';
+              in
+              # lua
+              ''
+                local wezterm = require 'wezterm'
+                local config = wezterm.config_builder()
 
-                    visual_bell = surface0;
-                  };
+                -- Colors
+                config.color_scheme = 'Themer'
+                config.color_scheme_dirs = { '${themeDir}' }
 
-                  metadata = {
-                    aliases = [ ];
-                    author = "alatcountbabi (https://github.com/alatcountbabi)";
-                    name = "Themer";
-                    origin_url = "https://github.com/alatcountbabi/dotfiles2";
-                    wezterm_version = "20220807-113146-c2fee766";
-                  };
+                -- Keybinds
+                local act = wezterm.action
+                config.keys = {
+                  {
+                    key = 'W',
+                    mods = 'ALT',
+                    action = act.SpawnTab 'DefaultDomain'
+                  },
+                  {
+                    key = 'q',
+                    mods = 'ALT',
+                    action = act.CloseCurrentTab { confirm = false }
+                  },
                 }
-              );
-              themeDir = pkgs.runCommand "wezterm-theme-dir" { inherit theme; } ''
-                mkdir -p $out
-                cp "$theme" "$out/themer.toml"
+
+                -- Font
+                config.cell_width = 0.9
+                config.line_height = 1.2
+                config.font_size = 13
+                config.font = wezterm.font_with_fallback {
+                  { family = '${
+                    config.fonts.fontconfig.defaultFonts.monospace |> builtins.head
+                  }', weight = 'Medium' },
+                  'Noto Color Emoji',
+                  'Symbols Nerd Font Mono',
+                }
+
+                -- Tab bar
+                config.tab_bar_at_bottom = true
+                config.hide_tab_bar_if_only_one_tab = true
+                config.show_new_tab_button_in_tab_bar = false
+                config.use_fancy_tab_bar = false
+
+                -- Cursor
+                config.default_cursor_style = 'SteadyBar'
+
+                -- Window
+                config.window_padding = {
+                  left = 12,
+                  right = 12,
+                  top = 12,
+                  bottom = 12,
+                }
+                config.window_close_confirmation = 'NeverPrompt'
+                config.window_decorations = 'NONE'
+                config.initial_cols = 189
+                config.initial_rows = 40
+
+                -- Rendering
+                config.front_end = "OpenGL"
+                config.enable_wayland = true
+
+                return config
               '';
-            in
-            # lua
-            ''
-              local wezterm = require 'wezterm'
-              local config = wezterm.config_builder()
+          }).wrapper;
+      in
+      {
+        environment.systemPackages = [ wrapped ];
 
-              -- Colors
-              config.color_scheme = 'Themer'
-              config.color_scheme_dirs = { '${themeDir}' }
+        xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.terminal == "wezterm") {
+          "x-scheme-handler/terminal" = "wezterm.desktop";
+        };
 
-              -- Keybinds
-              local act = wezterm.action
-              config.keys = {
-                {
-                  key = 'W',
-                  mods = 'ALT',
-                  action = act.SpawnTab 'DefaultDomain'
-                },
-                {
-                  key = 'q',
-                  mods = 'ALT',
-                  action = act.CloseCurrentTab { confirm = false }
-                },
-              }
-
-              -- Font
-              config.cell_width = 0.9
-              config.line_height = 1.2
-              config.font_size = 13
-              config.font = wezterm.font_with_fallback {
-                { family = '${
-                  config.fonts.fontconfig.defaultFonts.monospace |> builtins.head
-                }', weight = 'Medium' },
-                'Noto Color Emoji',
-                'Symbols Nerd Font Mono',
-              }
-
-              -- Tab bar
-              config.tab_bar_at_bottom = true
-              config.hide_tab_bar_if_only_one_tab = true
-              config.show_new_tab_button_in_tab_bar = false
-              config.use_fancy_tab_bar = false
-
-              -- Cursor
-              config.default_cursor_style = 'SteadyBar'
-
-              -- Window
-              config.window_padding = {
-                left = 12,
-                right = 12,
-                top = 12,
-                bottom = 12,
-              }
-              config.window_close_confirmation = 'NeverPrompt'
-              config.window_decorations = 'NONE'
-              config.initial_cols = 189
-              config.initial_rows = 40
-
-              -- Rendering
-              config.front_end = "OpenGL"
-              config.enable_wayland = true
-
-              return config
-            '';
-        }).wrapper;
-    in
-    {
-      environment.systemPackages = [ wrapped ];
-
-      xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.terminal == "wezterm") {
-        "x-scheme-handler/terminal" = "wezterm.desktop";
+        prefs.autostart.wezterm-mux-server = "${wrapped}/bin/wezterm-mux-server";
       };
-
-      prefs.autostart.wezterm-mux-server = "${wrapped}/bin/wezterm-mux-server";
-    };
+  };
 }

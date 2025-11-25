@@ -1,11 +1,14 @@
+{ self, ... }:
 {
-  flake.nixosModules.base =
-    { pkgs, lib, ... }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.prefs = {
+  flake.nixosModules = self.mkModule "printing" {
+    opts =
+      {
+        pkgs,
+        mkOpt,
+        types,
+        ...
+      }:
+      {
         printing.drivers = mkOpt (types.listOf types.package) (with pkgs; [
           gutenprint
           hplip
@@ -18,20 +21,20 @@
           ]) "List of SANE backends to install";
         };
       };
-    };
 
-  flake.nixosModules.printing =
-    { config, lib, ... }:
-    {
-      services.printing = {
-        enable = true;
-        inherit (config.prefs.printing) drivers;
-      };
+    cfg =
+      { lib, cfg, ... }:
+      {
+        services.printing = {
+          enable = true;
+          inherit (cfg.printing) drivers;
+        };
 
-      hardware.sane = {
-        enable = lib.mkDefault true;
-        netConf = config.prefs.scanning.printers |> builtins.concatStringsSep "\n";
-        extraBackends = config.prefs.scanning.backends;
+        hardware.sane = {
+          enable = lib.mkDefault true;
+          netConf = cfg.scanning.printers |> builtins.concatStringsSep "\n";
+          extraBackends = cfg.scanning.backends;
+        };
       };
-    };
+  };
 }

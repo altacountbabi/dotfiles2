@@ -1,40 +1,42 @@
+{ self, ... }:
+
 {
-  flake.nixosModules.base =
-    { lib, ... }:
-    let
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.prefs = {
-        git.user.name = mkOpt (types.nullOr types.str) null "The username to use when creating git commits";
-        git.user.email = mkOpt (types.nullOr types.str) null "The email to use when creating git commits";
+  flake.nixosModules = self.mkModule "git" {
+    path = "git";
 
-        git.githubAuth = mkOpt types.bool true "Whether to allow authenticating with the `gh` cli tool";
-      };
-    };
+    opts =
+      { mkOpt, types, ... }:
+      {
+        user.name = mkOpt (types.nullOr types.str) null "The username to use when creating git commits";
+        user.email = mkOpt (types.nullOr types.str) null "The email to use when creating git commits";
 
-  flake.nixosModules.git =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
-    {
-      environment.shellAliases = {
-        clone = "git clone --depth 1";
-        lg = "lazygit";
+        githubAuth = mkOpt types.bool true "Whether to allow authenticating with the `gh` cli tool";
       };
 
-      environment.systemPackages = with pkgs; [
-        lazygit
-        difftastic
-      ];
+    cfg =
+      {
+        pkgs,
+        lib,
+        cfg,
+        ...
+      }:
+      {
+        environment.shellAliases = {
+          clone = "git clone --depth 1";
+          lg = "lazygit";
+        };
 
-      programs.git = {
-        enable = true;
-        config =
-          {
+        environment.systemPackages =
+          with pkgs;
+          [
+            lazygit
+            difftastic
+          ]
+          ++ (lib.optional cfg.githubAuth pkgs.gh);
+
+        programs.git = {
+          enable = true;
+          config = {
             init.defaultBranch = "main";
             url = {
               "https://github.com/" = {
@@ -47,9 +49,9 @@
 
             diff.external = "difft";
 
-            inherit (config.prefs.git) user;
+            inherit (cfg) user;
           }
-          // (lib.optionalAttrs config.prefs.git.githubAuth {
+          // (lib.optionalAttrs cfg.githubAuth {
             credential."https://github.com".helper = [
               null
               "!${pkgs.gh}/bin/gh auth git-credential"
@@ -59,6 +61,7 @@
               "!${pkgs.gh}/bin/gh auth git-credential"
             ];
           });
+        };
       };
-    };
+  };
 }

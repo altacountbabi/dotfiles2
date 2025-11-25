@@ -1,39 +1,43 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules.base =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      inherit (lib)
-        mkIf
-        mkOpt
-        types
-        ;
-    in
-    {
-      options.prefs = {
-        nix.package = mkOpt types.package pkgs.nixVersions.latest "The package to use for nix";
-        nix.localNixpkgs =
+  flake.nixosModules = self.mkModule "base" {
+    path = "nix";
+
+    opts =
+      {
+        pkgs,
+        config,
+        mkOpt,
+        types,
+        ...
+      }:
+      {
+        package = mkOpt types.package pkgs.nixVersions.latest "The package to use for nix";
+        localNixpkgs =
           mkOpt types.bool false
             "Whether to make a local copy of nixpkgs from the flake inputs";
 
-        nix.flakePath =
+        flakePath =
           mkOpt types.str "/home/${config.prefs.user.name}/conf"
             "The path to the flake containing this config";
 
-        nix.customBinaryCache =
+        customBinaryCache =
           mkOpt types.bool true
             "Whether to use our custom binary cache as to not re-compile everything for small patches";
       };
 
-      config = {
+    cfg =
+      {
+        config,
+        cfg,
+        lib,
+        ...
+      }:
+      {
         nix = {
-          inherit (config.prefs.nix) package;
+          inherit (cfg) package;
+
           settings = {
             experimental-features = [
               "pipe-operators"
@@ -42,7 +46,7 @@
             ];
             warn-dirty = false;
           }
-          // (lib.optionalAttrs config.prefs.nix.customBinaryCache {
+          // (lib.optionalAttrs cfg.customBinaryCache {
             substituters = [ "http://av1.space:5000" ];
             trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
           });
@@ -66,7 +70,7 @@
           };
 
           registry.nixpkgs.to = lib.mkForce (
-            if config.prefs.nix.localNixpkgs then
+            if cfg.localNixpkgs then
               {
                 type = "path";
                 path = inputs.nixpkgs.outPath;
@@ -92,14 +96,14 @@
           switch = "nh os switch";
         };
 
-        systemd.services.copy-nixpkgs = mkIf config.prefs.nix.localNixpkgs {
+        systemd.services.copy-nixpkgs = lib.mkIf config.prefs.nix.localNixpkgs {
           description = "copy nixpkgs to store early";
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
           wantedBy = [ "basic.target" ];
           serviceConfig = {
             Type = "simple";
-            ExecStart = "/run/current-system/sw/bin/nix eval nixpkgs#hello";
+            ExecStart = "/run/current-system/sw/bin/nix eval nixpkgshello";
           };
         };
 
@@ -112,5 +116,5 @@
 
         system.stateVersion = "25.11";
       };
-    };
+  };
 }

@@ -32,7 +32,6 @@
           include = [ iso ];
           exclude = [
             printing
-            facter
             discord
             steam
             sober

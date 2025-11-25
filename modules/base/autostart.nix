@@ -1,32 +1,28 @@
-{
-  flake.nixosModules.base =
-    {
-      config,
-      lib,
-      ...
-    }:
-    let
-      inherit (lib)
-        mkIf
-        mapAttrs'
-        mkOpt
-        types
-        ;
-    in
-    {
-      options.prefs = {
-        autostart = mkOpt (types.attrsOf (
-          types.oneOf [
-            types.str
-            types.path
-            types.package
-          ]
-        )) { } "List of programs to start once a graphical session begins.";
-      };
+{ self, ... }:
 
-      config = mkIf (config.prefs.autostart != [ ]) {
+{
+  flake.nixosModules = self.mkModule "base" {
+    path = "autostart";
+
+    opts =
+      { mkOpt, types, ... }:
+      mkOpt (types.attrsOf (
+        types.oneOf [
+          types.str
+          types.path
+          types.package
+        ]
+      )) { } "List of programs to start once a graphical session begins.";
+
+    cfg =
+      { cfg, lib, ... }:
+      let
+        inherit (lib) mapAttrs' getExe;
+        inherit (builtins) isPath isString;
+      in
+      {
         systemd.user.services =
-          config.prefs.autostart
+          cfg
           |> mapAttrs' (
             name: value: {
               name = "autostart-${name}";
@@ -37,8 +33,7 @@
                 partOf = [ "graphical-session.target" ];
                 requisite = [ "graphical-session.target" ];
                 serviceConfig = {
-                  ExecStart =
-                    if builtins.isPath value || builtins.isString value then toString value else lib.getExe value;
+                  ExecStart = if isPath value || isString value then toString value else getExe value;
                   Restart = "on-failure";
                   Type = "simple";
                 };
@@ -46,5 +41,5 @@
             }
           );
       };
-    };
+  };
 }

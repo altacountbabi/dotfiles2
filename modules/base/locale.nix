@@ -1,11 +1,10 @@
+{ self, ... }:
+
 {
-  flake.nixosModules.base =
-    { config, lib, ... }:
-    let
-      inherit (lib) mkIf mkOpt types;
-    in
-    {
-      options.prefs = {
+  flake.nixosModules = self.mkModule "base" {
+    opts =
+      { mkOpt, types, ... }:
+      {
         timeZone = mkOpt (types.nullOr types.str) null ''
           The time zone used when displaying times and dates.
           If null, the timezone will default to UTC and can be set imperatively
@@ -19,16 +18,18 @@
         };
       };
 
-      config = {
-        time.timeZone = config.prefs.timeZone;
+    cfg =
+      { cfg, lib, ... }:
+      {
+        time.timeZone = cfg.timeZone;
 
         i18n =
           let
-            inherit (config.prefs.language) primary secondary;
+            inherit (cfg.language) primary secondary;
           in
           {
             defaultLocale = primary;
-            extraLocaleSettings = mkIf (secondary != null) {
+            extraLocaleSettings = lib.mkIf (secondary != null) {
               LC_NUMERIC = secondary;
               LC_COLLATE = secondary;
               LC_TIME = secondary;
@@ -42,5 +43,5 @@
             };
           };
       };
-    };
+  };
 }
