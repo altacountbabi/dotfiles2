@@ -40,7 +40,7 @@
         }
       );
 
-      prefs.theme.wallpaper = "${config.root}/plant.jpg";
+      prefs.theme.wallpaper = "${config.prefs.root}/plant.jpg";
 
       prefs.nix.localNixpkgs = true;
 
@@ -57,7 +57,7 @@
       # Copy config to user's home directory
       system.activationScripts.copy-config.text =
         let
-          src = config.cleanRoot;
+          src = config.prefs.cleanRoot;
           username = config.prefs.user.name;
         in
         ''

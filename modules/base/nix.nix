@@ -66,7 +66,7 @@
 
           registry.conf.to = {
             type = "path";
-            path = config.cleanRoot;
+            path = config.prefs.cleanRoot;
           };
 
           registry.nixpkgs.to = lib.mkForce (
