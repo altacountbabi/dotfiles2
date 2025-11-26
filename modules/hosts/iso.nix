@@ -36,6 +36,7 @@
             discord
             steam
             sober
+            keyd
             zen
           ];
         }

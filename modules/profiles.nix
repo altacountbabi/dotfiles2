@@ -37,6 +37,7 @@
         bluetooth
 
         niri
+        keyd
         fonts
         getty
 
