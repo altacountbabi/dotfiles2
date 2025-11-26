@@ -41,7 +41,7 @@
         }
       );
 
-      prefs.theme.wallpaper = "${config.prefs.root}/plant.jpg";
+      prefs.theme.wallpaper = "${config.prefs.cleanRoot}/plant.jpg";
 
       prefs.nix.localNixpkgs = true;
 
