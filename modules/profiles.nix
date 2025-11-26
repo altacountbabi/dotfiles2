@@ -34,6 +34,7 @@
         jj
 
         printing
+        bluetooth
 
         niri
         fonts

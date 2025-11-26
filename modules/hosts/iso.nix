@@ -31,6 +31,7 @@
           profile = self.profiles.desktop;
           include = [ iso ];
           exclude = [
+            bluetooth
             printing
             discord
             steam
