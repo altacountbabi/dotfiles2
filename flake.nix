@@ -22,6 +22,9 @@
     helium.url = "github:FKouhai/helium2nix/main";
     nixcord.url = "github:kaylorben/nixcord";
     helix.url = "github:nik-contrib/helix";
+    opencode.url = "github:sst/opencode";
+
+    mcp-nixos.url = "github:utensils/mcp-nixos";
   };
 
   outputs =

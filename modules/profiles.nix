@@ -42,6 +42,7 @@
         getty
 
         # Apps
+        opencode
         nautilus
         wezterm
         discord
