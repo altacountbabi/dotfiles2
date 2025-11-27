@@ -64,25 +64,33 @@
 
           channel.enable = false;
 
-          registry.conf.to = {
-            type = "path";
-            path = config.prefs.cleanRoot;
-          };
+          registry =
+            let
+              to = lib.mkForce (
+                if cfg.localNixpkgs then
+                  {
+                    type = "path";
+                    path = inputs.nixpkgs.outPath;
+                  }
+                else
+                  {
+                    type = "github";
+                    owner = "nixos";
+                    repo = "nixpkgs";
+                    rev = inputs.nixpkgs.rev;
+                  }
+              );
+            in
+            {
+              # Alias `p` to `nixpkgs` to shorten nix3 commands
+              p.to = to;
+              nixpkgs.to = to;
 
-          registry.nixpkgs.to = lib.mkForce (
-            if cfg.localNixpkgs then
-              {
+              conf.to = {
                 type = "path";
-                path = inputs.nixpkgs.outPath;
-              }
-            else
-              {
-                type = "github";
-                owner = "nixos";
-                repo = "nixpkgs";
-                rev = inputs.nixpkgs.rev;
-              }
-          );
+                path = config.prefs.cleanRoot;
+              };
+            };
         };
 
         system.tools = {
