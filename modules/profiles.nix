@@ -20,6 +20,9 @@
         ssh
         git
         jj
+
+        services
+        caddy
       ]
       ++ minimal;
     desktop =

@@ -23,4 +23,13 @@ rec {
 
   enabled = merge { enable = true; };
   disabled = merge { enable = false; };
+
+  genPorts =
+    start: services:
+    builtins.listToAttrs (
+      prev.imap0 (i: service: {
+        name = service;
+        value = start + i;
+      }) services
+    );
 }

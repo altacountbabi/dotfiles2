@@ -25,6 +25,8 @@
     opencode.url = "github:sst/opencode";
 
     mcp-nixos.url = "github:utensils/mcp-nixos";
+
+    declarative-jellyfin.url = "path:/home/real/src/declarative-jellyfin";
   };
 
   outputs =

@@ -13,7 +13,15 @@
         {
           profile = self.profiles.server;
           include = [
+            theme
+
+            niri
+            helium
+
             iso
+
+            jellyfin
+
             # ./_hardware.nix TODO: Uncomment this when deploying
           ];
         }
@@ -37,7 +45,36 @@
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICr+MnG3i1kRYpef8+1jhhaCKZeBKBpE0GFskJbqatqm" # tablet
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6sJxditJlJ004Ag4e1WL92yrNVzl7+SDFhMIercysY home-assistant"
         ];
+
+        theme.wallpaper = "${config.prefs.cleanRoot}/plant.jpg";
+
+        jellyfin = {
+          encoding = {
+            hardwareAccelerationType = "qsv";
+            qsvDevice = "/dev/dri/renderD128";
+
+            enableDecodingColorDepth10Hevc = true;
+            enableDecodingColorDepth10Vp9 = true;
+
+            enableIntelLowPowerH264HwEncoder = true;
+
+            hardwareDecodingCodecs = [
+              "h264"
+              "hevc"
+              "vc1"
+              "vp8"
+              "vp9"
+              "av1"
+            ];
+
+            preferSystemNativeHwDecoder = true;
+
+            enableTonemapping = true;
+          };
+        };
       };
+
+      networking.domain = "localhost";
 
       system.activationScripts.copy-config.text =
         let

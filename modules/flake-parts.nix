@@ -34,7 +34,13 @@
                   config
                   pkgs
                   ;
-                inherit (lib) mkOpt mkOpt' types;
+                inherit (lib)
+                  mkOpt
+                  mkOpt'
+                  mkOption
+                  mkConst
+                  types
+                  ;
               }
             else
               lib.setAttrByPath pathList (opts {
