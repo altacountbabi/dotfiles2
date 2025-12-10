@@ -46,7 +46,7 @@
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6sJxditJlJ004Ag4e1WL92yrNVzl7+SDFhMIercysY home-assistant"
         ];
 
-        theme.wallpaper = "${config.prefs.cleanRoot}/plant.jpg";
+        theme.wallpaper = ../../../plant.jpg;
 
         jellyfin = {
           encoding = {

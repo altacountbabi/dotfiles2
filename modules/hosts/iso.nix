@@ -43,18 +43,20 @@
         }
       );
 
-      prefs.theme.wallpaper = "${config.prefs.cleanRoot}/plant.jpg";
+      prefs = {
+        theme.wallpaper = builtins.path { path = ../../plant.jpg; };
 
-      prefs.nix.localNixpkgs = true;
+        nix.localNixpkgs = true;
 
-      prefs.monitors."Virtual-1" = {
-        width = 1920;
-        height = 1080;
-      };
+        monitors."Virtual-1" = {
+          width = 1920;
+          height = 1080;
+        };
 
-      prefs.git.user = {
-        name = "altacountbabi";
-        email = "altacountbabi@users.noreply.github.com";
+        git.user = {
+          name = "altacountbabi";
+          email = "altacountbabi@users.noreply.github.com";
+        };
       };
 
       # Copy config to user's home directory
