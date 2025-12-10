@@ -91,6 +91,24 @@
                   }
                 }
 
+                # Show the status of modules in the Linux Kernel
+                def lsmod [
+                  --split-mods # Split the comma-separated `mods` field
+                ]: nothing -> table {
+                  let result = ^lsmod
+                    | lines
+                    | skip 1
+                    | parse --regex '^(?<name>\S+)\s+(?<size>\d+)\s+(?<count>\d+)\s+(?<mods>.+)$'
+                    | update size {|x| $x.size | into filesize }
+                    | update count {|x| $x.count | into int }
+
+                  if $split_mods {
+                    $result | update mods {|x| $x.mods | split row "," }
+                  } else {
+                    $result
+                  }
+                }
+
                 $env.PROMPT_COMMAND = {||
                   let dir = match (do -i { $env.PWD | path relative-to $nu.home-path }) {
                     null => $env.PWD
