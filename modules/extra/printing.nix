@@ -15,7 +15,7 @@
         ]) "List of printer drivers to install";
 
         scanning = {
-          printers = mkOpt (types.listOf types.str) "" "List of IPs for network scanners";
+          printers = mkOpt (types.listOf types.str) [ ] "List of IPs for network scanners";
           backends = mkOpt (types.listOf types.package) (with pkgs; [
             airscan
           ]) "List of SANE backends to install";
