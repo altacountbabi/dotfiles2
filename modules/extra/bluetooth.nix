@@ -16,10 +16,18 @@
       };
 
     cfg =
-      { cfg, ... }:
+      {
+        pkgs,
+        lib,
+        cfg,
+        ...
+      }:
       {
         environment.systemPackages = [
-          cfg.frontend
+          (lib.hideDesktop {
+            inherit pkgs;
+            package = cfg.frontend;
+          })
         ];
 
         hardware.bluetooth = {
@@ -27,8 +35,6 @@
           # Show battery charge of Bluetooth devices
           settings.General.Experimental = true;
         };
-
-        services.blueman.enable = true;
       };
   };
 }

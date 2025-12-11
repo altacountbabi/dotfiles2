@@ -1,4 +1,5 @@
 { self, ... }:
+
 {
   flake.nixosModules = self.mkModule "printing" {
     opts =
@@ -23,10 +24,19 @@
       };
 
     cfg =
-      { lib, cfg, ... }:
+      {
+        pkgs,
+        lib,
+        cfg,
+        ...
+      }:
       {
         services.printing = {
           enable = true;
+          package = lib.hideDesktop {
+            inherit pkgs;
+            package = pkgs.cups;
+          };
           inherit (cfg.printing) drivers;
         };
 

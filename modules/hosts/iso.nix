@@ -52,11 +52,6 @@
           width = 1920;
           height = 1080;
         };
-
-        git.user = {
-          name = "altacountbabi";
-          email = "altacountbabi@users.noreply.github.com";
-        };
       };
 
       # Copy config to user's home directory

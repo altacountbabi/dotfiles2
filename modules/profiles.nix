@@ -57,5 +57,33 @@
         mpv
       ]
       ++ minimal;
+    desktop-simple =
+      with self.nixosModules;
+      [
+        theme
+
+        plymouth
+
+        ssh
+        git
+        jj
+
+        printing
+        bluetooth
+
+        gdm
+        gnome
+        fonts
+
+        # Apps
+        nautilus
+        wezterm
+        helium
+        loupe
+        mpv
+
+        { prefs.tools.ffmpeg = false; }
+      ]
+      ++ minimal;
   };
 }

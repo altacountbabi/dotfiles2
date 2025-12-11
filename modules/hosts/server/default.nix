@@ -88,6 +88,6 @@
           chmod +w -R /home/${username}/conf
         '';
 
-      system.stateVersion = lib.mkForce "25.05";
+      system.stateVersion = lib.mkForce "26.05";
     };
 }

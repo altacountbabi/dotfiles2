@@ -503,7 +503,10 @@
       in
       {
         environment.systemPackages = [
-          wrapped
+          (lib.hideDesktop {
+            inherit pkgs;
+            package = wrapped;
+          })
         ];
 
         environment.sessionVariables = {

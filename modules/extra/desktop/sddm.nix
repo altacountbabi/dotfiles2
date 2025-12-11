@@ -9,7 +9,7 @@
     {
       qt.enable = true;
       services.displayManager.sddm = {
-        package = pkgs.kdePackages.sddm;
+        package = lib.mkDefault pkgs.kdePackages.sddm;
         enable = true;
         wayland.enable = true;
         settings = {

@@ -2,9 +2,10 @@ final: prev:
 
 let
   importPaths = [
-    ./system.nix
-    ./values.nix
+    ./generators.nix
     ./options.nix
+    ./values.nix
+    ./system.nix
     ./gitINI.nix
   ];
 

@@ -33,9 +33,28 @@
                 Whether to enable VRR (Variable Refresh Rate).
                 Disabled by default as it can cause flickering on certain monitors.
               '';
+
+              edid = mkOpt (types.nullOr types.str) null ''
+                Path to EDID file for this monitor output.
+                If set, will be used to assign custom EDID to the output.
+              '';
             };
           }
         )) { } "Host-specific monitor config";
+      };
+
+    cfg =
+      { cfg, lib, ... }:
+      {
+        hardware.display.outputs =
+          cfg.monitors
+          |> lib.filterAttrs (_: m: m.enable)
+          |> lib.mapAttrs (
+            _: monitor: {
+              edid = monitor.edid;
+              mode = "${toString monitor.width}x${toString monitor.height}@${toString monitor.refreshRate}";
+            }
+          );
       };
   };
 }
