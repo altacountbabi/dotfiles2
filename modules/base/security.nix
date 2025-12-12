@@ -8,10 +8,16 @@
       { mkOpt, types, ... }:
       {
         sudo-rs = mkOpt types.bool true "Whether to use sudo-rs instead of sudo";
+        uutils = mkOpt types.bool true "Whether to replace GNU coreutils with uutils";
       };
 
     cfg =
-      { cfg, lib, ... }:
+      {
+        pkgs,
+        lib,
+        cfg,
+        ...
+      }:
       let
         inherit (lib) mkDefault mkIf;
       in
@@ -77,6 +83,54 @@
         environment.shellAliases = {
           run0 = "run0 --background=0";
         };
+
+        system.replaceDependencies.replacements = mkIf cfg.uutils (
+          let
+            inherit (builtins) concatStringsSep genList stringLength;
+            coreutils-full-name =
+              "coreuutils-full"
+              + concatStringsSep "" (genList (_: "_") (stringLength pkgs.coreutils-full.version));
+            coreutils-name =
+              "coreuutils" + concatStringsSep "" (genList (_: "_") (stringLength pkgs.coreutils.version));
+            findutils-name =
+              "finduutils" + concatStringsSep "" (genList (_: "_") (stringLength pkgs.findutils.version));
+            diffutils-name =
+              "diffuutils" + concatStringsSep "" (genList (_: "_") (stringLength pkgs.diffutils.version));
+          in
+          [
+            # coreutils
+            {
+              oldDependency = pkgs.coreutils-full;
+              newDependency = pkgs.symlinkJoin {
+                name = coreutils-full-name;
+                paths = [ pkgs.uutils-coreutils-noprefix ];
+              };
+            }
+            {
+              oldDependency = pkgs.coreutils;
+              newDependency = pkgs.symlinkJoin {
+                name = coreutils-name;
+                paths = [ pkgs.uutils-coreutils-noprefix ];
+              };
+            }
+            # findutils
+            {
+              oldDependency = pkgs.findutils;
+              newDependency = pkgs.symlinkJoin {
+                name = findutils-name;
+                paths = [ pkgs.uutils-findutils ];
+              };
+            }
+            # diffutils
+            {
+              oldDependency = pkgs.diffutils;
+              newDependency = pkgs.symlinkJoin {
+                name = diffutils-name;
+                paths = [ pkgs.uutils-diffutils ];
+              };
+            }
+          ]
+        );
       };
   };
   # flake.nixosModules.base =
