@@ -12,7 +12,9 @@
               profile = self.profiles.desktop-simple;
               include = [
                 iso
+                nvidia
                 rtw89
+
                 ./_hardware.nix
               ];
             }
@@ -26,9 +28,10 @@
 
             theme.wallpaper = builtins.path { path = ../../../plant.jpg; };
 
-            monitors."Virtual-1" = {
+            monitors."DP-1" = {
               width = 1920;
               height = 1080;
+              refreshRate = 240.0;
             };
 
             timeZone = "Europe/Bucharest";
