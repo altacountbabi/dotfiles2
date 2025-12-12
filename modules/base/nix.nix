@@ -85,11 +85,6 @@
               # Alias `p` to `nixpkgs` to shorten nix3 commands
               p.to = to;
               nixpkgs.to = to;
-
-              conf.to = {
-                type = "path";
-                path = config.prefs.cleanRoot;
-              };
             };
         };
 
