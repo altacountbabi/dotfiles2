@@ -63,54 +63,122 @@
       }:
       let
         volumeID = "nixos-${config.system.nixos.release}-${pkgs.stdenv.hostPlatform.uname.processor}";
+        targetArch = pkgs.stdenv.hostPlatform.efiArch;
 
-        mkBootEntry =
-          {
-            title ? config.system.nixos.distroName,
-            sortKey ? title,
-            params ? [ ],
-          }:
-          ''
-            title    ${title}
-            sort-key ${sortKey}
-            linux    /EFI/nixos/vmlinuz.efi
-            initrd   /EFI/nixos/initrd.efi
-            options  init=${config.system.build.toplevel}/init root=LABEL=${volumeID} ${
-              lib.concatStringsSep " " (params ++ config.boot.kernelParams)
-            }
-          '';
+        grubPkgs = if config.boot.loader.grub.forcei686 then pkgs.pkgsi686Linux else pkgs;
 
-        efiDir = pkgs.runCommand "efi-dir" { nativeBuildInputs = [ pkgs.systemd ]; } ''
-          mkdir -p $out/EFI/BOOT
-          mkdir -p $out/EFI/nixos
-          mkdir -p $out/loader/entries
+        # Minimal GRUB configuration for Option B
+        grubCfg = pkgs.writeText "grub.cfg" ''
+          search --set=root --file /EFI/nixos-installer-image
 
-          cp ${pkgs.systemd}/lib/systemd/boot/efi/systemd-boot${pkgs.stdenv.hostPlatform.efiArch}.efi \
-            $out/EFI/BOOT/BOOT${lib.toUpper pkgs.stdenv.hostPlatform.efiArch}.EFI
+          set default=0
+          set timeout=${toString (config.boot.loader.timeout or 5)}
 
-          cp ${config.system.build.kernel}/${config.system.boot.loader.kernelFile} $out/EFI/nixos/vmlinuz.efi
-          cp ${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile} $out/EFI/nixos/initrd.efi
+          insmod gfxterm
+          insmod png
+          set gfxpayload=keep
+          set gfxmode=${
+            let
+              m = (config.prefs.monitors |> builtins.attrValues |> builtins.head);
+            in
+            "${toString m.width}x${toString m.height}"
+          }
 
-          cat > $out/loader/loader.conf <<EOF
-          default nixos
-          timeout ${toString config.boot.loader.timeout or 5}
-          console-mode keep
-          EOF
+          loadfont (\$root)/EFI/BOOT/unicode.pf2
 
-          cat > $out/loader/entries/nixos.conf <<EOF
-          ${mkBootEntry {
-            sortKey = "01-nixos";
-            params = [
-              "quiet"
-              "loglevel=3"
-              "rd.udev.log_level=3"
-              "udev.log_priority=3"
-              "rd.systemd.show_status=false"
-            ];
-          }}
-          EOF
+          terminal_output gfxterm
+          terminal_input console
+
+          menuentry "NixOS" {
+            linux /EFI/nixos/vmlinuz.efi init=${config.system.build.toplevel}/init root=LABEL=${volumeID} ${lib.concatStringsSep " " config.boot.kernelParams}
+            initrd /EFI/nixos/initrd.efi
+          }
         '';
 
+        efiDir =
+          pkgs.runCommand "efi-directory"
+            {
+              nativeBuildInputs = [ pkgs.grub2 ];
+              strictDeps = true;
+            }
+            ''
+              mkdir -p $out/EFI/BOOT
+              mkdir -p $out/EFI/nixos
+
+              # Add a marker so GRUB can find the filesystem.
+              touch $out/EFI/nixos-installer-image
+
+              # Kernel + initrd
+              cp ${config.system.build.kernel}/${config.system.boot.loader.kernelFile} $out/EFI/nixos/vmlinuz.efi
+              cp ${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile} $out/EFI/nixos/initrd.efi
+
+              # Minimal set of GRUB modules
+              MODULES=(
+                # Basic modules for filesystems and partition schemes
+                "fat"
+                "iso9660"
+                "part_gpt"
+                "part_msdos"
+
+                # Basic stuff
+                "normal"
+                "boot"
+                "linux"
+                "configfile"
+                "loopback"
+                "chain"
+                "halt"
+
+                # Allows rebooting into firmware setup interface
+                "efifwsetup"
+
+                # EFI Graphics Output Protocol
+                "efi_gop"
+
+                # User commands
+                "ls"
+
+                # System commands
+                "search"
+                "search_label"
+                "search_fs_uuid"
+                "search_fs_file"
+                "echo"
+
+                # We're not using it anymore, but we'll leave it in so it can be used
+                # by user, with the console using "C"
+                "serial"
+
+                # Graphical mode stuff
+                "gfxmenu"
+                "gfxterm"
+                "gfxterm_background"
+                "gfxterm_menu"
+                "test"
+                "loadenv"
+                "all_video"
+                "videoinfo"
+
+                # File types for graphical mode
+                "png"
+              )
+
+              # Build EFI binary
+              grub-mkimage \
+                --directory=${grubPkgs.grub2_efi}/lib/grub/${grubPkgs.grub2_efi.grubTarget} \
+                -o $out/EFI/BOOT/BOOT${lib.toUpper targetArch}.EFI \
+                -p /EFI/BOOT \
+                -O ${grubPkgs.grub2_efi.grubTarget} \
+                ''${MODULES[@]}
+
+              # Copy default font for text output
+              cp ${pkgs.grub2}/share/grub/unicode.pf2 $out/EFI/BOOT/
+
+              # Write grub.cfg
+              cp ${grubCfg} $out/EFI/BOOT/grub.cfg
+            '';
+
+        # Create FAT image containing GRUB EFI binary
         efiImg =
           pkgs.runCommand "efi-img"
             {
@@ -118,39 +186,48 @@
                 pkgs.mtools
                 pkgs.dosfstools
               ];
-              strictDeps = true;
             }
             ''
-              mkdir ./contents
-              cp -r ${efiDir}/* ./contents/
-              truncate --size=48M "$out"
+              mkdir contents
+              cp -r ${efiDir}/* contents/
+
+              truncate --size=64M "$out"
               mkfs.vfat -n EFIBOOT "$out"
+
               mmd -i "$out" ::/EFI
               mcopy -psvm -i "$out" ./contents/EFI ::/
-              mmd -i "$out" ::/loader
-              mcopy -psvm -i "$out" ./contents/loader ::/
+
               fsck.vfat -vn "$out"
             '';
 
         efiBootImage = "boot/efi.img";
+
       in
       {
         boot = {
-          loader.systemd-boot.enable = true;
-
-          initrd = {
-            availableKernelModules = [
-              "squashfs"
-              "iso9660"
-              "uas"
-              "overlay"
-            ];
-            kernelModules = [
-              "loop"
-              "overlay"
-            ];
-            supportedFilesystems = [ "vfat" ];
+          loader = {
+            systemd-boot.enable = lib.mkForce false;
+            grub = {
+              enable = true;
+              efiSupport = true;
+              copyKernels = false;
+              devices = [ "nodev" ];
+            };
           };
+
+          initrd.availableKernelModules = [
+            "squashfs"
+            "iso9660"
+            "uas"
+            "overlay"
+          ];
+
+          initrd.kernelModules = [
+            "loop"
+            "overlay"
+          ];
+
+          initrd.supportedFilesystems = [ "vfat" ];
         };
 
         fileSystems = {
@@ -188,6 +265,7 @@
         };
 
         prefs.iso.storeContents = [ config.system.build.toplevel ];
+
         prefs.iso.contents = [
           {
             source = efiImg;
@@ -196,10 +274,6 @@
           {
             source = "${efiDir}/EFI";
             target = "/EFI";
-          }
-          {
-            source = "${efiDir}/loader";
-            target = "/loader";
           }
         ];
 
@@ -211,12 +285,7 @@
         };
 
         boot.postBootCommands = ''
-          # After booting, register the contents of the Nix store on the
-          # CD in the Nix database in the tmpfs.
           ${config.nix.package.out}/bin/nix-store --load-db < /nix/store/nix-path-registration
-
-          # nixos-rebuild also requires a "system" profile and an
-          # /etc/NIXOS tag.
           touch /etc/NIXOS
           ${config.nix.package.out}/bin/nix-env -p /nix/var/nix/profiles/system --set /run/current-system
         '';
