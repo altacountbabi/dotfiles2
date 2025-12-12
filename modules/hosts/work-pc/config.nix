@@ -12,6 +12,7 @@
               profile = self.profiles.desktop-simple;
               include = [
                 iso
+                rtw89
                 ./_hardware.nix
               ];
             }

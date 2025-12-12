@@ -1,5 +1,5 @@
 {
-  flake.nixosModules.rtl8852au =
+  flake.nixosModules.rtw89 =
     {
       config,
       pkgs,
@@ -7,24 +7,23 @@
       ...
     }:
     let
-      rtl8852au =
+      rtw89 =
         let
           kernel = config.boot.kernelPackages.kernel;
-          inherit (pkgs) stdenv fetchFromGitHub bc;
+          inherit (pkgs) stdenv fetchFromGitHub;
         in
         stdenv.mkDerivation {
-          pname = "rtl8852au";
-          version = "${kernel.version}-unstable-2025-12-11";
+          pname = "rtw89";
+          version = "${kernel.version}-unstable-2025-12-12";
 
           src = fetchFromGitHub {
-            owner = "pulponair";
-            repo = "rtl8852au";
-            rev = "develop";
-            hash = "sha256-R8u89DzKsL2qYswvV0SXFLxsonChi3NtFs8aqVXAD68=";
+            owner = "morrownr";
+            repo = "rtw89";
+            rev = "e47a21c53cbd3bb4d29a42c40ca0c0c2aa005d1b";
+            hash = "sha256-ofijADUyFAmE0bXCsJmQB41iGFu7AlXIwKGaHy4V/qU=";
           };
 
-          nativeBuildInputs = kernel.moduleBuildDependencies ++ [ bc ];
-
+          nativeBuildInputs = kernel.moduleBuildDependencies;
           hardeningDisable = [
             "pic"
             "format"
@@ -40,12 +39,14 @@
                 "empty-body"
                 "missing-declarations"
                 "misleading-indentation"
+                "compare-distinct-pointer-types"
               ];
             in
             suppressed |> map (x: "-Wno-${x}") |> builtins.concatStringsSep " ";
 
           makeFlags = [
-            "KSRC=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+            "KDIR=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+            "KVER=${kernel.version}"
             "ARCH=${stdenv.hostPlatform.linuxArch}"
             ("CONFIG_PLATFORM_I386_PC=" + (if stdenv.hostPlatform.isx86 then "y" else "n"))
             (
@@ -57,15 +58,26 @@
             "CROSS_COMPILE=${stdenv.cc.targetPrefix}"
           ];
 
-          installPhase = ''
-            install -D 8852au.ko $out/lib/modules/${kernel.modDirVersion}/8852au.ko
-          '';
+          installPhase =
+            let
+              modDestDir = "$out/lib/modules/${kernel.modDirVersion}/kernel/drivers/net/wireless/realtek/rtw89";
+            in
+            # bash
+            ''
+              runHook preInstall
+
+              mkdir -p ${modDestDir}
+              find . -name '*.ko' -exec cp --parents {} ${modDestDir} \;
+              find ${modDestDir} -name '*.ko' -exec xz -f {} \;
+
+              runHook postInstall
+            '';
 
           enableParallelBuilding = true;
 
           meta = with lib; {
-            description = "Driver for Realtek 802.11ac, rtl8852au, provides the 8852au mod";
-            homepage = "https://github.com/natimerry/rtl8852au";
+            description = "Driver for Realtek Wi-Fi 6/6E and Wi-Fi 7 adapters, provides the rtw89 modules";
+            homepage = "https://github.com/morrownr/rtw89";
             license = licenses.gpl2Only;
             platforms = platforms.linux;
           };
@@ -76,11 +88,12 @@
         kernelModules = [
           "cfg80211"
           "mac80211"
-          "8852au"
+          "rtw89_core_git"
+          "rtw89_8852au_git"
         ];
 
         extraModulePackages = [
-          rtl8852au
+          rtw89
         ];
       };
 
