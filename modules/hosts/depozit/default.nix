@@ -1,4 +1,4 @@
-{ inputs, self, ... }:
+{ self, inputs, ... }:
 
 {
   flake.nixosConfigurations.depozit = inputs.nixpkgs.lib.nixosSystem {
@@ -12,7 +12,7 @@
               profile = self.profiles.server;
               include = [
                 iso
-                ./_hardware.nix
+                depozitHardware
               ];
             }
           );
