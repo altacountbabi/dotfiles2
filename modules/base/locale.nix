@@ -3,7 +3,12 @@
 {
   flake.nixosModules = self.mkModule "base" {
     opts =
-      { mkOpt, types, ... }:
+      {
+        config,
+        mkOpt,
+        types,
+        ...
+      }:
       {
         timeZone = mkOpt (types.nullOr types.str) null ''
           The time zone used when displaying times and dates.
@@ -13,7 +18,7 @@
         language = {
           primary = mkOpt (types.nullOr types.str) "en_US.UTF-8" "The primary language to use in the system";
           secondary =
-            mkOpt (types.nullOr types.str) null
+            mkOpt (types.nullOr types.str) config.prefs.language.primary
               "The secondary language to use in the system, used for things such as time";
         };
       };

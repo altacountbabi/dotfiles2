@@ -7,7 +7,8 @@
     opts =
       { mkOpt, types, ... }:
       {
-        hostname = mkOpt types.str "nixos" "The name of the host";
+        hostname = mkOpt types.str "nixos" "The name of the machine";
+        domain = mkOpt types.str "nixos" "The system domain name";
         wol = mkOpt (types.nullOr types.str) null "Name of interface to enable wake on lan for";
       };
 
@@ -22,6 +23,7 @@
         prefs.user.groups = [ "networkmanager" ];
 
         networking.hostName = cfg.hostname;
+        networking.domain = cfg.domain;
         networking.networkmanager.enable = true;
 
         systemd.services.enable-wol = lib.mkIf (cfg.wol != null) {

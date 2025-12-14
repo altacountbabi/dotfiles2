@@ -25,23 +25,23 @@
       }:
       let
         wrapped =
-          (inputs.wrappers.wrapperModules.wezterm.apply {
+          (self.wrapperModules.wezterm.apply {
             inherit pkgs;
-            inherit (cfg) package;
+            package = lib.mkForce cfg.package;
 
             "wezterm.lua".content =
               let
                 theme = (pkgs.formats.toml { }).generate "wezterm-theme" (
                   with config.prefs.theme.colors;
                   let
-                    isLight = config.prefs.theme.polarity == "light";
+                    isDark = config.prefs.theme.polarity == "dark";
                   in
                   {
                     colors = {
                       foreground = text;
                       background = base;
 
-                      cursor_fg = if isLight then base else crust;
+                      cursor_fg = if isDark then crust else base;
                       cursor_bg = rosewater;
                       cursor_border = rosewater;
 
@@ -53,25 +53,25 @@
                       split = overlay0;
 
                       ansi = [
-                        (if isLight then subtext1 else surface1)
+                        (if isDark then surface1 else subtext1)
                         red
                         green
                         yellow
                         blue
                         pink
                         teal
-                        (if isLight then surface2 else subtext1)
+                        (if isDark then subtext1 else surface2)
                       ];
 
                       brights = [
-                        (if isLight then subtext0 else surface2)
+                        (if isDark then surface2 else subtext0)
                         red
                         green
                         yellow
                         blue
                         pink
                         teal
-                        (if isLight then surface1 else subtext0)
+                        (if isDark then subtext0 else surface1)
                       ];
 
                       indexed = {
@@ -195,7 +195,32 @@
           "x-scheme-handler/terminal" = "wezterm.desktop";
         };
 
-        prefs.autostart.wezterm-mux-server = "${wrapped}/bin/wezterm-mux-server";
+        prefs.autostart = [ "${wrapped}/bin/wezterm-mux-server" ];
       };
   };
+
+  flake.wrapperModules.wezterm = inputs.wrappers.lib.wrapModule (
+    {
+      config,
+      lib,
+      wlib,
+      ...
+    }:
+    {
+      _class = "wrapper";
+      options = {
+        "wezterm.lua" = lib.mkOption {
+          type = wlib.types.file config.pkgs;
+          default.content = "";
+        };
+      };
+
+      config = {
+        flagSeparator = "=";
+        flags."--config-file" = toString config."wezterm.lua".path;
+
+        package = config.pkgs.wezterm;
+      };
+    }
+  );
 }

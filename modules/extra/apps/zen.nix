@@ -45,7 +45,7 @@
           |> lib.genAttrs (_: "zen.desktop")
         );
 
-        prefs.autostart.zen = lib.mkIf cfg.autostart cfg.package;
+        prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
       };
   };
 }

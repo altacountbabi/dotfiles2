@@ -2,16 +2,26 @@
 
 {
   flake.nixosModules = self.mkModule "base" {
+    path = "xdg";
+
+    opts =
+      { mkOpt, types, ... }:
+      {
+        patchSSH =
+          mkOpt types.bool true
+            "Whether to patch openssh to use $XDG_CONFIG_DIR/ssh instead of $HOME/.ssh";
+      };
+
     cfg =
       {
         config,
         pkgs,
         lib,
+        cfg,
         ...
       }:
       let
         inherit (lib) mkIf concatMapStringsSep mkMerge;
-        username = config.prefs.user.name;
       in
       mkMerge [
         {
@@ -29,14 +39,14 @@
             })
           ];
 
-          nix.settings.use-xdg-base-directories = true;
+          nix.settings.use-xdg-base-directories = !config.isDroid;
 
           environment.systemPackages = with pkgs; [
             xdg-user-dirs
           ];
 
           environment.sessionVariables = rec {
-            HOME = "/home/${username}";
+            HOME = config.prefs.user.home;
             XDG_CACHE_HOME = "${HOME}/.cache";
             XDG_CONFIG_HOME = "${HOME}/.config";
             XDG_DATA_HOME = "${HOME}/.local/share";
@@ -79,7 +89,7 @@
                 '';
             }
 
-            (mkIf config.services.openssh.enable {
+            (mkIf (config.services.openssh.enable && cfg.patchSSH) {
               text = # bash
                 ''
                   mkdir -p "$XDG_CONFIG_HOME/ssh"
@@ -104,7 +114,7 @@
             keyFilesStr = builtins.concatStringsSep " " keyFiles;
             sshConfigDir = "$XDG_CONFIG_HOME/ssh";
           in
-          mkIf config.services.openssh.enable {
+          mkIf (config.services.openssh.enable && cfg.patchSSH) {
             # To spare us passing the extra options to the executables, we set these
             # in the system config file.
             programs.ssh.extraConfig = ''

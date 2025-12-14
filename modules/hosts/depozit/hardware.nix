@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ self, inputs, ... }:
 
 {
   flake.nixosModules.depozitHardware =
@@ -9,9 +9,11 @@
       ...
     }:
     {
-      imports = [
+      imports = with self.nixosModules; [
         (modulesPath + "/installer/scan/not-detected.nix")
         inputs.disko.nixosModules.default
+
+        nvidia
       ];
 
       boot = {
@@ -31,7 +33,7 @@
       };
 
       disko.devices.disk.main = {
-        device = "/dev/disk/by-uuid/53e22d76-1470-476e-b622-1e1cffd6e6d4";
+        device = "/dev/sda";
         type = "disk";
         content = {
           type = "gpt";
@@ -47,7 +49,7 @@
               };
             };
             root = {
-              size = "-8G";
+              end = "-8G";
               content = {
                 type = "filesystem";
                 format = "f2fs";
@@ -71,8 +73,6 @@
           };
         };
       };
-
-      networking.useDHCP = lib.mkDefault true;
 
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

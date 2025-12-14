@@ -45,7 +45,7 @@
           |> lib.genAttrs (_: "helium.desktop")
         );
 
-        prefs.autostart.helium = lib.mkIf cfg.autostart cfg.package;
+        prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
       };
   };
 }

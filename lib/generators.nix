@@ -1,4 +1,4 @@
-final: prev:
+_:
 
 {
   hideDesktop =

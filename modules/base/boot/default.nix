@@ -13,12 +13,18 @@
       };
 
     cfg =
-      { config, cfg, ... }:
+      { cfg, ... }:
       {
-        boot.loader.timeout = cfg.timeout;
+        boot = {
+          loader.timeout = cfg.timeout;
+          kernel.sysctl = {
+            "vm.swappiness" = 10;
+          };
+        };
 
-        # TODO: Fix systemd-based initrd for ISOs
-        boot.initrd.systemd.enable = (config.prefs.iso or null) == null;
+        boot.initrd.systemd.enable = true;
+        system.etc.overlay.enable = true;
+        system.nixos-init.enable = true;
       };
   };
 }

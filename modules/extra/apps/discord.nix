@@ -228,7 +228,7 @@
 
           installPhase =
             let
-              home = "/home/${config.prefs.user.name}";
+              inherit (config.prefs.user) home;
             in
             # bash
             ''
@@ -251,7 +251,7 @@
           wrapped
         ];
 
-        prefs.autostart.apps.discord = lib.mkIf cfg.autostart cfg.package;
+        prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
       };
   };
 }

@@ -4,6 +4,7 @@
     {
       services.flatpak.enable = true;
 
+      # TODO: Use a proper declarative flatpak manager flake here to allow for uninstalling it too
       systemd.services.install-sober-flatpak = {
         description = "Install sober flatpak";
         after = [ "network-online.target" ];

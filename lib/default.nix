@@ -1,3 +1,4 @@
+{ inputs }:
 final: prev:
 
 let
@@ -7,8 +8,11 @@ let
     ./values.nix
     ./system.nix
     ./gitINI.nix
+    ./colors.nix
   ];
 
-  imported = builtins.foldl' (acc: path: acc // import path final prev) { } importPaths;
+  imported = builtins.foldl' (
+    acc: path: acc // import path { inherit inputs final prev; }
+  ) { } importPaths;
 in
 imported

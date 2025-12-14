@@ -17,7 +17,7 @@
 
         services.openssh = {
           enable = true;
-          # settings.PasswordAuthentication = (builtins.length cfg.pubKeys) != 0;
+          settings.PasswordAuthentication = (builtins.length cfg.pubKeys) != 0;
         };
       };
   };

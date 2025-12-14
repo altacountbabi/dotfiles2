@@ -1,6 +1,6 @@
 # Patch INI generator to interpret `null` as nothing instead of a string literal "null"
 
-final: prev:
+{ final, ... }:
 
 let
   inherit (final)

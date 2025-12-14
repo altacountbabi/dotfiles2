@@ -30,7 +30,7 @@
           extraCompatPackages = with pkgs; [ proton-ge-bin ];
         };
 
-        prefs.autostart.apps.steam = lib.mkIf cfg.autostart "steam";
+        prefs.autostart = lib.mkIf cfg.autostart [ "steam" ];
       };
   };
 }

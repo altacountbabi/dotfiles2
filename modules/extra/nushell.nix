@@ -13,10 +13,14 @@
       }:
       {
         package = mkOpt types.package pkgs.nushell "The package to use for nushell";
+
         extraConfig = mkOpt (types.listOf types.str) [ ] "Extra items to add to the config";
+
         excludedAliases =
           mkOpt (types.listOf types.str) [ ]
             "Aliases from `environment.shellAliases` to exclude from the config";
+
+        include = mkOpt (types.listOf types.path) [ ] "List of paths to source into the env config";
       };
 
     cfg =
@@ -28,25 +32,53 @@
         ...
       }:
       let
-        inherit (lib) getExe filterAttrs mapAttrsToList;
+        inherit (lib)
+          mkForce
+          getExe
+          filterAttrs
+          mapAttrsToList
+          concatStringsSep
+          elem
+          isString
+          isPath
+          ;
 
         wrapped =
           (inputs.wrappers.wrapperModules.nushell.apply {
             inherit pkgs;
-            inherit (cfg) package;
+            package = mkForce cfg.package;
 
             "env.nu".content =
               let
+                include = cfg.include |> map (x: "source ${x}") |> concatStringsSep "\n";
                 aliases =
                   config.environment.shellAliases
-                  |> filterAttrs (k: v: v != "" && !(builtins.elem k cfg.excludedAliases))
+                  |> filterAttrs (k: v: v != "" && !(elem k cfg.excludedAliases))
                   |> mapAttrsToList (k: v: "alias ${k} = ${v}")
-                  |> builtins.concatStringsSep "\n";
-                extraConfig = cfg.extraConfig |> builtins.concatStringsSep "\n";
+                  |> concatStringsSep "\n";
+                autostart =
+                  let
+                    cmd =
+                      v:
+                      if isString v then
+                        "${getExe pkgs.bash} -c \"${v}\""
+                      else if isPath v then
+                        "${v}"
+                      else
+                        "${getExe v}";
+                  in
+                  config.prefs.autostart-shell |> map cmd |> concatStringsSep "\n";
+
+                extraConfig = cfg.extraConfig |> concatStringsSep "\n";
               in
               # nu
               ''
+                source ${../pkgs/scripts/nushell-lib.nu}
+
+                ${include}
+
                 ${aliases}
+                ${autostart}
 
                 ${extraConfig}
 
@@ -81,7 +113,7 @@
                 }
 
                 # Resolve a symlink for a file
-                def unlink [path: path] {
+                def "resolve link" [path: path] {
                   let original = (ls -l $path | get target.0);
                   cp $original .unlink-tmp
                   mv .unlink-tmp $path
@@ -305,6 +337,7 @@
       {
         environment.systemPackages = with pkgs; [
           carapace
+          wrapped
         ];
 
         prefs.user.shell = wrapped;

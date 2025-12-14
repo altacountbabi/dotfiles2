@@ -1,3 +1,5 @@
+# Wifi adapter driver
+
 {
   flake.nixosModules.rtw89 =
     {

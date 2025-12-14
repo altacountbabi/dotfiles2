@@ -1,6 +1,6 @@
 # Basic constants
 
-final: prev:
+{ final, prev, ... }:
 
 let
   inherit (final) mkMerge;

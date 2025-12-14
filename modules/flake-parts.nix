@@ -1,10 +1,40 @@
-{ self, ... }:
+{ self, inputs, ... }:
 
 {
   systems = [
     "aarch64-linux"
     "x86_64-linux"
   ];
+
+  flake.mkConfigurations =
+    name:
+    {
+      system ? "x86_64-linux",
+      normal ? {
+        include = { };
+        exclude = { };
+      },
+      iso ? {
+        include = { };
+        exclude = { };
+      },
+    }:
+    let
+      lib = inputs.nixpkgs.lib;
+      normalModules = normal.include |> lib.subtractLists (normal.exclude or [ ]);
+    in
+    {
+      "${name}" = lib.nixosSystem {
+        ${if system != null then "system" else null} = system;
+        modules = normalModules;
+      };
+      "${name}Iso" = lib.nixosSystem {
+        ${if system != null then "system" else null} = system;
+        modules =
+          (normalModules ++ iso.include ++ [ self.nixosModules.iso ])
+          |> lib.subtractLists (iso.exclude or [ ]);
+      };
+    };
 
   flake.mkModule =
     name:
@@ -94,22 +124,22 @@
     opts =
       {
         lib,
-        mkOpt,
-        types,
+        mkConst,
         ...
       }:
       {
-        root = (mkOpt types.path ../. "Shortcut to the root of the flake") // {
-          readOnly = true;
-        };
-        cleanRoot =
-          (mkOpt types.path (lib.cleanSourceWith {
+        root = mkConst (
+          lib.cleanSourceWith {
             filter = name: type: (type != "symlink" && name != "result");
             src = ../.;
-          }) "Shortcut to the root of the flake")
-          // {
-            readOnly = true;
-          };
+          }
+        );
+        rootWithGit = mkConst (
+          lib.cleanSourceWith {
+            filter = name: type: (type != "symlink" && name != "result") || name == ".git";
+            src = ../.;
+          }
+        );
       };
   };
 }

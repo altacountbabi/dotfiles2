@@ -21,11 +21,6 @@
             message = "Clashing port numbers for services: ${toString config.prefs.ports}";
           }
         ];
-
-        networking.firewall.allowedTCPPorts = [
-          80
-          443
-        ];
       };
   };
 }

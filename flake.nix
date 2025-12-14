@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nix-on-droid.url = "github:altacountbabi/nix-on-droid";
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
 
@@ -9,7 +10,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    wrappers.url = "path:/home/real/src/wrappers";
+    wrappers.url = "github:lassulus/wrappers";
 
     # SDDM Theme
     silentSDDM = {
@@ -25,19 +26,20 @@
     # Apps
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     helium.url = "github:FKouhai/helium2nix/main";
-    nixcord.url = "github:kaylorben/nixcord";
-    helix.url = "github:nik-contrib/helix";
+    nixcord.url = "github:altacountbabi/nixcord";
+    helix.url = "github:nik-contrib/helix/powerful-file-explorer";
     opencode.url = "github:sst/opencode";
+    microfetch.url = "github:NotAShelf/microfetch";
 
     mcp-nixos.url = "github:utensils/mcp-nixos";
 
-    declarative-jellyfin.url = "path:/home/real/src/declarative-jellyfin";
+    declarative-jellyfin.url = "github:Sveske-Juice/declarative-jellyfin";
   };
 
   outputs =
     inputs':
     let
-      lib' = inputs'.nixpkgs.lib.extend (import ./lib);
+      lib' = inputs'.nixpkgs.lib.extend (import ./lib { inputs = inputs'; });
       inputs = inputs' // {
         nixpkgs = inputs'.nixpkgs // {
           lib = lib';

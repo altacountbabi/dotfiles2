@@ -10,6 +10,7 @@
         nix = mkOpt types.bool true "Whether to install nix-related tools";
         sys = mkOpt types.bool true "Whether to install system-related tools";
         ffmpeg = mkOpt types.bool true "Whether to install ffmpeg";
+        microfetch = mkOpt types.bool true "Whether to install microfetch";
       };
 
     cfg =
@@ -23,7 +24,15 @@
         inherit (lib) mkMerge mkIf;
       in
       {
+        imports = [
+          "${inputs.nixpkgs.outPath}/nixos/modules/programs/htop.nix" # programs.htop
+        ];
+
         config = mkMerge [
+          {
+            environment.defaultPackages = [ ];
+          }
+
           (mkIf cfg.sys (
             let
               noDesktopFilesWrapper =
@@ -45,8 +54,10 @@
               environment.systemPackages = with pkgs; [
                 (noDesktopFilesWrapper btop)
                 libnotify
+                strace
                 file
                 tree
+                wget
                 duf
                 bat
               ];
@@ -65,31 +76,35 @@
           (mkIf cfg.nix {
             environment.shellAliases = {
               shell = "nom-shell --run nu";
+              search = "nix-search";
             };
 
             prefs.nushell.extraConfig = [
               # nushell
               ''
-                def nsr [pkg] {
-                  nix run $"nixpkgs#($pkg)" --log-format internal-json -v o+e>| nom --json
+                def ns [...packages: string] {
+                  let packages = $packages | each {|x| default-to-nixpkgs $x }
+
+                  $env.name = "nix-shell"
+                  nom shell ...$packages --command nu
+                }
+
+                def nsr [package: string, ...rest] {
+                  let package = default-to-nixpkgs $package
+
+                  let exe = nom getExe $package
+                  ^$exe ...$rest
                 }
               ''
             ];
 
             environment.systemPackages = with pkgs; [
               nix-output-monitor
+              nix-search-cli
+              nix-inspect
               nix-tree
               nixfmt
               nixd
-
-              (writeShellApplication {
-                name = "ns";
-                runtimeInputs = with pkgs; [
-                  fzf
-                  nix-search-tv
-                ];
-                text = ''exec "${pkgs.nix-search-tv.src}/nixpkgs.sh" "$@"'';
-              })
             ];
           })
 
@@ -102,6 +117,12 @@
 
             environment.systemPackages = with pkgs; [
               ffmpeg
+            ];
+          })
+
+          (mkIf cfg.microfetch {
+            environment.systemPackages = [
+              inputs.microfetch.packages.${pkgs.stdenv.hostPlatform.system}.default
             ];
           })
         ];

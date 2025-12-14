@@ -15,6 +15,10 @@
           enable = true;
           virtualHosts = cfg.caddy |> builtins.mapAttrs (k: v: { extraConfig = v; });
         };
+
+        networking.firewall.allowedTCPPorts = [
+          443
+        ];
       };
   };
 }

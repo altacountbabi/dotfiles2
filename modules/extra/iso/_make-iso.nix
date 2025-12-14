@@ -15,6 +15,7 @@
   compressImage ? false,
   volumeID ? "",
   efiBootImage,
+  toplevel ? null,
 }:
 
 let
@@ -35,7 +36,9 @@ stdenv.mkDerivation {
     xorriso
     zstd
     libossp_uuid
-  ] ++ lib.optionals needSquashfs makeSquashfsDrv.nativeBuildInputs;
+    toplevel
+  ]
+  ++ lib.optionals needSquashfs makeSquashfsDrv.nativeBuildInputs;
 
   inherit
     isoName

@@ -71,6 +71,10 @@
         environment.systemPackages = [
           wrapped
         ];
+
+        environment.shellAliases = {
+          oc = wrapped;
+        };
       };
   };
 }

@@ -19,7 +19,7 @@
             "Whether to make a local copy of nixpkgs from the flake inputs";
 
         flakePath =
-          mkOpt types.str "/home/${config.prefs.user.name}/conf"
+          mkOpt types.str "${config.prefs.user.home}/conf"
             "The path to the flake containing this config";
 
         customBinaryCache =
@@ -30,8 +30,9 @@
     cfg =
       {
         config,
-        cfg,
+        pkgs,
         lib,
+        cfg,
         ...
       }:
       {
@@ -45,11 +46,12 @@
               "flakes"
             ];
             warn-dirty = false;
-          }
-          // (lib.optionalAttrs cfg.customBinaryCache {
-            substituters = [ "http://av1.space:5000" ];
-            trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
-          });
+          };
+          # TODO: Ideally we dont need this, this is also broken at the moment
+          # // (lib.optionalAttrs cfg.customBinaryCache {
+          #   substituters = [ "https://av1.space" ];
+          #   trusted-public-keys = [ "av1.space:SUHVEkuXLKtIKjRS1ub/JaoyKeKx+5Sf412aX+jNWFY=" ];
+          # });
 
           gc = {
             automatic = true;
@@ -91,6 +93,7 @@
         system.tools = {
           nixos-option.enable = false;
           nixos-version.enable = false;
+          nixos-generate-config.enable = false;
         };
 
         programs.nh.enable = true;
@@ -99,6 +102,11 @@
           switch = "nh os switch";
         };
 
+        prefs.nushell.excludedAliases = lib.mkIf config.isDroid [ "switch" ];
+        prefs.nushell.extraConfig = lib.mkIf config.isDroid [
+          "source ${self.packages.${pkgs.stdenv.hostPlatform.system}.nix-on-droid-switch}/bin/switch"
+        ];
+
         systemd.services.copy-nixpkgs = lib.mkIf config.prefs.nix.localNixpkgs {
           description = "copy nixpkgs to store early";
           after = [ "network-online.target" ];
@@ -106,7 +114,7 @@
           wantedBy = [ "basic.target" ];
           serviceConfig = {
             Type = "simple";
-            ExecStart = "/run/current-system/sw/bin/nix eval nixpkgshello";
+            ExecStart = "/run/current-system/sw/bin/nix eval nixpkgs#hello";
           };
         };
 
@@ -115,7 +123,8 @@
           overlays = self.overlays |> builtins.attrValues;
         };
 
-        documentation.enable = false;
+        documentation.info.enable = false;
+        documentation.nixos.enable = false;
 
         system.stateVersion = "25.11";
       };

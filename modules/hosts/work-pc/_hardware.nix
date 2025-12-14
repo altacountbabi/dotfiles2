@@ -24,6 +24,4 @@
     kernelModules = [ "kvm-intel" ];
     extraModulePackages = [ ];
   };
-
-  networking.useDHCP = lib.mkDefault true;
 }
