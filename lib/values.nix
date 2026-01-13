@@ -56,4 +56,9 @@ rec {
         value = start + i;
       }) services
     );
+
+  rofiLit = value: {
+    _type = "literal";
+    inherit value;
+  };
 }
