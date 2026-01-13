@@ -282,19 +282,6 @@
                     "-show"
                     "drun"
                   ];
-                  "Mod+Comma".spawn = [
-                    "rofi"
-                    "-show"
-                    "emoji"
-                    "-modi"
-                    "emoji"
-                    "-kb-secondary-copy"
-                    ""
-                    "-kb-custom-1"
-                    "Ctrl+c"
-                    "-display-emoji"
-                    "Emoji"
-                  ];
                   "Mod+M".spawn = "youtube-music";
                   "Mod+B".spawn = [
                     "wezterm"

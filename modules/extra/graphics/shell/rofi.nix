@@ -1,8 +1,6 @@
 { self, inputs, ... }:
 
 {
-  # TODO: Add emoji plugin and file search plugin
-
   flake.nixosModules.rofi =
     {
       config,
@@ -74,41 +72,24 @@
 
               inherit (cfg) settings theme plugins;
             }).wrapper;
-
-          powerDesktopEntries =
-            let
-              mkEntry =
-                id: name:
-                (pkgs.formats.ini { }).generate "${id}.desktop" {
-                  "Desktop Entry" = {
-                    Exec = "systemctl ${id}";
-                    Name = name;
-                    Terminal = false;
-                    Type = "Application";
-                    Version = "1.4";
-                  };
-                };
-              poweroff = mkEntry "poweroff" "Shutdown / Power off";
-              reboot = mkEntry "reboot" "Restart / Reboot";
-              suspend = mkEntry "suspend" "Sleep / Suspend";
-            in
-            pkgs.runCommand "write-desktop-entry" { inherit poweroff reboot suspend; } ''
-              mkdir -p $out/share/applications
-              cp "$poweroff" "$out/share/applications/poweroff.desktop"
-              cp "$reboot" "$out/share/applications/reboot.desktop"
-              cp "$suspend" "$out/share/applications/suspend.desktop"
-            '';
         in
         {
           programs.rofi = {
             settings = mkDefault {
-              display-drun = "Run";
+              display-drun = ">";
+              matching = "fuzzy";
             };
+
             theme =
+              with config.prefs.theme.colors;
               let
                 lit = lib.rofiLit;
+
+                bg = base;
+                bg-alt = surface0;
+                fg = text;
+                fg-alt = subtext0;
               in
-              with config.prefs.theme.colors;
               mkDefault {
                 configuration = {
                   font = "${config.fonts.fontconfig.defaultFonts.monospace |> builtins.head} 12";
@@ -123,29 +104,27 @@
 
                   width = 750;
 
-                  bg = lit base;
-                  bg-alt = lit surface0;
-                  fg = lit text;
-                  fg-alt = lit subtext0;
-
-                  background-color = lit "@bg";
-                  text-color = lit "@fg";
+                  background-color = lit bg;
+                  text-color = lit fg;
                 };
 
                 window = {
                   transparency = "real";
                   border-radius = lit "10px";
+                  border = lit "1px solid";
+                  border-color = lit bg-alt;
                 };
 
                 mainbox.children =
                   [
                     "inputbar"
                     "listview"
+                    "message"
                   ]
                   |> map lit;
 
                 inputbar = {
-                  background-color = lit "@bg-alt";
+                  background-color = lit bg-alt;
                   children =
                     [
                       "prompt"
@@ -153,6 +132,12 @@
                     ]
                     |> map lit;
                 };
+
+                message = {
+                  background-color = lit bg-alt;
+                  padding = lit "8px 8px";
+                };
+                textbox.background-color = lit bg-alt;
 
                 entry = {
                   background-color = lit "inherit";
@@ -164,7 +149,7 @@
                   padding = lit "12px";
                 };
 
-                listview.lines = 8;
+                listview.lines = 10;
 
                 element.children =
                   [
@@ -184,11 +169,11 @@
 
                 element-text = {
                   padding = lit "10px 0";
-                  text-color = lit "@fg-alt";
+                  text-color = lit fg-alt;
                 };
 
                 "element-text selected" = {
-                  text-color = lit "@fg";
+                  text-color = lit fg;
                 };
               };
 
@@ -197,11 +182,44 @@
             ];
           };
 
-          environment.systemPackages = [
+          prefs.desktop-entries =
+            let
+              powerEntries =
+                {
+                  "poweroff" = "Shutdown / Power off";
+                  "reboot" = "Restart / Reboot";
+                  "suspend" = "Sleep / Suspend";
+                }
+                |> lib.concatMapAttrs (
+                  k: v: {
+                    "${k}.desktop" = {
+                      name = v;
+                      exec = "systemctl ${k}";
+                      terminal = false;
+                    };
+                  }
+                );
+            in
+            powerEntries
+            // {
+              "rofi-fd.desktop" = {
+                name = "File Search";
+                exec = "rofi-fd";
+                icon = "system-search";
+                terminal = false;
+              };
+              "rofimoji.desktop" = {
+                name = "Emojis";
+                exec = "rofimoji";
+                icon = "emoji-people";
+                terminal = false;
+              };
+            };
+
+          environment.systemPackages = with self.packages.${pkgs.stdenv.hostPlatform.system}; [
             wrapped
-            powerDesktopEntries
-            self.packages.${pkgs.stdenv.hostPlatform.system}.rofimoji
-            self.packages.${pkgs.stdenv.hostPlatform.system}.rofi-fd
+            rofimoji
+            rofi-fd
           ];
         };
     };

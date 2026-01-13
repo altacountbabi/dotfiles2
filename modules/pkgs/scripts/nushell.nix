@@ -30,13 +30,13 @@
     nushellRun =
       {
         pkgs,
-        name,
         packages ? [ ],
         env ? { },
         ...
       }@args:
       let
-        script = nushellScript args;
+        name = args.name + "-builder";
+        script = nushellScript (args // { inherit name; });
       in
       pkgs.runCommand name
         {

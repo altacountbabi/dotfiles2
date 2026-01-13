@@ -1,8 +1,9 @@
 #!/usr/bin/env nu
 
 export def rofi-fd [
-  location: path = "~"
+  location?: path
 ] {
+  let location = $location | default $env.HOME
   let path = fd . $location
     | lines
     | each {|path|
@@ -20,10 +21,18 @@ export def rofi-fd [
         })
       }
 
+      let path = $path | str replace $env.HOME "~"
+
       $"($path)\u{0}icon\u{1f}($icon)"
     }
     | to text
     | rofi -dmenu -i -p ">"
+
+  let path = if ($path | str starts-with "~") {
+    $path | str replace "~" $env.HOME
+  } else {
+    $path
+  }
 
   if ($path | is-not-empty) {
     xdg-open $path
