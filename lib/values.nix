@@ -21,6 +21,30 @@ rec {
       };
   };
 
+  deepMergeAttrs =
+    let
+      f =
+        let
+          go =
+            path: values:
+            if builtins.length values == 1 then
+              builtins.head values
+            else
+              let
+                rhs = builtins.elemAt values 0;
+                lhs = builtins.elemAt values 1;
+              in
+              if prev.isAttrs lhs && prev.isAttrs rhs then
+                prev.zipAttrsWith (n: vs: go (path ++ [ n ]) vs) values
+              else if prev.isList lhs && prev.isList rhs then
+                lhs ++ rhs
+              else
+                rhs;
+        in
+        lhs: rhs: go [ ] [ rhs lhs ];
+    in
+    prev.foldl' f { };
+
   enabled = merge { enable = true; };
   disabled = merge { enable = false; };
 

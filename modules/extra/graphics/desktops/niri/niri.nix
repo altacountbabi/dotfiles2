@@ -1,20 +1,31 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "niri" {
-    path = "niri";
+  flake.nixosModules.niri =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    let
+      cfg = config.programs.niri;
 
-    opts =
-      {
-        config,
-        types,
-        mkOpt,
-        pkgs,
-        lib,
-        ...
-      }:
-      {
-        package = mkOpt types.package pkgs.niri "The package to use for niri";
+      inherit (builtins) toPath isString;
+      inherit (lib)
+        mkOpt
+        types
+        mkDefault
+        mapAttrs
+        # genAttrs
+        optional
+        getExe
+        mkIf
+        ;
+      inherit (lib.strings) floatToString;
+    in
+    {
+      options.programs.niri = {
         autostart =
           let
             anyGreeters =
@@ -27,51 +38,25 @@
         settings = mkOpt types.attrs { } "Niri settings";
       };
 
-    cfg =
-      {
-        config,
-        pkgs,
-        lib,
-        cfg,
-        ...
-      }:
-      let
-        inherit (builtins) toPath isString;
-        inherit (lib)
-          mkForce
-          mkDefault
-          mapAttrs
-          # genAttrs
-          optional
-          getExe
-          mkIf
-          ;
-        inherit (lib.strings) floatToString;
-      in
-      {
-        imports = with self.nixosModules; [
-          gtk
-          rofi
-          mako
-        ];
+      imports = with self.nixosModules; [
+        gtk
+        rofi
+        mako
+      ];
 
-        config =
-          let
-            wrapped =
-              (inputs.wrappers.wrapperModules.niri.apply {
-                inherit pkgs;
-                package = mkForce cfg.package;
-
-                inherit (cfg) settings;
-              }).wrapper;
-          in
-          {
-            programs.niri = {
-              enable = true;
-              package = wrapped;
-            };
-
-            prefs.niri.settings = mkDefault {
+      config =
+        let
+          wrapped =
+            (inputs.wrappers.wrapperModules.niri.apply {
+              inherit pkgs;
+              inherit (cfg) settings;
+            }).wrapper;
+        in
+        {
+          programs.niri = {
+            enable = true;
+            package = wrapped;
+            settings = mkDefault {
               outputs =
                 config.prefs.monitors
                 |> mapAttrs (
@@ -399,46 +384,46 @@
                   }
                 '';
             };
+          };
 
-            environment.systemPackages = with pkgs; [
-              adwaita-icon-theme
-              xwayland-satellite
-              # TODO: Add this back later when writing quickshell config
-              # inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
-            ];
+          environment.systemPackages = with pkgs; [
+            adwaita-icon-theme
+            xwayland-satellite
+            # TODO: Add this back later when writing quickshell config
+            # inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
+          ];
 
-            systemd.user.tmpfiles.rules = with config.prefs.user; [
-              "d ${home}/.local/share/icons 0755 ${name} users - -"
-              "L ${home}/.local/share/icons/default - - - - ${pkgs.adwaita-icon-theme}/share/icons/Adwaita"
-            ];
+          systemd.user.tmpfiles.rules = with config.prefs.user; [
+            "d ${home}/.local/share/icons 0755 ${name} users - -"
+            "L ${home}/.local/share/icons/default - - - - ${pkgs.adwaita-icon-theme}/share/icons/Adwaita"
+          ];
 
-            systemd.services = mkIf cfg.autostart {
-              "getty@tty1".enable = false;
-              "autovt@tty1".enable = false;
+          systemd.services = mkIf cfg.autostart {
+            "getty@tty1".enable = false;
+            "autovt@tty1".enable = false;
 
-              niri-session = {
-                description = "Niri Wayland compositor on tty1";
-                after = [ "systemd-user-sessions.service" ];
-                wants = [ "systemd-user-sessions.service" ];
-                conflicts = [ "getty@tty1.service" ];
-                wantedBy = [ "multi-user.target" ];
+            niri-session = {
+              description = "Niri Wayland compositor on tty1";
+              after = [ "systemd-user-sessions.service" ];
+              wants = [ "systemd-user-sessions.service" ];
+              conflicts = [ "getty@tty1.service" ];
+              wantedBy = [ "multi-user.target" ];
 
-                serviceConfig = {
-                  ExecStart = "/run/current-system/sw/bin/niri-session";
-                  Restart = "always";
-                  TTYPath = "/dev/tty1";
-                  TTYReset = "yes";
-                  TTYVHangup = "yes";
-                  TTYVTDisallocate = "yes";
-                  StandardInput = "tty";
-                  StandardOutput = "journal";
-                  StandardError = "journal";
-                  User = config.prefs.user.name;
-                  PAMName = "login";
-                };
+              serviceConfig = {
+                ExecStart = "/run/current-system/sw/bin/niri-session";
+                Restart = "always";
+                TTYPath = "/dev/tty1";
+                TTYReset = "yes";
+                TTYVHangup = "yes";
+                TTYVTDisallocate = "yes";
+                StandardInput = "tty";
+                StandardOutput = "journal";
+                StandardError = "journal";
+                User = config.prefs.user.name;
+                PAMName = "login";
               };
             };
           };
-      };
-  };
+        };
+    };
 }
