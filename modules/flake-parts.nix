@@ -47,6 +47,7 @@
     let
       baseModule =
         {
+          modulesPath,
           config,
           pkgs,
           lib,
@@ -60,9 +61,10 @@
             if path == null then
               opts {
                 inherit
-                  lib
+                  modulesPath
                   config
                   pkgs
+                  lib
                   ;
                 inherit (lib)
                   mkOpt
@@ -75,11 +77,18 @@
             else
               lib.setAttrByPath pathList (opts {
                 inherit
-                  lib
+                  modulesPath
                   config
                   pkgs
+                  lib
                   ;
-                inherit (lib) mkOpt mkOpt' types;
+                inherit (lib)
+                  mkOpt
+                  mkOpt'
+                  mkOption
+                  mkConst
+                  types
+                  ;
               });
         }
         // (lib.optionalAttrs (name == "base") {
@@ -89,7 +98,12 @@
             in
             {
               cfg = moduleCfg;
-              inherit config pkgs lib;
+              inherit
+                modulesPath
+                config
+                pkgs
+                lib
+                ;
             }
           );
         });
@@ -99,6 +113,7 @@
           {
             ${name} =
               {
+                modulesPath,
                 config,
                 pkgs,
                 lib,
@@ -111,7 +126,12 @@
                 in
                 {
                   cfg = moduleCfg;
-                  inherit config pkgs lib;
+                  inherit
+                    modulesPath
+                    config
+                    pkgs
+                    lib
+                    ;
                 }
               );
           }

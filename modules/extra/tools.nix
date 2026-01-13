@@ -15,6 +15,7 @@
 
     cfg =
       {
+        modulesPath,
         pkgs,
         lib,
         cfg,
@@ -25,7 +26,7 @@
       in
       {
         imports = [
-          "${inputs.nixpkgs.outPath}/nixos/modules/programs/htop.nix" # programs.htop
+          "${modulesPath}/programs/htop.nix" # programs.htop
         ];
 
         config = mkMerge [
@@ -42,7 +43,10 @@
             };
 
             environment.systemPackages = with pkgs; [
-              (lib.hideDesktop btop)
+              (lib.hideDesktop {
+                inherit pkgs;
+                package = btop;
+              })
               libnotify
               strace
               file
@@ -54,7 +58,10 @@
 
             programs.htop = {
               enable = true;
-              package = lib.hideDesktop pkgs.htop;
+              package = lib.hideDesktop {
+                inherit pkgs;
+                package = pkgs.htop;
+              };
               settings = {
                 hide_kernel_threads = true;
                 hide_userland_threads = true;
@@ -78,11 +85,11 @@
                   nom shell ...$packages --command nu
                 }
 
-                def nsr [package: string, ...rest] {
+                def nsr [package: string, ...program_args] {
                   let package = default-to-nixpkgs $package
 
                   let exe = nom getExe $package
-                  ^$exe ...$rest
+                  ^$exe ...$program_args
                 }
               ''
             ];

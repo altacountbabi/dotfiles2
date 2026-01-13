@@ -1,4 +1,4 @@
-{ self, inputs, ... }:
+{ self, ... }:
 
 {
   flake.nixosModules = self.mkModule "git" {
@@ -15,6 +15,7 @@
 
     cfg =
       {
+        modulesPath,
         pkgs,
         lib,
         cfg,
@@ -22,7 +23,7 @@
       }:
       {
         imports = [
-          "${inputs.nixpkgs.outPath}/nixos/modules/programs/git.nix"
+          "${modulesPath}/programs/git.nix"
         ];
 
         environment.shellAliases = {
