@@ -201,6 +201,7 @@
             wrapped
             powerDesktopEntries
             self.packages.${pkgs.stdenv.hostPlatform.system}.rofimoji
+            self.packages.${pkgs.stdenv.hostPlatform.system}.rofi-fd
           ];
         };
     };

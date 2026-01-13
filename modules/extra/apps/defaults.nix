@@ -13,8 +13,8 @@
         defaultApps =
           {
             browser = [
-              "zen"
               "helium"
+              "zen"
             ];
             files = [ "nautilus" ];
             image = [ "loupe" ];
@@ -22,7 +22,8 @@
             terminal = [ "wezterm" ];
           }
           |> (lib.mapAttrs (
-            class: apps: mkOpt (types.nullOr (types.enum apps)) null "The default app for class \"${class}\""
+            class: apps:
+            mkOpt (types.nullOr (types.enum apps)) (builtins.head apps) "The default app for class \"${class}\""
           ));
       };
   };

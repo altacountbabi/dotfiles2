@@ -31,7 +31,7 @@
         ];
 
         xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.browser == "helium") (
-          [
+          lib.genAttrs [
             "text/html"
             "application/xhtml+xml"
             "application/x-extension-html"
@@ -41,8 +41,7 @@
             "x-scheme-handler/https"
             "image/svg+xml"
             "application/pdf"
-          ]
-          |> lib.genAttrs (_: "helium.desktop")
+          ] (_: "helium.desktop")
         );
 
         prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
