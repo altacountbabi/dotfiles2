@@ -33,45 +33,34 @@
             environment.defaultPackages = [ ];
           }
 
-          (mkIf cfg.sys (
-            let
-              noDesktopFilesWrapper =
-                pkg:
-                inputs.wrappers.lib.wrapPackage {
-                  inherit pkgs;
-                  package = pkg;
-                  filesToExclude = [ "share/applications/*.desktop" ];
-                };
-            in
-            {
-              environment.shellAliases = {
-                cat = "bat";
-                df = "duf";
-                tree = "tree -lC";
-                less = "less -R";
-              };
+          (mkIf cfg.sys {
+            environment.shellAliases = {
+              cat = "bat";
+              df = "duf";
+              tree = "tree -lC";
+              less = "less -R";
+            };
 
-              environment.systemPackages = with pkgs; [
-                (noDesktopFilesWrapper btop)
-                libnotify
-                strace
-                file
-                tree
-                wget
-                duf
-                bat
-              ];
+            environment.systemPackages = with pkgs; [
+              (lib.hideDesktop btop)
+              libnotify
+              strace
+              file
+              tree
+              wget
+              duf
+              bat
+            ];
 
-              programs.htop = {
-                enable = true;
-                package = noDesktopFilesWrapper pkgs.htop;
-                settings = {
-                  hide_kernel_threads = true;
-                  hide_userland_threads = true;
-                };
+            programs.htop = {
+              enable = true;
+              package = lib.hideDesktop pkgs.htop;
+              settings = {
+                hide_kernel_threads = true;
+                hide_userland_threads = true;
               };
-            }
-          ))
+            };
+          })
 
           (mkIf cfg.nix {
             environment.shellAliases = {
