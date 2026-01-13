@@ -14,7 +14,6 @@
       cfg = config.programs.rofi;
       inherit (lib)
         mkDefault
-        mkForce
         mkOpt
         types
         ;
