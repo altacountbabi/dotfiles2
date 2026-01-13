@@ -21,13 +21,15 @@ export def default-to-nixpkgs [package: string]: nothing -> string {
 }
 
 export def "nom getExe" [...args]: nothing -> path {
+  nom build ...$args --no-link
+
   let tmp = (mktemp -t nix-eval-stdout.XXX)
   (
     nix eval --raw
       --apply '(import (builtins.getFlake "nixpkgs") {}).lib.getExe' --impure
       ...$args
       o> $tmp
-      e>| nom --json
+      e>| ignore
   )
 
   let res = open $tmp | str trim
