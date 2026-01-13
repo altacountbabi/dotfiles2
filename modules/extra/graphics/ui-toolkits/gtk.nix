@@ -66,6 +66,7 @@
                 else
                   path
               )
+              |> map (x: "file://${x}")
               |> builtins.concatStringsSep "\n";
             "xdg/gtk-3.0/settings.ini".source = (pkgs.formats.ini { }).generate "gtk3-settings.ini" {
               Settings = {
