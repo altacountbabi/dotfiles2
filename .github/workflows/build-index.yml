@@ -1,4 +1,4 @@
-name: Build index.json
+name: Build package indexes
 
 on:
   push:
@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -27,10 +27,10 @@ jobs:
       - name: Build index.json
         run: |
           nix build .#packages.${{ matrix.system }}.index -L
-          mv result index-${{ matrix.system }}.json
+          cp result index-${{ matrix.system }}.json
 
-      - name: Upload JSON artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload JSON artifacts
+        uses: actions/upload-artifact@v6
         with:
           name: index-${{ matrix.system }}.json
           path: index-${{ matrix.system }}.json
