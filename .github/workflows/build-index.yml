@@ -1,4 +1,4 @@
-name: Build and Push index.json
+name: Build and Push package index
 
 on:
   push:
@@ -26,12 +26,6 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes pipe-operators
 
-      - name: Build index.json
-        run: |
-          nix build .#packages.x86_64-linux.index -L
-          cp -L result index.json
-          chmod 644 index.json
-
       - name: Configure Git
         run: |
           git config user.name "GitHub Actions"
@@ -40,15 +34,24 @@ jobs:
       - name: Switch to package-index branch
         run: |
           if git ls-remote --exit-code origin package-index; then
-            git stash push --include-untracked
+            git fetch origin package-index
             git checkout package-index
-            git stash pop || true
           else
             git checkout --orphan package-index
             git rm -rf .
           fi
 
-      - name: Commit and push index.json
+      - name: Remove old package inex
+        run: |
+          rm -f index.json
+
+      - name: Build package index
+        run: |
+          nix build .#packages.x86_64-linux.index -L
+          cp -L result index.json
+          chmod 644 index.json
+
+      - name: Commit and push new package index
         run: |
           git add index.json
           git commit -m "Update package index" || echo "No changes"
