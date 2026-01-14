@@ -40,7 +40,9 @@ jobs:
       - name: Switch to package-index branch
         run: |
           if git ls-remote --exit-code origin package-index; then
+            git stash push --include-untracked
             git checkout package-index
+            git stash pop || true
           else
             git checkout --orphan package-index
             git rm -rf .
