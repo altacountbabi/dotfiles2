@@ -1,0 +1,36 @@
+name: Build index.json
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'  # daily at midnight UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        system: [x86_64-linux, aarch64-linux]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v22
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build index.json
+        run: |
+          nix build .#packages.${{ matrix.system }}.index -L
+          mv result index-${{ matrix.system }}.json
+
+      - name: Upload JSON artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: index-${{ matrix.system }}.json
+          path: index-${{ matrix.system }}.json

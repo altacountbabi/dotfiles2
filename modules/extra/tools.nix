@@ -75,24 +75,35 @@
               search = "nix-search";
             };
 
-            prefs.nushell.extraConfig = [
-              # nushell
-              ''
-                def ns [...packages: string] {
-                  let packages = $packages | each {|x| default-to-nixpkgs $x }
+            prefs.nushell.extraConfig =
+              let
+                index = self.packages.${pkgs.stdenv.hostPlatform.system}.index;
+              in
+              [
+                # nushell
+                ''
+                  def packages [] {
+                    open ${index}
+                  }
 
-                  $env.name = "nix-shell"
-                  nom shell ...$packages --command nu
-                }
+                  def "nix shell" [...packages: string@packages] {
+                    let packages = $packages | each {|x| default-to-nixpkgs $x }
 
-                def nsr [package: string, ...program_args] {
-                  let package = default-to-nixpkgs $package
+                    $env.name = "nix-shell"
+                    nom shell ...$packages --command nu
+                  }
 
-                  let exe = nom getExe $package
-                  ^$exe ...$program_args
-                }
-              ''
-            ];
+                  def "nix run" [package: string@packages, ...program_args] {
+                    let package = default-to-nixpkgs $package
+
+                    let exe = nom getExe $package
+                    ^$exe ...$program_args
+                  }
+
+                  alias ns = nix shell
+                  alias nsr = nix run
+                ''
+              ];
 
             environment.systemPackages = with pkgs; [
               nix-output-monitor

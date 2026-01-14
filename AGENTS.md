@@ -17,7 +17,7 @@ No home management system is used, the way user apps are configured are either t
 ## Rules
 - JJ VCS is used, not git
 - Never push commits, only work locally.
-- To check if the config builds, use the command: `nom build .#iso`
+- To check if the config builds, use the command: `nix flake check`
 - Module options are added on top of the `base` `nixosModule` so that even if the implementation module isn't imported, the options and their defaults will still exist.
 - Use `lib.mkOpt` instead of `lib.mkOption`, see ./lib/options.nix for more details on that
 - Module options are defined under the `.prefs` namespace, in this format:
