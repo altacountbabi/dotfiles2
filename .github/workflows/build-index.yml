@@ -10,10 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        system: [x86_64-linux, aarch64-linux]
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
@@ -26,11 +22,11 @@ jobs:
 
       - name: Build index.json
         run: |
-          nix build .#packages.${{ matrix.system }}.index -L
-          cp result index-${{ matrix.system }}.json
+          nix build .#packages.x86_64-linux.index -L
+          cp result index.json
 
       - name: Upload JSON artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: index-${{ matrix.system }}.json
-          path: index-${{ matrix.system }}.json
+          name: index.json
+          path: index.json
