@@ -691,6 +691,23 @@
         "type": "github"
       }
     },
+    "package-index": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1768406142,
+        "narHash": "sha256-pcIn+ndUefDpThGmbXX79SGZBZw/uJLL1VAjYGReox4=",
+        "owner": "altacountbabi",
+        "repo": "dotfiles2",
+        "rev": "75e5f50df19cb811ae128fa44e5bdaeb636ea17e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "altacountbabi",
+        "ref": "package-index",
+        "repo": "dotfiles2",
+        "type": "github"
+      }
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -725,6 +742,7 @@
         "nixcord": "nixcord",
         "nixpkgs": "nixpkgs_9",
         "opencode": "opencode",
+        "package-index": "package-index",
         "quickshell": "quickshell",
         "silentSDDM": "silentSDDM",
         "wrappers": "wrappers",

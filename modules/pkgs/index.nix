@@ -1,3 +1,5 @@
+{ inputs, ... }:
+
 {
   perSystem =
     { pkgs, lib, ... }:
@@ -30,6 +32,12 @@
             |> lib.strings.toJSON;
         in
         pkgs.writeText "index.json" index;
-      packages.indexCached = throw "Not implemented yet";
+
+      # Needs to be wrapped in a package to be put in `packages`
+      packages.indexCached =
+        pkgs.runCommand "index.json" { path = inputs.package-index + "/index.json"; }
+          ''
+            ln -s $path $out
+          '';
     };
 }

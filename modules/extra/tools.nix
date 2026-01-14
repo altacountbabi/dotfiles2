@@ -77,7 +77,7 @@
 
             prefs.nushell.extraConfig =
               let
-                index = self.packages.${pkgs.stdenv.hostPlatform.system}.index;
+                index = self.packages.${pkgs.stdenv.hostPlatform.system}.indexCached;
               in
               [
                 # nushell

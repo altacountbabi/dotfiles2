@@ -12,6 +12,12 @@
 
     wrappers.url = "github:lassulus/wrappers";
 
+    # package name completions in shells
+    package-index = {
+      url = "github:altacountbabi/dotfiles2/package-index";
+      flake = false;
+    };
+
     # SDDM Theme
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
