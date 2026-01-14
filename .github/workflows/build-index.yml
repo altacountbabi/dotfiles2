@@ -35,8 +35,12 @@ jobs:
 
       - name: Switch to package-index branch
         run: |
-          git fetch origin package-index || git checkout --orphan package-index
-          git checkout package-index
+          if git ls-remote --exit-code origin package-index; then
+            git checkout package-index
+          else
+            git checkout --orphan package-index
+            git rm -rf .
+          fi
 
       - name: Commit and push index.json
         run: |
