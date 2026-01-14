@@ -48,7 +48,7 @@ jobs:
       - name: Commit and push index.json
         run: |
           git add index.json
-          git commit -m "Update index.json" || echo "No changes"
+          git commit -m "Update package index" || echo "No changes"
           git push origin package-index
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
