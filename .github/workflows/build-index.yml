@@ -29,7 +29,8 @@ jobs:
       - name: Build index.json
         run: |
           nix build .#packages.x86_64-linux.index -L
-          mv result index.json
+          cp -L result index.json
+          chmod 644 index.json
 
       - name: Configure Git
         run: |
