@@ -38,7 +38,6 @@ jobs:
             git checkout package-index
           else
             git checkout --orphan package-index
-            git rm -rf .
           fi
 
       - name: Remove old package inex
