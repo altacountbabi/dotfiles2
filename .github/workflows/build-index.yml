@@ -1,21 +1,24 @@
-name: Build package indexes
+name: Build and Push index.json
 
 on:
   push:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * *'  # daily at midnight UTC
+    - cron: '0 0 * * *' # daily at midnight UTC
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # needed to push branches
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@v22
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes pipe-operators
@@ -23,10 +26,22 @@ jobs:
       - name: Build index.json
         run: |
           nix build .#packages.x86_64-linux.index -L
-          cp result index.json
+          mv result index.json
 
-      - name: Upload JSON artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: index.json
-          path: index.json
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Switch to package-index branch
+        run: |
+          git fetch origin package-index || git checkout --orphan package-index
+          git checkout package-index
+
+      - name: Commit and push index.json
+        run: |
+          git add index.json
+          git commit -m "Update index.json" || echo "No changes"
+          git push origin package-index
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
