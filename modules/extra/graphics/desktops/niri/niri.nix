@@ -16,7 +16,7 @@
         mkOpt
         types
         mapAttrs
-        # genAttrs
+        genAttrs
         optional
         getExe
         mkIf
@@ -162,13 +162,14 @@
                 }
               ];
 
-              # FIXME: Uncommment when wrappers#86 is merged
-              # workspaces = genAttrs [
-              #   "browser"
-              #   "chat"
-              #   "code"
-              #   "scratchpad"
-              # ] (name: null);
+              workspaces = (
+                genAttrs [
+                  "browser"
+                  "chat"
+                  "code"
+                  "scratchpad"
+                ] (name: null)
+              );
 
               environment.DISPLAY = ":0";
 
@@ -347,11 +348,6 @@
               extraConfig = # kdl
                 ''
                   screenshot-path null
-
-                  workspace "browser"
-                  workspace "chat"
-                  workspace "code"
-                  workspace "scratchpad"
 
                   animations {
                     window-resize {

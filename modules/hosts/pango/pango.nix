@@ -20,6 +20,16 @@
         }
       );
 
+      programs.niri.settings = {
+        workspaces.void = {
+          layout.background-color = "#000000";
+        };
+        binds = {
+          "Mod+Grave".focus-workspace = lib.mkForce "void";
+          "Mod+Shift+Grave".move-column-to-workspace = lib.mkForce "void";
+        };
+      };
+
       prefs = {
         network.hostname = "pango";
 
