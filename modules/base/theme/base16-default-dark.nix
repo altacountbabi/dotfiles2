@@ -32,7 +32,7 @@
       mantle = "#141414";
       crust = "#0f0f0f";
 
-      accent = blue;
+      accent = green;
     };
   };
 }

@@ -29,10 +29,6 @@
         };
 
         timeZone = "America/Toronto";
-
-        monitors."Virtual-1" = {
-          color = "#000000";
-        };
       };
     };
 

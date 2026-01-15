@@ -15,7 +15,6 @@
       inherit (lib)
         mkOpt
         types
-        mkDefault
         mapAttrs
         # genAttrs
         optional
@@ -35,13 +34,14 @@
           in
           mkOpt types.bool (!anyGreeters) "Whether to automatically start niri, replacing getty on tty1";
 
-        settings = mkOpt types.attrs { } "Niri settings";
+        settings = mkOpt (types.attrsOf types.anything) { } "Niri settings";
       };
 
       imports = with self.nixosModules; [
         gtk
         rofi
         mako
+        hyprlock
       ];
 
       config =
@@ -56,7 +56,7 @@
           programs.niri = {
             enable = true;
             package = wrapped;
-            settings = mkDefault {
+            settings = {
               outputs =
                 config.prefs.monitors
                 |> mapAttrs (
@@ -233,15 +233,6 @@
                   "Mod+Shift+Down".move-column-to-workspace-down = null;
                   "Mod+Shift+Left".move-column-left = null;
                   "Mod+Shift+Right".move-column-right = null;
-
-                  "Mod+H".focus-column-left = null;
-                  "Mod+K".focus-workspace-up = null;
-                  "Mod+J".focus-workspace-down = null;
-                  "Mod+L".focus-column-right = null;
-                  "Mod+Shift+K".move-column-to-workspace-up = null;
-                  "Mod+Shift+J".move-column-to-workspace-down = null;
-                  "Mod+Shift+H".move-column-left = null;
-                  "Mod+Shift+L".move-column-right = null;
 
                   "Mod+1".focus-workspace = 1;
                   "Mod+2".focus-workspace = 2;
