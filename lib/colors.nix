@@ -124,4 +124,7 @@ in
       blue = toHex2 (mixChannel base.b other.b amount);
     in
     "#${red}${green}${blue}";
+
+  # Strip `#` from the beginning of a hex color
+  stripHex = x: prev.substring 1 ((prev.stringLength x) - 1) x;
 }

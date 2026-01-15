@@ -54,8 +54,7 @@
           enable = true;
           settings = mkDefault (
             let
-              noHash = x: builtins.substring 1 6 x;
-              color = x: "rgb(${noHash x})";
+              color = x: "rgb(${lib.stripHex x})";
               inherit (config.prefs.theme) wallpaper;
             in
             with config.prefs.theme.colors;
