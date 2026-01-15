@@ -13,7 +13,7 @@
       }:
       {
         host =
-          mkOpt (types.nullOr types.str) config.prefs.network.hostname
+          mkOpt (types.nullOr types.str) config.networking.hostName
             "The host to automatically pick in the installer";
       };
 

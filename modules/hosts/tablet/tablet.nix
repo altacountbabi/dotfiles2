@@ -21,6 +21,8 @@
         (
           { pkgs, lib, ... }:
           {
+            networking.hostName = "tablet";
+
             prefs =
               let
                 vcsUser = {
@@ -29,8 +31,6 @@
                 };
               in
               {
-                network.hostname = "tablet";
-
                 tools.ffmpeg = false;
                 xdg.patchSSH = false;
 

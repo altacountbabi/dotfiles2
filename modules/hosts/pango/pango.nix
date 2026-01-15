@@ -20,6 +20,8 @@
         }
       );
 
+      networking.hostName = "pango";
+
       programs.niri.settings = {
         workspaces.void = {
           layout.background-color = "#000000";
@@ -31,8 +33,6 @@
       };
 
       prefs = {
-        network.hostname = "pango";
-
         user = {
           name = "pango";
           displayName = "pango";

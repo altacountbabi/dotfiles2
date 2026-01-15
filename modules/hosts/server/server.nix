@@ -22,6 +22,11 @@
         }
       );
 
+      networking = {
+        hostName = "server";
+        domain = "av1.space";
+      };
+
       prefs =
         let
           vcsUser = {
@@ -30,11 +35,6 @@
           };
         in
         {
-          network = {
-            hostname = "server";
-            domain = "av1.space";
-          };
-
           timeZone = "Europe/Bucharest";
 
           git.user = vcsUser;

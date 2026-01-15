@@ -14,6 +14,8 @@
         }
       );
 
+      networking.hostName = "depozit";
+
       prefs =
         let
           vcsUser = {
@@ -22,8 +24,6 @@
           };
         in
         {
-          network.hostname = "depozit";
-
           timeZone = "Europe/Bucharest";
 
           git.user = vcsUser;
