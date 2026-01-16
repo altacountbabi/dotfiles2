@@ -1,5 +1,3 @@
-# { self, inputs, ... }:
-
 {
   flake.nixosModules.hyprlock =
     {
@@ -85,7 +83,7 @@
               );
 
               input-field = {
-                size = "20%, 5%";
+                size = "15%, 5%";
                 outline_thickness = 3;
                 inner_color = "rgba(0, 0, 0, 0.0)";
 
