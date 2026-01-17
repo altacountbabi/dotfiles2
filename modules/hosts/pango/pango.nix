@@ -22,6 +22,61 @@
 
       networking.hostName = "pango";
 
+      programs.dms-shell.settings = {
+        barConfigs = [
+          {
+            id = "default";
+            name = "Main Bar";
+            enabled = true;
+            position = 1; # Bottom
+            screenPreferences = [
+              "all"
+            ];
+            showOnLastDisplay = true;
+            leftWidgets = [
+              "launcherButton"
+              "workspaceSwitcher"
+              "focusedWindow"
+            ];
+            centerWidgets = [
+              "music"
+              "clock"
+              "weather"
+            ];
+            rightWidgets = [
+              "systemTray"
+              "clipboard"
+              "cpuUsage"
+              "memUsage"
+              "notificationButton"
+              "battery"
+              "controlCenterButton"
+            ];
+            spacing = 0;
+            innerPadding = 4;
+            bottomGap = 0;
+            transparency = 1;
+            widgetTransparency = 1;
+            squareCorners = true;
+            noBackground = false;
+            gothCornersEnabled = false;
+            gothCornerRadiusOverride = false;
+            gothCornerRadiusValue = 12;
+            borderEnabled = false;
+            borderColor = "surfaceText";
+            borderOpacity = 1;
+            borderThickness = 1;
+            fontScale = 1;
+            autoHide = false;
+            autoHideDelay = 250;
+            openOnOverview = false;
+            visible = true;
+            popupGapsAuto = true;
+            popupGapsManual = 4;
+          }
+        ];
+      };
+
       programs.niri.settings = {
         workspaces.void = {
           layout.background-color = "#000000";

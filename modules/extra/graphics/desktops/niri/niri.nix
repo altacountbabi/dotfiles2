@@ -11,13 +11,12 @@
     let
       cfg = config.programs.niri;
 
-      inherit (builtins) toPath isString;
+      inherit (builtins) isString;
       inherit (lib)
         mkOpt
         types
         mapAttrs
         genAttrs
-        optional
         getExe
         mkIf
         ;
@@ -39,9 +38,7 @@
 
       imports = with self.nixosModules; [
         gtk
-        rofi
-        mako
-        hyprlock
+        dms
       ];
 
       config =
@@ -73,36 +70,24 @@
                   }
                 );
 
-              spawn-at-startup =
-                (
-                  let
-                    inherit (config.prefs.theme) wallpaper;
-                  in
-                  optional (wallpaper != null) [
-                    "${getExe pkgs.swaybg}"
-                    "-i"
-                    "${toPath wallpaper}"
-                  ]
+              spawn-at-startup = [
+                "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+                "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon"
+              ]
+              ++ (
+                config.prefs.autostart
+                |> map (
+                  v:
+                  if isString v then
+                    [
+                      "${getExe pkgs.bash}"
+                      "-c"
+                      v
+                    ]
+                  else
+                    getExe v
                 )
-                ++ [
-                  "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-                  "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon"
-                ]
-                ++ (
-                  let
-                    cmd =
-                      v:
-                      if isString v then
-                        [
-                          "${getExe pkgs.bash}"
-                          "-c"
-                          v
-                        ]
-                      else
-                        getExe v;
-                  in
-                  config.prefs.autostart |> map cmd
-                );
+              );
 
               window-rules = [
                 {
@@ -116,8 +101,9 @@
                   clip-to-geometry = true;
                   shadow = {
                     on = null;
+                    softness = 50;
                     spread = 5;
-                    color = "#000000AA";
+                    color = "#00000045";
                   };
                 }
                 {
@@ -268,11 +254,6 @@
                     "wezterm"
                     "connect"
                     "unix"
-                  ];
-                  "Mod+Space".spawn = [
-                    "rofi"
-                    "-show"
-                    "drun"
                   ];
                   "Mod+M".spawn = "youtube-music";
                   "Mod+B".spawn = [
