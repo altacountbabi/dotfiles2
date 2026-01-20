@@ -8,10 +8,7 @@
     }:
     let
       cfg = config.programs.dms-shell;
-      inherit (lib)
-        mkOpt
-        types
-        ;
+      inherit (lib) mkOpt types;
     in
     {
       options.programs.dms-shell =

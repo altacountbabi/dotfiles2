@@ -1,31 +1,35 @@
-{ self, inputs, ... }:
+{ inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "helium" {
-    path = "apps.helium";
-
-    opts =
-      {
-        pkgs,
-        mkOpt,
-        types,
-        ...
-      }:
-      {
+  flake.nixosModules.helium =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    let
+      cfg = config.programs.helium;
+      inherit (lib) mkOpt types;
+    in
+    {
+      options.programs.helium = {
         package =
           mkOpt types.package inputs.helium.defaultPackage.${pkgs.stdenv.hostPlatform.system}
-            "The package to use for helium browser";
-        autostart = mkOpt types.bool false "Whether to automatically start helium browser at startup";
+            "The package to use for helium";
+        autostart = mkOpt types.bool false "Whether to start helium at startup";
+
+        settings = mkOpt (types.attrsOf (pkgs.formats.json { }).type) { } ''
+          Helium settings.
+          Written to the `Preferences` file of the `Default` profile.
+        '';
       };
 
-    cfg =
-      {
-        config,
-        cfg,
-        lib,
-        ...
-      }:
-      {
+      config = {
+        programs.helium.settings = {
+          browser.custom_chrome_frame = lib.mkDefault false;
+        };
+
         environment.systemPackages = [
           cfg.package
         ];
@@ -48,11 +52,9 @@
 
         prefs.merged-configs.helium = {
           path = "${config.prefs.user.home}/.config/net.imput.helium/Default/Preferences";
-          overlay = {
-            browser.custom_chrome_frame = false;
-          };
+          overlay = cfg.settings;
           formatting.raw = true;
         };
       };
-  };
+    };
 }
