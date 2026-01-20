@@ -1,17 +1,21 @@
-{ self, inputs, ... }:
+{ inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "discord" {
-    path = "apps.discord";
+  flake.nixosModules.discord =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    let
+      cfg = config.programs.discord;
+      inherit (lib) mkOpt types mkDefault;
 
-    opts =
-      {
-        pkgs,
-        mkOpt,
-        types,
-        ...
-      }:
-      {
+      json = (pkgs.formats.json { });
+    in
+    {
+      options.programs.discord = {
         package = mkOpt types.package (
           inputs.nixcord.packages.${pkgs.stdenv.hostPlatform.system}.discord.override
           {
@@ -21,42 +25,34 @@
           }
         ) "The package to use for discord";
         autostart = mkOpt types.bool false "Whether to automatically start discord at startup";
+
+        openASARSettings = mkOpt (types.attrsOf json.type) { } "OpenASAR settings";
+        vencordSettings = mkOpt (types.attrsOf json.type) { } "Vencord settings";
       };
 
-    cfg =
-      {
-        config,
-        pkgs,
-        lib,
-        cfg,
-        ...
-      }:
-      let
-        openASARSettings =
-          {
-            DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING = true;
-            trayBalloonShown = false;
-            BACKGROUND_COLOR = "${config.prefs.theme.colors.base}";
-            # TODO: This is a useful feature but it doesn't work with the proot bind mounts
-            SKIP_HOST_UPDATE = true;
-          }
-          |> (pkgs.formats.json { }).generate "openasar-settings.json";
+      config = {
+        programs.discord = {
+          openASARSettings = {
+            DANGEROUS_ENABLE_DEVTOOLS_ONLY_ENABLE_IF_YOU_KNOW_WHAT_YOURE_DOING = mkDefault true;
+            trayBalloonShown = mkDefault false;
+            BACKGROUND_COLOR = mkDefault "${config.prefs.theme.colors.base}";
+            openasar.setup = true;
+          };
 
-        vencordSettings =
-          {
-            autoUpdate = false;
-            autoUpdateNotification = false;
-            notifyAboutUpdates = false;
+          vencordSettings = {
+            autoUpdate = mkDefault false;
+            autoUpdateNotification = mkDefault false;
+            notifyAboutUpdates = mkDefault false;
 
-            disableMinSize = true;
-            enableReactDevtools = false;
+            disableMinSize = mkDefault true;
+            enableReactDevtools = mkDefault false;
 
-            useQuickCSS = true;
+            useQuickCSS = mkDefault true;
 
-            frameless = true;
-            transparent = false;
+            frameless = mkDefault true;
+            transparent = mkDefault false;
 
-            plugins = {
+            plugins = mkDefault {
               BetterGifPicker.enabled = true;
               BetterSettings = {
                 disableFade = true;
@@ -209,49 +205,26 @@
               ExpressionCloner.enabled = true;
               BadgeAPI.enabled = true;
             };
-          }
-          |> (pkgs.formats.json { }).generate "vencord-settings.json";
-
-        # FIXME: Replace proot with setting xdg home to /etc/xdg here and write configs with `environment.etc`
-        package = cfg.package;
-        wrapped = pkgs.stdenv.mkDerivation {
-          pname = "discord-wrapped";
-          inherit (package) version;
-
-          buildInputs = [
-            pkgs.proot
-            package
-          ];
-
-          dontUnpack = true;
-          dontBuild = true;
-
-          installPhase =
-            let
-              inherit (config.prefs.user) home;
-            in
-            # bash
-            ''
-              mkdir -p $out/bin
-              cat > $out/bin/discord <<EOF
-              #!${pkgs.bash}/bin/bash
-              exec ${pkgs.proot}/bin/proot \
-                -b ${openASARSettings}:${home}/.config/discord/settings.json \
-                -b ${vencordSettings}:${home}/.config/Vencord/settings/settings.json \
-                ${pkgs.discord}/bin/discord --no-sandbox "\$@"
-              EOF
-              chmod +x $out/bin/discord
-            '';
-
-          inherit (package) meta;
+          };
         };
-      in
-      {
+
         environment.systemPackages = [
-          wrapped
+          cfg.package
         ];
 
         prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
+
+        prefs.merged-configs = with config.prefs.user; {
+          openASAR = {
+            path = "${home}/.config/discord/settings.json";
+            overlay = cfg.openASARSettings;
+          };
+          vencord = {
+            path = "${home}/.config/Vencord/settings/settings.json";
+            overlay = cfg.vencordSettings;
+            formatting.indent = 4;
+          };
+        };
       };
-  };
+    };
 }
