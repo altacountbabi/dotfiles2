@@ -1,5 +1,3 @@
-{ self, ... }:
-
 {
   flake.nixosModules.dms =
     {
@@ -13,62 +11,17 @@
       inherit (lib)
         mkOpt
         types
-        getExe
-        mkIf
         ;
-
-      json = pkgs.formats.json { };
-      settings = json.generate "dms-settings" cfg.settings;
-      session = json.generate "dms-session-data" cfg.session;
-
-      applyConfig =
-        self.lib.nushellScript {
-          inherit pkgs;
-          name = "apply-config";
-          text = builtins.readFile ./apply-config.nu;
-        }
-        |> getExe;
-
-      dmsTheme =
-        (with config.prefs.theme.colors; {
-          name = "Nix";
-
-          primary = accent;
-          primaryText = base;
-
-          primaryContainer = lavender;
-
-          secondary = accent;
-          surfaceTint = accent;
-
-          background = mantle;
-          backgroundText = text;
-
-          surface = base;
-          surfaceText = text;
-
-          surfaceVariant = surface1;
-          surfaceVariantText = subtext1;
-
-          surfaceContainer = base;
-          surfaceContainerHigh = surface0;
-          surfaceContainerHighest = surface1;
-
-          outline = overlay0;
-
-          error = red;
-          warning = yellow;
-          info = blue;
-
-          matugen_type = "scheme-expressive";
-        })
-        |> (pkgs.formats.json { }).generate "dms-theme";
     in
     {
-      options.programs.dms-shell = {
-        settings = mkOpt (types.attrsOf json.type) { } "DMS settings";
-        session = mkOpt (types.attrsOf json.type) { } "DMS session data";
-      };
+      options.programs.dms-shell =
+        let
+          json = pkgs.formats.json { };
+        in
+        {
+          settings = mkOpt (types.attrsOf json.type) { } "DMS settings";
+          session = mkOpt (types.attrsOf json.type) { } "DMS session data";
+        };
 
       config = {
         programs.dms-shell = {
@@ -86,18 +39,55 @@
             let
               wallpaper = config.prefs.theme.wallpaper;
             in
-            mkIf (wallpaper != null) wallpaper;
+            lib.mkIf (wallpaper != null) wallpaper;
 
-          settings = {
-            customThemeFile = toString dmsTheme;
-            currentThemeName = "custom";
-            widgetBackgroundColor = "sch";
-            widgetColorMode = "default";
+          settings =
+            let
+              dmsTheme =
+                (with config.prefs.theme.colors; {
+                  name = "Nix";
 
-            useAutoLocation = true;
+                  primary = accent;
+                  primaryText = base;
 
-            soundsEnabled = false;
-          };
+                  primaryContainer = lavender;
+
+                  secondary = accent;
+                  surfaceTint = accent;
+
+                  background = mantle;
+                  backgroundText = text;
+
+                  surface = base;
+                  surfaceText = text;
+
+                  surfaceVariant = surface1;
+                  surfaceVariantText = subtext1;
+
+                  surfaceContainer = base;
+                  surfaceContainerHigh = surface0;
+                  surfaceContainerHighest = surface1;
+
+                  outline = overlay0;
+
+                  error = red;
+                  warning = yellow;
+                  info = blue;
+
+                  matugen_type = "scheme-expressive";
+                })
+                |> (pkgs.formats.json { }).generate "dms-theme";
+            in
+            {
+              customThemeFile = toString dmsTheme;
+              currentThemeName = "custom";
+              widgetBackgroundColor = "sch";
+              widgetColorMode = "default";
+
+              useAutoLocation = true;
+
+              soundsEnabled = false;
+            };
         };
 
         programs.dsearch = {
@@ -108,27 +98,14 @@
           };
         };
 
-        systemd.user.services = {
-          dms-config = {
-            description = "Apply DMS settings to settings.json";
-            after = [ "default.target" ];
-            wantedBy = [ "default.target" ];
-            serviceConfig = {
-              Type = "oneshot";
-              RemainAfterExit = true;
-              ExecStart = "${applyConfig} ${config.prefs.user.home}/.config/DankMaterialShell/settings.json ${settings}";
-            };
+        prefs.merged-configs = with config.prefs.user; {
+          dms = {
+            path = "${home}/.config/DankMaterialShell/settings.json";
+            overlay = cfg.settings;
           };
-
-          dms-session-data = {
-            description = "Apply DMS session data to session.json";
-            after = [ "default.target" ];
-            wantedBy = [ "default.target" ];
-            serviceConfig = {
-              Type = "oneshot";
-              RemainAfterExit = true;
-              ExecStart = "${applyConfig} ${config.prefs.user.home}/.local/state/DankMaterialShell/session.json ${session}";
-            };
+          dms-session = {
+            path = "${home}/.config/DankMaterialShell/session.json";
+            overlay = cfg.session;
           };
         };
 

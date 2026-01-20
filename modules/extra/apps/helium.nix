@@ -45,6 +45,14 @@
         );
 
         prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
+
+        prefs.merged-configs.helium = {
+          path = "${config.prefs.user.home}/.config/net.imput.helium/Default/Preferences";
+          overlay = {
+            browser.custom_chrome_frame = false;
+          };
+          formatting.raw = true;
+        };
       };
   };
 }
