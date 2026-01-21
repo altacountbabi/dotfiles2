@@ -83,12 +83,12 @@
 
         system.replaceDependencies.replacements = lib.mkIf cfg.uutils (
           let
-            postfix = x: x |> lib.stringLength |> lib.genList (_: "_") |> lib.concatStringsSep "";
+            postfix = version: version |> lib.stringLength |> lib.genList (_: "_") |> lib.concatStringsSep "";
 
-            coreutils-full-name = "coreuutils-full" + (postfix pkgs.coreutils-full.version);
-            coreutils-name = "coreuutils" + (postfix pkgs.coreutils-full.version);
-            findutils-name = "finduutils" + (postfix pkgs.coreutils-full.version);
-            diffutils-name = "diffuutils" + (postfix pkgs.coreutils-full.version);
+            coreutils-full-name = "coreuutils-full" + postfix pkgs.coreutils-full.version;
+            coreutils-name = "coreuutils" + postfix pkgs.coreutils.version;
+            findutils-name = "finduutils" + postfix pkgs.findutils.version;
+            diffutils-name = "diffuutils" + postfix pkgs.diffutils.version;
           in
           [
             # coreutils
