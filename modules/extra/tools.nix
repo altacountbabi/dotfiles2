@@ -21,20 +21,17 @@
         cfg,
         ...
       }:
-      let
-        inherit (lib) mkMerge mkIf;
-      in
       {
         imports = [
           "${modulesPath}/programs/htop.nix" # programs.htop
         ];
 
-        config = mkMerge [
+        config = lib.mkMerge [
           {
             environment.defaultPackages = [ ];
           }
 
-          (mkIf cfg.sys {
+          (lib.mkIf cfg.sys {
             environment.shellAliases = {
               cat = "bat";
               df = "duf";
@@ -69,7 +66,7 @@
             };
           })
 
-          (mkIf cfg.nix {
+          (lib.mkIf cfg.nix {
             environment.shellAliases = {
               shell = "nom-shell --run nu";
               search = "nix-search";
@@ -115,7 +112,7 @@
             ];
           })
 
-          (mkIf cfg.ffmpeg {
+          (lib.mkIf cfg.ffmpeg {
             environment.shellAliases = {
               ffmpeg = "ffmpeg -hide_banner";
               ffprobe = "ffprobe -hide_banner";
@@ -127,7 +124,7 @@
             ];
           })
 
-          (mkIf cfg.microfetch {
+          (lib.mkIf cfg.microfetch {
             environment.systemPackages = [
               inputs.microfetch.packages.${pkgs.stdenv.hostPlatform.system}.default
             ];

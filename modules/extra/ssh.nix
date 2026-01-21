@@ -11,13 +11,18 @@
       };
 
     cfg =
-      { config, cfg, ... }:
+      {
+        config,
+        lib,
+        cfg,
+        ...
+      }:
       {
         users.users.${config.prefs.user.name}.openssh.authorizedKeys.keys = cfg.pubKeys;
 
         services.openssh = {
           enable = true;
-          settings.PasswordAuthentication = (builtins.length cfg.pubKeys) != 0;
+          settings.PasswordAuthentication = (lib.length cfg.pubKeys) != 0;
         };
       };
   };

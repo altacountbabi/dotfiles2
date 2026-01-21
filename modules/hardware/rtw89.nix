@@ -44,7 +44,7 @@
                 "compare-distinct-pointer-types"
               ];
             in
-            suppressed |> map (x: "-Wno-${x}") |> builtins.concatStringsSep " ";
+            suppressed |> map (x: "-Wno-${x}") |> lib.concatStringsSep " ";
 
           makeFlags = [
             "KDIR=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"

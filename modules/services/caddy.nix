@@ -9,11 +9,11 @@
       };
 
     cfg =
-      { cfg, ... }:
+      { lib, cfg, ... }:
       {
         services.caddy = {
           enable = true;
-          virtualHosts = cfg.caddy |> builtins.mapAttrs (k: v: { extraConfig = v; });
+          virtualHosts = cfg.caddy |> lib.mapAttrs (k: v: { extraConfig = v; });
         };
 
         networking.firewall.allowedTCPPorts = [

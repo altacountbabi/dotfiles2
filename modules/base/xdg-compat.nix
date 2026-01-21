@@ -20,10 +20,7 @@
         cfg,
         ...
       }:
-      let
-        inherit (lib) mkIf concatMapStringsSep mkMerge;
-      in
-      mkMerge [
+      lib.mkMerge [
         {
           nixpkgs.overlays = [
             (final: prev: {
@@ -76,7 +73,7 @@
             XCOMPOSECACHE = "${XDG_CACHE_HOME}/xcompose";
           };
 
-          system.userActivationScripts.initXDG = mkMerge [
+          system.userActivationScripts.initXDG = lib.mkMerge [
             {
               text = # bash
                 ''
@@ -89,7 +86,7 @@
                 '';
             }
 
-            (mkIf (config.services.openssh.enable && cfg.patchSSH) {
+            (lib.mkIf (config.services.openssh.enable && cfg.patchSSH) {
               text = # bash
                 ''
                   mkdir -p "$XDG_CONFIG_HOME/ssh"
@@ -111,15 +108,15 @@
               "id_ed25519_sk"
               "id_rsa"
             ];
-            keyFilesStr = builtins.concatStringsSep " " keyFiles;
+            keyFilesStr = keyFiles |> lib.concatStringsSep " ";
             sshConfigDir = "$XDG_CONFIG_HOME/ssh";
           in
-          mkIf (config.services.openssh.enable && cfg.patchSSH) {
+          lib.mkIf (config.services.openssh.enable && cfg.patchSSH) {
             # To spare us passing the extra options to the executables, we set these
             # in the system config file.
             programs.ssh.extraConfig = ''
               Host *
-                ${concatMapStringsSep "\n" (key: "IdentityFile ~/.config/ssh/${key}") keyFiles}
+                ${lib.concatMapStringsSep "\n" (key: "IdentityFile ~/.config/ssh/${key}") keyFiles}
                 UserKnownHostsFile ~/.config/ssh/known_hosts
             '';
 
@@ -131,8 +128,8 @@
                 mkWrapper =
                   package: postBuild:
                   let
-                    name = if builtins.isList package then elemAt package 0 else package;
-                    paths = if builtins.isList package then package else [ package ];
+                    name = if lib.isList package then elemAt package 0 else package;
+                    paths = if lib.isList package then package else [ package ];
                   in
                   pkgs.symlinkJoin {
                     inherit paths postBuild;

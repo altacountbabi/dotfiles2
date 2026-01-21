@@ -58,7 +58,7 @@
           pkgs.jujutsu
           self.packages.${pkgs.stdenv.hostPlatform.system}.disko
         ];
-        text = builtins.readFile ./main.nu;
+        text = lib.readFile ./main.nu;
       };
 
       # Perlless disko

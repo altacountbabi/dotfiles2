@@ -48,7 +48,7 @@ let
       inherit (prev) toLower;
       lowerHex = toLower hex;
     in
-    if builtins.stringLength hex != 1 then
+    if prev.stringLength hex != 1 then
       throw "Function only accepts a single character."
     else if hexToDecMap ? ${lowerHex} then
       hexToDecMap."${lowerHex}"
@@ -64,11 +64,11 @@ let
         imap0
         foldl
         ;
-      decimals = builtins.map hexCharToDec (stringToCharacters hex);
+      decimals = map hexCharToDec (stringToCharacters hex);
       decimalsAscending = reverseList decimals;
       decimalsPowered = imap0 base16To10 decimalsAscending;
     in
-    foldl builtins.add 0 decimalsPowered;
+    foldl prev.add 0 decimalsPowered;
 
   hexToRGB =
     hex:
@@ -81,22 +81,22 @@ let
             2
             4
           ];
-          hexList = builtins.map (x: builtins.substring x 2 hex) rgbStartIndex;
-          hexLength = builtins.stringLength hex;
+          hexList = map (x: prev.substring x 2 hex) rgbStartIndex;
+          hexLength = prev.stringLength hex;
         in
         if hexLength != 6 then
           throw ''
-            Unsupported hex string length of ${builtins.toString hexLength}.
+            Unsupported hex string length of ${toString hexLength}.
             Length must be exactly 6.
           ''
         else
-          builtins.map hexToDec hexList;
+          map hexToDec hexList;
       list = hexToRGB hex;
     in
     {
-      r = builtins.elemAt list 0;
-      g = builtins.elemAt list 1;
-      b = builtins.elemAt list 2;
+      r = prev.elemAt list 0;
+      g = prev.elemAt list 1;
+      b = prev.elemAt list 2;
     };
 
   mixChannel =
@@ -108,7 +108,7 @@ let
     let
       h = prev.toHexString n;
     in
-    if builtins.stringLength h == 1 then "0${h}" else h;
+    if prev.stringLength h == 1 then "0${h}" else h;
 
 in
 {
@@ -116,8 +116,8 @@ in
   mix =
     other': amount: base':
     let
-      base = hexToRGB (builtins.substring 1 6 base');
-      other = hexToRGB (builtins.substring 1 6 other');
+      base = hexToRGB (prev.substring 1 6 base');
+      other = hexToRGB (prev.substring 1 6 other');
 
       red = toHex2 (mixChannel base.r other.r amount);
       green = toHex2 (mixChannel base.g other.g amount);

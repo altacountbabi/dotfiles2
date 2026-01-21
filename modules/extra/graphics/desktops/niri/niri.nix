@@ -11,15 +11,7 @@
     let
       cfg = config.programs.niri;
 
-      inherit (builtins) isString;
-      inherit (lib)
-        mkOpt
-        types
-        mapAttrs
-        genAttrs
-        getExe
-        mkIf
-        ;
+      inherit (lib) mkOpt types getExe;
       inherit (lib.strings) floatToString;
     in
     {
@@ -29,7 +21,7 @@
             anyGreeters =
               config.services.displayManager
               |> lib.mapAttrsToList (_: v: (builtins.tryEval (v.enable or false)).value)
-              |> builtins.any (x: x);
+              |> lib.any (x: x);
           in
           mkOpt types.bool (!anyGreeters) "Whether to automatically start niri, replacing getty on tty1";
 
@@ -56,7 +48,7 @@
             settings = {
               outputs =
                 config.prefs.monitors
-                |> mapAttrs (
+                |> lib.mapAttrs (
                   k: v: {
                     ${if (!v.enable) then "off" else null} = null;
                     mode = "${toString v.width}x${toString v.height}@${floatToString v.refreshRate}";
@@ -78,7 +70,7 @@
                 config.prefs.autostart
                 |> map (
                   v:
-                  if isString v then
+                  if lib.isString v then
                     [
                       "${getExe pkgs.bash}"
                       "-c"
@@ -148,14 +140,12 @@
                 }
               ];
 
-              workspaces = (
-                genAttrs [
-                  "browser"
-                  "chat"
-                  "code"
-                  "scratchpad"
-                ] (name: null)
-              );
+              workspaces = lib.genAttrs [
+                "browser"
+                "chat"
+                "code"
+                "scratchpad"
+              ] (name: null);
 
               environment.DISPLAY = ":0";
 
@@ -333,7 +323,7 @@
                   animations {
                     window-resize {
                       custom-shader r"
-                        ${builtins.readFile ./resize-shader.glsl}
+                        ${lib.readFile ./resize-shader.glsl}
                       "
                     }
                   }
@@ -353,7 +343,7 @@
             "L ${home}/.local/share/icons/default - - - - ${pkgs.adwaita-icon-theme}/share/icons/Adwaita"
           ];
 
-          systemd.services = mkIf cfg.autostart {
+          systemd.services = lib.mkIf cfg.autostart {
             "getty@tty1".enable = false;
             "autovt@tty1".enable = false;
 

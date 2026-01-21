@@ -27,12 +27,12 @@ rec {
         let
           go =
             path: values:
-            if builtins.length values == 1 then
-              builtins.head values
+            if prev.length values == 1 then
+              prev.head values
             else
               let
-                rhs = builtins.elemAt values 0;
-                lhs = builtins.elemAt values 1;
+                rhs = prev.elemAt values 0;
+                lhs = prev.elemAt values 1;
               in
               if prev.isAttrs lhs && prev.isAttrs rhs then
                 prev.zipAttrsWith (n: vs: go (path ++ [ n ]) vs) values
@@ -50,12 +50,14 @@ rec {
 
   genPorts =
     start: services:
-    builtins.listToAttrs (
-      prev.imap0 (i: service: {
+    services
+    |> prev.imap0 (
+      i: service: {
         name = service;
         value = start + i;
-      }) services
-    );
+      }
+    )
+    |> prev.listToAttrs;
 
   rofiLit = value: {
     _type = "literal";

@@ -32,44 +32,33 @@
         ...
       }:
       let
-        inherit (lib)
-          mkForce
-          getExe
-          filterAttrs
-          mapAttrsToList
-          concatStringsSep
-          elem
-          isString
-          isPath
-          ;
-
         wrapped =
           (inputs.wrappers.wrapperModules.nushell.apply {
             inherit pkgs;
-            package = mkForce cfg.package;
+            package = lib.mkForce cfg.package;
 
             "env.nu".content =
               let
-                include = cfg.include |> map (x: "source ${x}") |> concatStringsSep "\n";
+                include = cfg.include |> map (x: "source ${x}") |> lib.concatStringsSep "\n";
                 aliases =
                   config.environment.shellAliases
-                  |> filterAttrs (k: v: v != "" && !(elem k cfg.excludedAliases))
-                  |> mapAttrsToList (k: v: "alias ${k} = ${v}")
-                  |> concatStringsSep "\n";
+                  |> lib.filterAttrs (k: v: v != "" && !(lib.elem k cfg.excludedAliases))
+                  |> lib.mapAttrsToList (k: v: "alias ${k} = ${v}")
+                  |> lib.concatStringsSep "\n";
                 autostart =
                   let
                     cmd =
                       v:
-                      if isString v then
-                        "${getExe pkgs.bash} -c \"${v}\""
-                      else if isPath v then
+                      if lib.isString v then
+                        "${lib.getExe pkgs.bash} -c \"${v}\""
+                      else if lib.isPath v then
                         "${v}"
                       else
-                        "${getExe v}";
+                        "${lib.getExe v}";
                   in
-                  config.prefs.autostart-shell |> map cmd |> concatStringsSep "\n";
+                  config.prefs.autostart-shell |> map cmd |> lib.concatStringsSep "\n";
 
-                extraConfig = cfg.extraConfig |> concatStringsSep "\n";
+                extraConfig = cfg.extraConfig |> lib.concatStringsSep "\n";
               in
               # nu
               ''
@@ -189,7 +178,7 @@
                 }
 
                 let fish_completer = {|spans|
-                  ${pkgs.fish |> getExe} --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
+                  ${pkgs.fish |> lib.getExe} --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
                     | from tsv --flexible --noheaders --no-infer
                     | rename value description
                     | update value {|row|

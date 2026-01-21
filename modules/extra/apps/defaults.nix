@@ -23,7 +23,7 @@
           }
           |> (lib.mapAttrs (
             class: apps:
-            mkOpt (types.nullOr (types.enum apps)) (builtins.head apps) "The default app for class \"${class}\""
+            mkOpt (types.nullOr (types.enum apps)) (lib.head apps) "The default app for class \"${class}\""
           ));
       };
   };

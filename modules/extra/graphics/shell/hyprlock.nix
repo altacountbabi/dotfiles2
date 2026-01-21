@@ -7,12 +7,7 @@
     }:
     let
       cfg = config.programs.hyprlock;
-      inherit (lib)
-        getExe
-        mkDefault
-        mkOpt
-        types
-        ;
+      inherit (lib) mkOpt types;
     in
     {
       options.programs.hyprlock = with types; {
@@ -50,7 +45,7 @@
       config = {
         programs.hyprlock = {
           enable = true;
-          settings = mkDefault (
+          settings = lib.mkDefault (
             let
               color = x: "rgb(${lib.stripHex x})";
               inherit (config.prefs.theme) wallpaper;
@@ -149,7 +144,7 @@
               |> lib.optionalString (cfg.settings != { });
           };
 
-        programs.niri.settings.binds."Mod+L".spawn = getExe cfg.package;
+        programs.niri.settings.binds."Mod+L".spawn = lib.getExe cfg.package;
 
         prefs.autostart = [ cfg.package ];
       };

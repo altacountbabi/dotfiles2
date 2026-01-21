@@ -152,9 +152,7 @@
                 config.line_height = 1.2
                 config.font_size = 13
                 config.font = wezterm.font_with_fallback {
-                  { family = '${
-                    config.fonts.fontconfig.defaultFonts.monospace |> builtins.head
-                  }', weight = 'Medium' },
+                  { family = '${lib.head config.fonts.fontconfig.defaultFonts.monospace}', weight = 'Medium' },
                   'Noto Color Emoji',
                   'Symbols Nerd Font Mono',
                 }

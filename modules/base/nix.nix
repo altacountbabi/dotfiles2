@@ -120,7 +120,7 @@
 
         nixpkgs = {
           config.allowUnfree = true;
-          overlays = self.overlays |> builtins.attrValues;
+          overlays = lib.attrValues self.overlays;
         };
 
         documentation.info.enable = false;

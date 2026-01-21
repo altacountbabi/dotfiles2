@@ -15,12 +15,7 @@
       ...
     }:
     let
-      inherit (lib)
-        mkOption
-        types
-        getExe
-        mapAttrsToList
-        ;
+      inherit (lib) mkOption types;
       mkOpt = type: default: mkOption { inherit type default; };
       mkOpt' = type: mkOption { inherit type; };
     in
@@ -94,7 +89,7 @@
       config = {
         prefs.user.home = "/data/data/com.termux.nix/files/home";
 
-        user.shell = getExe config.users.users.user.shell;
+        user.shell = lib.getExe config.users.users.user.shell;
 
         nix.extraOptions =
           let
@@ -104,11 +99,13 @@
               isFloat
               boolToString
               isDerivation
+              isPath
               isString
               strings
               toPretty
               escape
               concatStringsSep
+              mapAttrsToList
               ;
 
             mkValueString =
@@ -123,7 +120,7 @@
                 strings.floatToString v
               else if isDerivation v then
                 toString v
-              else if builtins.isPath v then
+              else if isPath v then
                 toString v
               else if isString v then
                 v
@@ -144,22 +141,21 @@
           etcBackupExtension = ".bak";
           sessionVariables = {
             NIX_PATH = null;
-            SHELL = getExe config.users.users.user.shell;
+            SHELL = lib.getExe config.users.users.user.shell;
           };
           motd = null;
 
           etc =
             let
-              inherit (lib)
-                concatStringsSep
-                mapAttrsToList
-                ;
-
-              needsEscaping = s: null != builtins.match "[a-zA-Z0-9]+" s;
+              needsEscaping = s: null != lib.match "[a-zA-Z0-9]+" s;
               escapeIfNecessary = s: if needsEscaping s then s else ''"${lib.escape [ "$" "\"" "\\" "`" ] s}"'';
               attrsToText =
                 attrs:
-                concatStringsSep "\n" (mapAttrsToList (n: v: ''${n}=${escapeIfNecessary (toString v)}'') attrs)
+                (
+                  attrs
+                  |> lib.mapAttrsToList (n: v: ''${n}=${escapeIfNecessary (toString v)}'')
+                  |> lib.concatStringsSep "\n"
+                )
                 + "\n";
             in
             {

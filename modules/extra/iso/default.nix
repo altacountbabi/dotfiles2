@@ -15,9 +15,6 @@
           types,
           ...
         }:
-        let
-          inherit (lib) mkOption;
-        in
         {
           compressImage = mkOpt types.bool false "Whether the ISO image should be compressed using `zstd`";
 
@@ -33,13 +30,13 @@
           contents = mkOpt (types.listOf (
             types.submodule {
               options = {
-                source = mkOption {
+                source = lib.mkOption {
                   type = types.oneOf [
                     types.path
                     types.string
                   ];
                 };
-                target = mkOption {
+                target = lib.mkOption {
                   type = types.oneOf [
                     types.path
                     types.string
@@ -80,8 +77,8 @@
             set gfxpayload=keep
             ${
               let
-                monitors = config.prefs.monitors |> builtins.attrValues;
-                m = if ((builtins.length monitors) != 0) then builtins.head monitors else null;
+                monitors = config.prefs.monitors |> lib.attrValues;
+                m = if ((lib.length monitors) != 0) then lib.head monitors else null;
               in
               lib.optionalString (m != null) "set gfxmode=${toString m.width}x${toString m.height}"
             }

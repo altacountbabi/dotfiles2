@@ -58,16 +58,13 @@
               )
               |> map (
                 path:
-                let
-                  inherit (builtins) substring stringLength;
-                in
-                if substring 0 1 path == "~" then
-                  config.prefs.user.home + (substring 1 (stringLength path - 1) path)
+                if (lib.substring 0 1 path) == "~" then
+                  config.prefs.user.home + (lib.substring 1 (lib.stringLength path - 1) path)
                 else
                   path
               )
               |> map (x: "file://${x}")
-              |> builtins.concatStringsSep "\n";
+              |> lib.concatStringsSep "\n";
             "xdg/gtk-3.0/settings.ini".source = (pkgs.formats.ini { }).generate "gtk3-settings.ini" {
               Settings = {
                 inherit gtk-application-prefer-dark-theme;

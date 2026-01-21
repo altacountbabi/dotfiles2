@@ -10,11 +10,7 @@
     }:
     let
       cfg = config.programs.rofi;
-      inherit (lib)
-        mkDefault
-        mkOpt
-        types
-        ;
+      inherit (lib) mkOpt types;
     in
     {
       options.programs.rofi =
@@ -75,7 +71,7 @@
         in
         {
           programs.rofi = {
-            settings = mkDefault {
+            settings = lib.mkDefault {
               display-drun = ">";
               matching = "fuzzy";
             };
@@ -92,7 +88,7 @@
               in
               mkDefault {
                 configuration = {
-                  font = "${config.fonts.fontconfig.defaultFonts.monospace |> builtins.head} 12";
+                  font = "${lib.head config.fonts.fontconfig.defaultFonts.monospace} 12";
                   show-icons = true;
                 };
 
@@ -177,7 +173,7 @@
                 };
               };
 
-            plugins = mkDefault [
+            plugins = lib.mkDefault [
               pkgs.rofi-calc
             ];
           };

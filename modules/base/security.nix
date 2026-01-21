@@ -18,14 +18,11 @@
         cfg,
         ...
       }:
-      let
-        inherit (lib) mkDefault mkIf;
-      in
       {
-        security.polkit.enable = mkDefault true;
-        security.rtkit.enable = mkDefault true;
+        security.polkit.enable = lib.mkDefault true;
+        security.rtkit.enable = lib.mkDefault true;
 
-        security.sudo-rs = mkIf cfg.sudo-rs {
+        security.sudo-rs = lib.mkIf cfg.sudo-rs {
           enable = true;
           execWheelOnly = true;
           extraConfig = # sudo
@@ -84,18 +81,14 @@
           run0 = "run0 --background=0";
         };
 
-        system.replaceDependencies.replacements = mkIf cfg.uutils (
+        system.replaceDependencies.replacements = lib.mkIf cfg.uutils (
           let
-            inherit (builtins) concatStringsSep genList stringLength;
-            coreutils-full-name =
-              "coreuutils-full"
-              + concatStringsSep "" (genList (_: "_") (stringLength pkgs.coreutils-full.version));
-            coreutils-name =
-              "coreuutils" + concatStringsSep "" (genList (_: "_") (stringLength pkgs.coreutils.version));
-            findutils-name =
-              "finduutils" + concatStringsSep "" (genList (_: "_") (stringLength pkgs.findutils.version));
-            diffutils-name =
-              "diffuutils" + concatStringsSep "" (genList (_: "_") (stringLength pkgs.diffutils.version));
+            postfix = x: x |> lib.stringLength |> lib.genList (_: "_") |> lib.concatStringsSep "";
+
+            coreutils-full-name = "coreuutils-full" + (postfix pkgs.coreutils-full.version);
+            coreutils-name = "coreuutils" + (postfix pkgs.coreutils-full.version);
+            findutils-name = "finduutils" + (postfix pkgs.coreutils-full.version);
+            diffutils-name = "diffuutils" + (postfix pkgs.coreutils-full.version);
           in
           [
             # coreutils

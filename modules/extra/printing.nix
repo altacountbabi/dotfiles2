@@ -42,7 +42,7 @@
 
         hardware.sane = {
           enable = lib.mkDefault true;
-          netConf = cfg.scanning.printers |> builtins.concatStringsSep "\n";
+          netConf = cfg.scanning.printers |> lib.concatStringsSep "\n";
           extraBackends = cfg.scanning.backends;
         };
       };

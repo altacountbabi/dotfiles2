@@ -2,7 +2,7 @@
 
 {
   perSystem =
-    { pkgs, ... }:
+    { pkgs, lib, ... }:
     {
       packages.rofi-fd = self.lib.nushellScript {
         inherit pkgs;
@@ -11,7 +11,7 @@
           fd
           xdg-utils
         ];
-        text = builtins.readFile ./main.nu;
+        text = lib.readFile ./main.nu;
       };
     };
 }

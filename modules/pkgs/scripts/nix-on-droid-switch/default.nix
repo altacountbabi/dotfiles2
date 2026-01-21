@@ -2,7 +2,7 @@
 
 {
   perSystem =
-    { pkgs, ... }:
+    { pkgs, lib, ... }:
     {
       packages.nix-on-droid-switch = self.lib.nushellScript {
         inherit pkgs;
@@ -10,7 +10,7 @@
         packages = [
           pkgs.nix-output-monitor
         ];
-        text = builtins.readFile ./main.nu;
+        text = lib.readFile ./main.nu;
       };
     };
 }

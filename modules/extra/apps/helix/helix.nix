@@ -10,15 +10,7 @@
     }:
     let
       cfg = config.programs.helix;
-      inherit (lib)
-        mkDefault
-        mkForce
-        getExe
-        types
-        mkOpt
-        mkIf
-        mix
-        ;
+      inherit (lib) types mkOpt;
     in
     {
       options.programs.helix =
@@ -44,7 +36,7 @@
             wrapped =
               (inputs.wrappers.wrapperModules.helix.apply {
                 inherit pkgs;
-                package = mkForce cfg.package;
+                package = lib.mkForce cfg.package;
 
                 inherit (cfg) settings themes;
 
@@ -59,12 +51,12 @@
                             {
                               name = "nix";
                               language-servers = [ "nixd" ];
-                              formatter.command = pkgs.nixfmt |> getExe;
+                              formatter.command = pkgs.nixfmt |> lib.getExe;
                               auto-format = true;
                             }
                           ];
                           lsps.nixd = {
-                            command = "${pkgs.nixd |> getExe}";
+                            command = "${pkgs.nixd |> lib.getExe}";
                             args = [ "--inlay-hints=true" ];
 
                             config.nixd = {
@@ -81,21 +73,21 @@
                             {
                               name = "nu";
                               language-servers = [ "nu" ];
-                              formatter.command = "${pkgs.nufmt |> getExe} --stdin";
+                              formatter.command = "${pkgs.nufmt |> lib.getExe} --stdin";
                               auto-format = true;
                             }
                           ];
                           lsps.nu = {
                             # TODO: If the builtin nushell lsp reads the nushell config this should use the wrapped nushell package
-                            command = "${pkgs.nushell |> getExe} --lsp";
+                            command = "${pkgs.nushell |> lib.getExe} --lsp";
                           };
                         };
                       }
-                      |> lib.filterAttrs (name: _: builtins.elem name preset)
+                      |> lib.filterAttrs (name: _: lib.elem name preset)
                       |> lib.attrValues
                       |> lib.deepMergeAttrs;
 
-                    userLangs = builtins.removeAttrs cfg.languages [ "preset" ];
+                    userLangs = lib.removeAttrs cfg.languages [ "preset" ];
                   in
                   userLangs // presetLangs;
 
@@ -109,7 +101,7 @@
           ];
 
         programs.helix = {
-          settings = mkDefault {
+          settings = lib.mkDefault {
             theme = "nix";
 
             editor = {
@@ -198,7 +190,7 @@
             };
           };
 
-          languages = mkDefault {
+          languages = lib.mkDefault {
             preset = [
               "nix"
               "nu"
@@ -208,6 +200,7 @@
           themes.nix =
             let
               inherit (config.prefs.theme) polarity;
+              inherit (lib) mix;
             in
             {
               palette = rec {
@@ -522,7 +515,7 @@
             };
         };
 
-        environment.sessionVariables = mkIf cfg.defaultEditor {
+        environment.sessionVariables = lib.mkIf cfg.defaultEditor {
           EDITOR = "hx";
         };
 

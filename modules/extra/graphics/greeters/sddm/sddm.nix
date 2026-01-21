@@ -29,15 +29,13 @@
 
               westonConfig = lib.generators.toINI { listsAsDuplicateKeys = true; } {
                 output = {
-                  name = builtins.attrNames monitors;
+                  name = lib.attrNames monitors;
                   mode =
-                    builtins.attrValues monitors
-                    |> map (
-                      x: "${toString x.width}x${toString x.height}@${x.refreshRate |> lib.strings.floatToString}"
-                    );
-                  scale = builtins.attrValues monitors |> map (x: x.scale);
+                    lib.attrValues monitors
+                    |> map (x: "${toString x.width}x${toString x.height}@${lib.strings.floatToString x.refreshRate}");
+                  scale = lib.attrValues monitors |> map (x: x.scale);
                   transform =
-                    builtins.attrValues monitors |> map (x: westonTransformNames.${toString x.transform} or "normal");
+                    lib.attrValues monitors |> map (x: westonTransformNames.${toString x.transform} or "normal");
                 };
 
                 keyboard = {

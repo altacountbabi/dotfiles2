@@ -2,7 +2,7 @@
 
 {
   perSystem =
-    { pkgs, ... }:
+    { pkgs, lib, ... }:
     {
       packages.tscp = self.lib.nushellScript {
         inherit pkgs;
@@ -12,7 +12,7 @@
           gnutar
           openssh
         ];
-        text = builtins.readFile ./main.nu;
+        text = lib.readFile ./main.nu;
       };
     };
 }

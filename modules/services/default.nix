@@ -15,7 +15,7 @@
           {
             assertion =
               let
-                vals = builtins.attrValues config.prefs.ports;
+                vals = lib.attrValues config.prefs.ports;
               in
               vals == lib.unique vals;
             message = "Clashing port numbers for services: ${toString config.prefs.ports}";
