@@ -18,6 +18,7 @@
           mkOpt types.package inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.default
             "The package to use for opencode";
 
+        # TODO: Make this freeform (what the fuck was I doing here)
         settings = {
           theme = mkOpt types.str "system" "The theme to use in opencode";
         };
@@ -58,14 +59,12 @@
           }
           |> (pkgs.formats.json { }).generate "opencode.jsonc";
 
-        wrapped = (
-          inputs.wrappers.lib.wrapPackage {
-            inherit pkgs;
-            inherit (cfg) package;
+        wrapped = inputs.wrappers.lib.wrapPackage {
+          inherit pkgs;
+          inherit (cfg) package;
 
-            env.OPENCODE_CONFIG = configFile;
-          }
-        );
+          env.OPENCODE_CONFIG = configFile;
+        };
       in
       {
         environment.systemPackages = [
