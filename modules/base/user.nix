@@ -1,7 +1,7 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "base" {
+  flake.nixosModules = self.mkModule {
     path = "user";
 
     opts =
@@ -14,7 +14,9 @@
       }:
       {
         name = mkOpt types.str "user" "The name of the default user";
-        displayName = mkOpt types.str "User" "The name displayed on the login screen for the default user";
+        displayName =
+          mkOpt types.str config.prefs.user.name
+            "The name displayed on the login screen for the default user";
 
         initialPassword = mkOpt types.str "123" "The initial password for the default user and root";
 
@@ -22,24 +24,35 @@
         shell = mkOpt types.package pkgs.bash "The shell of the default user";
 
         home = mkOpt types.str "/home/${config.prefs.user.name}" "The path to the user's home directory";
+
+        vcs = {
+          name =
+            mkOpt (types.nullOr types.str) null
+              "The name to use when authoring commits in version control systems";
+          email =
+            mkOpt (types.nullOr types.str) null
+              "The email to use when authoring commits in version control systems";
+        };
       };
 
     cfg =
       { cfg, ... }:
       {
-        users.users.root = {
-          inherit (cfg) shell initialPassword;
-        };
-        users.users.${cfg.name} = {
-          isNormalUser = true;
-          description = cfg.displayName;
-          extraGroups = cfg.groups ++ [
-            "wheel"
-            "video"
-            "input"
-          ];
+        users.users = {
+          root = {
+            inherit (cfg) shell initialPassword;
+          };
+          ${cfg.name} = {
+            isNormalUser = true;
+            description = cfg.displayName;
+            extraGroups = cfg.groups ++ [
+              "wheel"
+              "video"
+              "input"
+            ];
 
-          inherit (cfg) shell initialPassword;
+            inherit (cfg) shell initialPassword;
+          };
         };
 
         services.userborn.enable = true;

@@ -1,37 +1,11 @@
-{ self, ... }:
-
 {
-  flake.nixosModules = self.mkModule "base" {
-    path = "network";
+  flake.nixosModules.base =
+    { lib, ... }:
+    {
+      prefs.user.groups = [ "networkmanager" ];
 
-    opts =
-      { mkOpt, types, ... }:
-      {
-        wol = mkOpt (types.nullOr types.str) null "Name of interface to enable wake on lan for";
-      };
+      networking.networkmanager.enable = true;
 
-    cfg =
-      {
-        pkgs,
-        lib,
-        cfg,
-        ...
-      }:
-      {
-        prefs.user.groups = [ "networkmanager" ];
-
-        networking.networkmanager.enable = true;
-
-        systemd.services.enable-wol = lib.mkIf (cfg.wol != null) {
-          description = "Enable Wake-on-LAN";
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" ];
-
-          serviceConfig = {
-            Type = "oneshot";
-            ExecStart = [ "${pkgs.ethtool |> lib.getExe} -s ${cfg.wol} wol g" ];
-          };
-        };
-      };
-  };
+      networking.domain = lib.mkDefault "localhost";
+    };
 }

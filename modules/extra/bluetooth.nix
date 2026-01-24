@@ -1,18 +1,13 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "bluetooth" {
-    path = "bluetooth";
+  flake.nixosModules = self.mkModule {
+    path = ".hardware.bluetooth";
 
     opts =
+      { mkOpt, types, ... }:
       {
-        pkgs,
-        mkOpt,
-        types,
-        ...
-      }:
-      {
-        frontend = mkOpt types.package pkgs.bluetui "Which bluetooth management frontend to use";
+        frontend = mkOpt (types.nullOr types.package) null "Which bluez client to use";
       };
 
     cfg =
@@ -23,7 +18,7 @@
         ...
       }:
       {
-        environment.systemPackages = [
+        environment.systemPackages = lib.mkIf (cfg.frontend != null) [
           (lib.hideDesktop {
             inherit pkgs;
             package = cfg.frontend;
@@ -31,9 +26,7 @@
         ];
 
         hardware.bluetooth = {
-          enable = true;
-          # Show battery charge of Bluetooth devices
-          settings.General.Experimental = true;
+          settings.General.Experimental = lib.mkDefault true;
         };
       };
   };

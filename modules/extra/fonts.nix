@@ -1,7 +1,9 @@
+# TODO: Improve this module, all it really does is set up some default fonts
+
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "fonts" {
+  flake.nixosModules = self.mkModule {
     cfg =
       { pkgs, lib, ... }:
       {

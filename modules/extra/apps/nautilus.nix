@@ -1,8 +1,8 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "nautilus" {
-    path = "apps.nautilus";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.nautilus";
 
     opts =
       {
@@ -12,7 +12,8 @@
         ...
       }:
       {
-        package = mkOpt types.package pkgs.nautilus "The nautilus package";
+        enable = mkOpt types.bool false "Enable nautilus";
+        package = mkOpt types.package pkgs.nautilus "Nautilus package";
       };
 
     cfg =
@@ -26,15 +27,17 @@
         defaultApps = config.prefs.defaultApps;
       in
       {
-        programs.nautilus-open-any-terminal = lib.mkIf (defaultApps.terminal != null) {
-          enable = true;
-          terminal = defaultApps.terminal;
-        };
+        config = lib.mkIf cfg.enable {
+          programs.nautilus-open-any-terminal = lib.mkIf (defaultApps.terminal != null) {
+            enable = true;
+            terminal = defaultApps.terminal;
+          };
 
-        environment.systemPackages = [ cfg.package ];
+          environment.systemPackages = [ cfg.package ];
 
-        xdg.mime.defaultApplications = lib.mkIf (defaultApps.files == "nautilus") {
-          "inode/directory" = "org.gnome.Nautilus.desktop";
+          xdg.mime.defaultApplications = lib.mkIf (defaultApps.files == "nautilus") {
+            "inode/directory" = "org.gnome.Nautilus.desktop";
+          };
         };
       };
   };

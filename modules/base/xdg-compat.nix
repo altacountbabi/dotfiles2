@@ -1,13 +1,13 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "base" {
-    path = "xdg";
+  flake.nixosModules = self.mkModule {
+    path = ".xdg.compat";
 
     opts =
       { mkOpt, types, ... }:
       {
-        patchSSH =
+        ssh =
           mkOpt types.bool true
             "Whether to patch openssh to use $XDG_CONFIG_DIR/ssh instead of $HOME/.ssh";
       };
@@ -23,7 +23,7 @@
       lib.mkMerge [
         {
           nixpkgs.overlays = [
-            (final: prev: {
+            (_: prev: {
               # I would use `wrapPackage` from the wrappers flake here, but that uses `lib.escapeShellArg` which wraps everything in quotes, which triggers SC2016
               wget = prev.symlinkJoin {
                 name = "wget-wrapped";
@@ -86,7 +86,7 @@
                 '';
             }
 
-            (lib.mkIf (config.services.openssh.enable && cfg.patchSSH) {
+            (lib.mkIf (config.services.openssh.enable && cfg.ssh) {
               text = # bash
                 ''
                   mkdir -p "$XDG_CONFIG_HOME/ssh"
@@ -111,7 +111,7 @@
             keyFilesStr = keyFiles |> lib.concatStringsSep " ";
             sshConfigDir = "$XDG_CONFIG_HOME/ssh";
           in
-          lib.mkIf (config.services.openssh.enable && cfg.patchSSH) {
+          lib.mkIf (config.services.openssh.enable && cfg.ssh) {
             # To spare us passing the extra options to the executables, we set these
             # in the system config file.
             programs.ssh.extraConfig = ''

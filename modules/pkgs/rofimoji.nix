@@ -48,7 +48,7 @@
           "--keybinding-copy" = "Alt+c";
           "--action" = "clipboard";
           "--prompt" = ">";
-          "--selector-args" = "-matching normal"; # fuzzy matching in rofi isnt that great with thousands of items
+          "--selector-args" = "-matching normal"; # fuzzy matching in rofi isn't that great with thousands of items
         };
       };
     };

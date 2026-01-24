@@ -1,8 +1,8 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "wezterm" {
-    path = "apps.wezterm";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.wezterm";
 
     opts =
       {
@@ -12,7 +12,8 @@
         ...
       }:
       {
-        package = mkOpt types.package pkgs.wezterm "The wezterm package";
+        enable = mkOpt types.bool false "Enable wezterm";
+        package = mkOpt types.package pkgs.wezterm "Wezterm package";
       };
 
     cfg =
@@ -187,13 +188,15 @@
           }).wrapper;
       in
       {
-        environment.systemPackages = [ wrapped ];
+        config = lib.mkIf cfg.enable {
+          environment.systemPackages = [ wrapped ];
 
-        xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.terminal == "wezterm") {
-          "x-scheme-handler/terminal" = "wezterm.desktop";
+          xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.terminal == "wezterm") {
+            "x-scheme-handler/terminal" = "wezterm.desktop";
+          };
+
+          prefs.autostart = [ "${wrapped}/bin/wezterm-mux-server" ];
         };
-
-        prefs.autostart = [ "${wrapped}/bin/wezterm-mux-server" ];
       };
   };
 

@@ -1,30 +1,30 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "nvidia" {
-    path = "nvidia";
+  flake.nixosModules = self.mkModule {
+    path = ".hardware.nvidia";
 
     opts =
+      { mkOpt, types, ... }:
       {
-        config,
-        mkOpt,
-        types,
-        ...
-      }:
-      {
-        package =
-          mkOpt types.package config.boot.kernelPackages.nvidiaPackages.stable
-            "Which package to use for Nvidia GPU drivers";
-        open = mkOpt types.bool true "Use open source kernel module";
+        enable = mkOpt types.bool false "Enable nvidia drivers";
       };
 
     cfg =
-      { cfg, ... }:
       {
-        hardware.nvidia = {
-          inherit (cfg) package open;
+        config,
+        lib,
+        ...
+      }:
+      {
+        config = lib.mkIf config.hardware.nvidia.enable {
+          hardware.nvidia = {
+            package = lib.mkDefault config.boot.kernelPackages.nvidiaPackages.stable;
+            open = lib.mkDefault true;
+          };
+
+          services.xserver.videoDrivers = [ "nvidia" ];
         };
-        services.xserver.videoDrivers = [ "nvidia" ];
       };
   };
 }

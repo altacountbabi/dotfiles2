@@ -10,42 +10,41 @@
     name:
     {
       system ? "x86_64-linux",
-      normal ? {
-        include = { };
-        exclude = { };
-      },
-      iso ? {
-        include = { };
-        exclude = { };
-      },
+      normal ? { },
+      iso ? { },
     }:
     let
       lib = inputs.nixpkgs.lib;
-      normalModules = normal.include |> lib.subtractLists (normal.exclude or [ ]);
+      normalModules = [
+        self.nixosModules.base
+        normal
+        { networking.hostName = name; }
+      ];
     in
     {
       "${name}" = lib.nixosSystem {
-        ${if system != null then "system" else null} = system;
+        inherit system;
         modules = normalModules;
       };
       "${name}Iso" = lib.nixosSystem {
-        ${if system != null then "system" else null} = system;
-        modules =
-          (normalModules ++ iso.include ++ [ self.nixosModules.iso ])
-          |> lib.subtractLists (iso.exclude or [ ]);
+        inherit system;
+        modules = normalModules ++ [
+          iso
+          {
+            prefs.iso.enable = true;
+          }
+        ];
       };
     };
 
   flake.mkModule =
-    name:
     {
       path ? null,
-
       opts ? (_: { }),
       cfg ? (_: { }),
     }:
-    let
-      baseModule =
+    {
+      base =
         {
           modulesPath,
           config,
@@ -54,112 +53,78 @@
           ...
         }:
         let
-          pathList = if path == null then [ ] else lib.splitString "." path;
+          inherit (lib)
+            splitString
+            hasPrefix
+            removePrefix
+            getAttrFromPath
+            setAttrByPath
+            optionalAttrs
+            ;
+
+          args = {
+            inherit
+              modulesPath
+              config
+              pkgs
+              lib
+              ;
+            inherit (lib)
+              mkOpt
+              mkOpt'
+              mkOption
+              mkConst
+              types
+              ;
+          };
+
+          # Normalize path once
+          normPath =
+            if path == null then
+              null
+            else
+              let
+                clean =
+                  if hasPrefix "." path then
+                    splitString "." (removePrefix "." path)
+                  else
+                    [ "prefs" ] ++ splitString "." path;
+              in
+              clean;
+
+          cfgValue = cfg (
+            {
+              cfg = if normPath == null then config.prefs else getAttrFromPath normPath config;
+            }
+            // args
+          );
+
+          hasConfigKey = lib.hasAttr "config" cfgValue;
         in
         {
-          options.prefs =
-            if path == null then
-              opts {
-                inherit
-                  modulesPath
-                  config
-                  pkgs
-                  lib
-                  ;
-                inherit (lib)
-                  mkOpt
-                  mkOpt'
-                  mkOption
-                  mkConst
-                  types
-                  ;
-              }
-            else
-              lib.setAttrByPath pathList (opts {
-                inherit
-                  modulesPath
-                  config
-                  pkgs
-                  lib
-                  ;
-                inherit (lib)
-                  mkOpt
-                  mkOpt'
-                  mkOption
-                  mkConst
-                  types
-                  ;
-              });
+          options = if normPath == null then { prefs = opts args; } else setAttrByPath normPath (opts args);
+
+          ${if !hasConfigKey then "config" else null} = cfgValue;
         }
-        // (lib.optionalAttrs (name == "base") {
-          config = cfg (
-            let
-              moduleCfg = if path == null then config.prefs else lib.getAttrFromPath pathList config.prefs;
-            in
-            {
-              cfg = moduleCfg;
-              inherit
-                modulesPath
-                config
-                pkgs
-                lib
-                ;
-            }
-          );
-        });
+        // optionalAttrs hasConfigKey cfgValue;
+    };
 
-      configModule =
-        if name != "base" then
-          {
-            ${name} =
-              {
-                modulesPath,
-                config,
-                pkgs,
-                lib,
-                ...
-              }:
-              cfg (
-                let
-                  pathList = if path == null then [ ] else lib.splitString "." path;
-                  moduleCfg = if path == null then config.prefs else lib.getAttrFromPath pathList config.prefs;
-                in
-                {
-                  cfg = moduleCfg;
-                  inherit
-                    modulesPath
-                    config
-                    pkgs
-                    lib
-                    ;
-                }
-              );
-          }
-        else
-          { };
-    in
-    { base = baseModule; } // configModule;
-
-  flake.nixosModules = self.mkModule "base" {
-    opts =
-      {
-        lib,
-        mkConst,
-        ...
-      }:
-      {
-        root = mkConst (
+  flake.nixosModules.base =
+    { lib, ... }:
+    {
+      options = {
+        root = lib.mkConst (
           lib.cleanSourceWith {
             filter = name: type: (type != "symlink" && name != "result");
             src = ../.;
           }
         );
-        rootWithGit = mkConst (
+        rootWithGit = lib.mkConst (
           lib.cleanSourceWith {
             filter = name: type: (type != "symlink" && name != "result") || name == ".git";
             src = ../.;
           }
         );
       };
-  };
+    };
 }

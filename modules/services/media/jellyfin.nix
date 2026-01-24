@@ -1,33 +1,28 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "jellyfin" {
-    path = "jellyfin";
+  flake.nixosModules = self.mkModule {
+    path = ".services.jellyfin";
 
     opts =
       { mkOpt, types, ... }:
       {
-        encoding = mkOpt types.attrs { } ''
-          Encoding settings for jellyfin.
-          Refer to <https://github.com/Sveske-Juice/declarative-jellyfin/blob/main/documentation/encoding.md> for documentation.
-        '';
-
-        users = mkOpt types.attrs { } ''
-          User configuration.
-          Refer to <https://github.com/Sveske-Juice/declarative-jellyfin/blob/main/documentation/users.md> for documentation.
-        '';
+        settings = mkOpt (types.attrsOf types.anything) { } "Jellyfin settings";
       };
 
     cfg =
       {
         config,
+        lib,
         cfg,
         ...
       }:
       {
-        imports = [ inputs.declarative-jellyfin.nixosModules.default ];
+        imports = [
+          inputs.declarative-jellyfin.nixosModules.default
+        ];
 
-        config =
+        config = lib.mkIf cfg.enable (
           let
             ports.jellyfin = 8096;
             subdomain = "https://jellyfin.${config.networking.domain}";
@@ -39,58 +34,60 @@
               reverse_proxy localhost:${toString ports.jellyfin}
             '';
 
-            services.jellyfin.enable = true;
-            services.declarative-jellyfin = {
-              enable = true;
-              serverId = "cb86e9d95ec14b11b772bd43e82b4831";
+            services.declarative-jellyfin =
+              let
+                inherit (lib) mkDefault;
+              in
+              {
+                enable = true;
+                serverId = "cb86e9d95ec14b11b772bd43e82b4831";
 
-              system = {
-                minResumePct = 2;
+                system = mkDefault {
+                  minResumePct = 2;
 
-                pluginRepositories = [
-                  {
-                    content = {
-                      Enabled = true;
-                      Name = "Jellyfin Stable";
-                      Url = "https://repo.jellyfin.org/files/plugin/manifest.json";
-                    };
-                    tag = "RepositoryInfo";
-                  }
-                  {
-                    content = {
-                      Enabled = true;
-                      Name = "Intro Skipper";
-                      Url = "https://intro-skipper.org/manifest.json";
-                    };
-                    tag = "RepositoryInfo";
-                  }
-                ];
+                  pluginRepositories = [
+                    {
+                      content = {
+                        Enabled = true;
+                        Name = "Jellyfin Stable";
+                        Url = "https://repo.jellyfin.org/files/plugin/manifest.json";
+                      };
+                      tag = "RepositoryInfo";
+                    }
+                    {
+                      content = {
+                        Enabled = true;
+                        Name = "Intro Skipper";
+                        Url = "https://intro-skipper.org/manifest.json";
+                      };
+                      tag = "RepositoryInfo";
+                    }
+                  ];
 
-                trickplayOptions = {
-                  enableHwAcceleration = true;
-                  enableHwEncoding = true;
+                  trickplayOptions = {
+                    enableHwAcceleration = true;
+                    enableHwEncoding = true;
+                  };
                 };
-              };
 
-              inherit (cfg) encoding;
-
-              users = {
-                admin = {
-                  mutable = false;
-                  password = "123";
-                  permissions.isAdministrator = true;
+                users = mkDefault {
+                  admin = {
+                    mutable = false;
+                    password = "123";
+                    permissions.isAdministrator = true;
+                  };
                 };
+
+                network = mkDefault {
+                  internalHttpPort = ports.jellyfin;
+                  baseUrl = subdomain;
+                };
+
+                branding.customCss = mkDefault "@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/scyfin-theme.css');";
               }
-              // cfg.users;
-
-              network = {
-                internalHttpPort = ports.jellyfin;
-                baseUrl = subdomain;
-              };
-
-              branding.customCss = "@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/scyfin-theme.css');";
-            };
-          };
+              // cfg.settings;
+          }
+        );
       };
   };
 }

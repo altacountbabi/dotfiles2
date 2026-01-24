@@ -1,26 +1,86 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "nushell" {
-    path = "nushell";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.nushell";
 
     opts =
       {
         pkgs,
+        lib,
         mkOpt,
         types,
         ...
       }:
+      let
+        nushellValue =
+          let
+            valueType = types.nullOr (
+              types.oneOf [
+                (lib.mkOptionType {
+                  name = "nushell";
+                  description = "Nushell inline value";
+                  descriptionClass = "name";
+                  check = lib.isType "nushell-inline";
+                })
+                types.bool
+                types.int
+                types.float
+                types.str
+                types.path
+                (
+                  types.attrsOf valueType
+                  // {
+                    description = "attribute set of Nushell values";
+                    descriptionClass = "name";
+                  }
+                )
+                (
+                  types.listOf valueType
+                  // {
+                    description = "list of Nushell values";
+                    descriptionClass = "name";
+                  }
+                )
+              ]
+            );
+          in
+          valueType;
+      in
       {
+        enable = mkOpt types.bool false "Enable nushell";
+
         package = mkOpt types.package pkgs.nushell "The package to use for nushell";
 
         extraConfig = mkOpt (types.listOf types.str) [ ] "Extra items to add to the config";
 
-        excludedAliases =
-          mkOpt (types.listOf types.str) [ ]
-            "Aliases from `environment.shellAliases` to exclude from the config";
+        excludedAliases = mkOpt (types.listOf types.str) [ ] ''
+          Aliases from `environment.shellAliases` to exclude from the config.
+          This can be useful if a specific alias has posix shell syntax or if there's something better than an alias that nushell can use.
+        '';
 
         include = mkOpt (types.listOf types.path) [ ] "List of paths to source into the env config";
+
+        settings = mkOpt (types.attrsOf nushellValue) { } ''
+          Nushell settings. These will be flattened and assigned one by one to `$env.config` to avoid overwriting the default or existing options.
+
+          For example:
+          ```nix
+          {
+            show_banner = false;
+            completions.external = {
+              enable = true;
+              max_results = 200;
+            };
+          }
+          ```
+          becomes:
+          ```nushell
+          $env.config.completions.external.enable = true
+          $env.config.completions.external.max_results = 200
+          $env.config.show_banner = false
+          ```
+        '';
       };
 
     cfg =
@@ -219,123 +279,150 @@
                 }
               '';
 
-            "config.nu".content = # nu
-              ''
-                $env.config = {
-                  show_banner: false
-
-                  ls: {
-                    use_ls_colors: true
-                    clickable_links: false
-                  }
-
-                  rm: {
-                    always_trash: false
-                  }
-
-                  table: {
-                    mode: rounded
-                    index_mode: auto
-                    show_empty: false
-                    padding: { left: 1, right: 1 }
-                    trim: {
-                      methodology: wrapping
-                      wrapping_try_keep_words: true
-                      truncating_suffix: "..."
-                    }
-                    header_on_separator: false
-                  }
-
-                  error_style: "fancy"
-
-                  explore: {
-                    status_bar_background: { fg: "#1D1F21", bg: "#C4C9C6" },
-                    command_bar_text: { fg: "#C4C9C6" },
-                    highlight: { fg: "black", bg: "yellow" },
-                    status: {
-                      error: { fg: "white", bg: "red" },
-                      warn: {}
-                      info: {}
-                    },
-                    table: {
-                      split_line: { fg: "#404040" },
-                      selected_cell: { bg: light_blue },
-                      selected_row: {},
-                      selected_column: {},
-                    },
-                  }
-
-                  history: {
-                    max_size: 100_000
-                    sync_on_enter: true
-                    file_format: "plaintext"
-                    isolation: false
-                  }
-
-                  completions: {
-                    case_sensitive: false
-                    quick: true
-                    partial: true
-                    algorithm: "fuzzy"
-                    use_ls_colors: true
-                  }
-
-                  filesize: {
-                    unit: "metric" # true => KB, MB, GB (ISO standard), false => KiB, MiB, GiB (Windows standard)
-                  }
-
-                  cursor_shape: {
-                    emacs: line
-                    vi_insert: line
-                    vi_normal: line
-                  }
-
-                  footer_mode: 25
-                  float_precision: 2
-                  buffer_editor: ""
-                  use_ansi_coloring: true
-                  bracketed_paste: true
-                  edit_mode: emacs
-                  render_right_prompt_on_last_line: false
-                  use_kitty_protocol: false
-                  highlight_resolved_externals: false
-                  recursion_limit: 50
-
-                  plugins: {}
-
-                  plugin_gc: {
-                    default: {
-                      enabled: true
-                      stop_after: 10sec
-                    }
-                  }
-
-                  hooks: {
-                    pre_prompt: [{ null }]
-                    pre_execution: [{ null }]
-                    env_change: {
-                      PWD: [{|before, after| null }]
-                    }
-                    display_output: "if (term size).columns >= 100 { table -e } else { table }"
-                    command_not_found: { null }
-                  }
-                }
-              '';
+            "config.nu".content =
+              let
+                flattenSettings =
+                  let
+                    joinDot = a: b: "${if a == "" then "" else "${a}."}${b}";
+                    unravel =
+                      prefix: value:
+                      if lib.isAttrs value && !lib.isNushellInline value then
+                        lib.concatMap (key: unravel (joinDot prefix key) value.${key}) (builtins.attrNames value)
+                      else
+                        [ (lib.nameValuePair prefix value) ];
+                  in
+                  unravel "";
+                mkLine =
+                  { name, value }:
+                  ''
+                    $env.config.${name} = ${lib.toNushell { } value}
+                  '';
+                settingsLines = lib.concatMapStrings mkLine (flattenSettings cfg.settings);
+              in
+              lib.mkIf (cfg.settings != { }) settingsLines;
           }).wrapper;
       in
       {
-        environment.systemPackages = with pkgs; [
-          carapace
-          wrapped
-        ];
+        config = lib.mkIf cfg.enable {
+          environment.systemPackages = with pkgs; [
+            carapace
+            wrapped
+          ];
 
-        prefs.user.shell = wrapped;
+          programs.nushell = {
+            settings = lib.mkDefault {
+              show_banner = false;
 
-        # Remove pre-defined shell aliases from nixpkgs but still allow for shell aliases in this config.
-        environment.shellAliases = {
-          ls = "";
-          ll = "";
-          l = "";
+              ls = {
+                use_ls_colors = true;
+                clickable_links = false;
+              };
+
+              rm.always_trash = false;
+
+              table = {
+                mode = "rounded";
+                index_mode = "auto";
+                show_empty = false;
+                padding = {
+                  left = 1;
+                  right = 1;
+                };
+                trim = {
+                  methodology = "wrapping";
+                  wrapping_try_keep_words = true;
+                  truncating_suffix = "...";
+                };
+                header_on_separator = false;
+              };
+
+              error_style = "fancy";
+
+              explore = {
+                status_bar_background = {
+                  fg = "#1D1F21";
+                  bg = "#C4C9C6";
+                };
+                command_bar_text.fg = "#C4C9C6";
+                highlight = {
+                  fg = "black";
+                  bg = "yellow";
+                };
+                status = {
+                  error = {
+                    fg = "white";
+                    bg = "red";
+                  };
+                  warn = { };
+                  info = { };
+                };
+                table = {
+                  split_line.fg = "#404040";
+                  selected_cell.bg = "light_blue";
+                  selected_row = { };
+                  selected_column = { };
+                };
+              };
+
+              history = {
+                max_size = 100000;
+                sync_on_enter = true;
+                file_format = "plaintext";
+                isolation = false;
+              };
+
+              completions = {
+                case_sensitive = false;
+                quick = true;
+                partial = true;
+                algorithm = "fuzzy";
+                use_ls_colors = true;
+              };
+
+              filesize.unit = "metric";
+
+              cursor_shape = {
+                emacs = "line";
+                vi_insert = "line";
+                vi_normal = "line";
+              };
+
+              footer_mode = 25;
+              float_precision = 2;
+              buffer_editor = "";
+              use_ansi_coloring = true;
+              bracketed_paste = true;
+              edit_mode = "emacs";
+              render_right_prompt_on_last_line = false;
+              use_kitty_protocol = false;
+              highlight_resolved_externals = false;
+              recursion_limit = 50;
+
+              plugins = { };
+
+              plugin_gc.default = {
+                enabled = true;
+                stop_after = lib.mkNushellInline "10sec";
+              };
+
+              hooks = {
+                pre_prompt = lib.mkNushellInline "[{ null }]";
+                pre_execution = lib.mkNushellInline "[{ null }]";
+                env_change.PWD = lib.mkNushellInline "[{|before; after| null }]";
+                display_output = "if (term size).columns >= 100 { table -e } else { table }";
+                command_not_found = lib.mkNushellInline "{ null }";
+              };
+            };
+          };
+
+          prefs.user.shell = wrapped;
+
+          # Remove pre-defined shell aliases from nixpkgs
+          environment.shellAliases = {
+            ls = "";
+            ll = "";
+            l = "";
+          };
         };
       };
   };

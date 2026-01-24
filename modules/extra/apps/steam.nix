@@ -1,8 +1,8 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "steam" {
-    path = "apps.steam";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.steam";
 
     opts =
       {
@@ -12,7 +12,7 @@
         ...
       }:
       {
-        package = mkOpt types.package pkgs.steam "The package to use for steam browser";
+        package = mkOpt types.package pkgs.steam "Steam package";
         autostart = mkOpt types.bool false "Whether to automatically start steam at startup";
       };
 
@@ -23,12 +23,13 @@
         ...
       }:
       {
-        programs.steam = {
-          enable = true;
-          inherit (cfg) package;
-        };
+        config = lib.mkIf cfg.enable {
+          programs.steam = {
+            inherit (cfg) package;
+          };
 
-        prefs.autostart = lib.mkIf cfg.autostart [ "steam" ];
+          prefs.autostart = lib.mkIf cfg.autostart [ "steam" ];
+        };
       };
   };
 }

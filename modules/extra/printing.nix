@@ -1,50 +1,41 @@
-{ self, ... }:
-
 {
-  flake.nixosModules = self.mkModule "printing" {
-    opts =
-      {
-        pkgs,
-        mkOpt,
-        types,
-        ...
-      }:
-      {
-        printing.drivers = mkOpt (types.listOf types.package) (with pkgs; [
-          gutenprint
-          hplip
-        ]) "List of printer drivers to install";
-
-        scanning = {
-          printers = mkOpt (types.listOf types.str) [ ] "List of IPs for network scanners";
-          backends = mkOpt (types.listOf types.package) (with pkgs; [
-            airscan
-          ]) "List of SANE backends to install";
-        };
+  flake.nixosModules.base =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    let
+      cfg = config.hardware.sane;
+      inherit (lib) mkOpt types;
+    in
+    {
+      options.hardware.sane = {
+        scanners = mkOpt (types.listOf types.str) [ ] "List of IPs of network scanners";
       };
 
-    cfg =
-      {
-        pkgs,
-        lib,
-        cfg,
-        ...
-      }:
-      {
+      config = {
         services.printing = {
-          enable = true;
           package = lib.hideDesktop {
             inherit pkgs;
             package = pkgs.cups;
           };
-          inherit (cfg.printing) drivers;
+          drivers = lib.mkDefault (
+            with pkgs;
+            [
+              gutenprint
+              hplip
+            ]
+          );
         };
 
         hardware.sane = {
-          enable = lib.mkDefault true;
-          netConf = cfg.scanning.printers |> lib.concatStringsSep "\n";
-          extraBackends = cfg.scanning.backends;
+          netConf = lib.concatStringsSep "\n" cfg.scanners;
+          extraBackends = lib.mkDefault [
+            pkgs.airscan
+          ];
         };
       };
-  };
+    };
 }

@@ -1,7 +1,7 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "base" {
+  flake.nixosModules = self.mkModule {
     path = "theme";
 
     opts =
@@ -57,6 +57,17 @@
 
             accent = mkOpt types.str config.prefs.theme.colors.mauve "Accent";
           };
+      };
+
+    cfg =
+      { config, lib, ... }:
+      {
+        assertions = [
+          {
+            assertion = (config.prefs.themes |> lib.attrValues |> lib.filter (x: x) |> lib.length) == 1;
+            message = "Multiple themes enabled";
+          }
+        ];
       };
   };
 }

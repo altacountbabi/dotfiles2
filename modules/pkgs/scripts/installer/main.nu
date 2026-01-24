@@ -105,6 +105,9 @@ def main [
     mv /tmp/conf/.jj $"/mnt($home)/conf"
 
     chown -R 1000:100 $"/mnt($home)"
+
+    git config --global --add safe.directory $"/mnt($home)/conf"
+    git -C $"/mnt($home)/conf" add -A
   }
 
   if not $dry_run {

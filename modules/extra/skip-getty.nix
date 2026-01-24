@@ -1,20 +1,13 @@
-# Completely skips login on getty, puts you right into your shell
-
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "skip-getty" {
-    path = "skip-getty";
+  flake.nixosModules = self.mkModule {
+    path = ".services.getty";
 
     opts =
+      { mkOpt, types, ... }:
       {
-        config,
-        mkOpt,
-        types,
-        ...
-      }:
-      {
-        user = mkOpt (types.nullOr types.str) config.prefs.user.name "The user to log in as";
+        silentAutologin = mkOpt types.bool true "Make autologin completely silent";
       };
 
     cfg =
@@ -24,8 +17,7 @@
         ...
       }:
       {
-        services.getty = lib.mkIf (cfg.user != null) {
-          autologinUser = cfg.user;
+        services.getty = lib.mkIf (cfg.silentAutologin && cfg.autologinUser != null) {
           autologinOnce = true;
           greetingLine = "";
           helpLine = "";

@@ -1,16 +1,13 @@
+{ self, ... }:
+
 {
-  flake.nixosModules.hyprlock =
-    {
-      config,
-      lib,
-      ...
-    }:
-    let
-      cfg = config.programs.hyprlock;
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.programs.hyprlock = with types; {
+  flake.nixosModules = self.mkModule {
+    path = ".programs.hyprlock";
+
+    opts =
+      { mkOpt, types, ... }:
+      with types;
+      {
         autostart = mkOpt bool true "Whether to make hyprlock autostart to act as the login screen";
 
         settings = mkOpt (
@@ -42,10 +39,16 @@
         ] "List of prefix of attributes to source at the top of the config.";
       };
 
-      config = {
-        programs.hyprlock = {
-          enable = true;
-          settings = lib.mkDefault (
+    cfg =
+      {
+        config,
+        lib,
+        cfg,
+        ...
+      }:
+      {
+        config = lib.mkIf cfg.enable {
+          programs.hyprlock.settings = lib.mkDefault (
             let
               color = x: "rgb(${lib.stripHex x})";
               inherit (config.prefs.theme) wallpaper;
@@ -129,24 +132,24 @@
               ];
             }
           );
+
+          environment.etc."xdg/hypr/hyprlock.conf" =
+            let
+              shouldGenerate = cfg.settings != { };
+            in
+            lib.mkIf shouldGenerate {
+              text =
+                (lib.toHyprconf {
+                  attrs = cfg.settings;
+                  importantPrefixes = cfg.importantPrefixes ++ lib.optional cfg.sourceFirst "source";
+                })
+                |> lib.optionalString (cfg.settings != { });
+            };
+
+          programs.niri.settings.binds."Mod+L".spawn = lib.getExe cfg.package;
+
+          prefs.autostart = [ cfg.package ];
         };
-
-        environment.etc."xdg/hypr/hyprlock.conf" =
-          let
-            shouldGenerate = cfg.settings != { };
-          in
-          lib.mkIf shouldGenerate {
-            text =
-              (lib.toHyprconf {
-                attrs = cfg.settings;
-                importantPrefixes = cfg.importantPrefixes ++ lib.optional cfg.sourceFirst "source";
-              })
-              |> lib.optionalString (cfg.settings != { });
-          };
-
-        programs.niri.settings.binds."Mod+L".spawn = lib.getExe cfg.package;
-
-        prefs.autostart = [ cfg.package ];
       };
-    };
+  };
 }

@@ -1,7 +1,7 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "base" {
+  flake.nixosModules = self.mkModule {
     path = "kernel";
 
     opts =

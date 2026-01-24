@@ -1,7 +1,7 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "caddy" {
+  flake.nixosModules = self.mkModule {
     opts =
       { mkOpt, types, ... }:
       {
@@ -11,10 +11,7 @@
     cfg =
       { lib, cfg, ... }:
       {
-        services.caddy = {
-          enable = true;
-          virtualHosts = cfg.caddy |> lib.mapAttrs (k: v: { extraConfig = v; });
-        };
+        services.caddy.virtualHosts = cfg.caddy |> lib.mapAttrs (_: v: { extraConfig = v; });
 
         networking.firewall.allowedTCPPorts = [
           443

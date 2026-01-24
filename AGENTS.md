@@ -35,7 +35,7 @@ No home management system is used, the way user apps are configured are either t
     bar = mkOpt ...;
   };
   ```
-  This rule applies no matter how many options `foo` has, the only time this can be ignored is if theres multiple sub-namespaces under the `.prefs` namespace, both with lots of options:
+  This rule applies no matter how many options `foo` has, the only time this can be ignored is if there's multiple sub-namespaces under the `.prefs` namespace, both with lots of options:
   ```nix
   options.prefs = {
     foo = {

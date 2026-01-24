@@ -1,7 +1,7 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "tools" {
+  flake.nixosModules = self.mkModule {
     path = "tools";
 
     opts =
@@ -72,7 +72,7 @@
               search = "nix-search";
             };
 
-            prefs.nushell.extraConfig =
+            programs.nushell.extraConfig =
               let
                 index = self.packages.${pkgs.stdenv.hostPlatform.system}.indexCached;
               in

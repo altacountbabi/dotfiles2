@@ -1,8 +1,8 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "loupe" {
-    path = "apps.loupe";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.loupe";
 
     opts =
       {
@@ -12,7 +12,8 @@
         ...
       }:
       {
-        package = mkOpt types.package pkgs.loupe "The loupe package";
+        enable = mkOpt types.bool false "Enable loupe";
+        package = mkOpt types.package pkgs.loupe "Loupe package";
       };
 
     cfg =
@@ -23,12 +24,14 @@
         ...
       }:
       {
-        environment.systemPackages = [ cfg.package ];
+        config = lib.mkIf cfg.enable {
+          environment.systemPackages = [ cfg.package ];
 
-        xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.image == "loupe") {
-          "image/png" = "org.gnome.Loupe.desktop";
-          "image/bmp" = "org.gnome.Loupe.desktop";
-          "image/jpeg" = "org.gnome.Loupe.desktop";
+          xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.image == "loupe") {
+            "image/png" = "org.gnome.Loupe.desktop";
+            "image/bmp" = "org.gnome.Loupe.desktop";
+            "image/jpeg" = "org.gnome.Loupe.desktop";
+          };
         };
       };
   };

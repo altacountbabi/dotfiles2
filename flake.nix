@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nur.url = "github:nix-community/nur";
     nix-on-droid.url = "github:altacountbabi/nix-on-droid";
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
@@ -40,7 +41,7 @@
 
     mcp-nixos.url = "github:utensils/mcp-nixos";
 
-    declarative-jellyfin.url = "github:Sveske-Juice/declarative-jellyfin";
+    declarative-jellyfin.url = "github:altacountbabi/declarative-jellyfin";
   };
 
   outputs =

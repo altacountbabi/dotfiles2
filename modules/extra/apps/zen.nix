@@ -1,8 +1,8 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "zen" {
-    path = "apps.zen";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.zen";
 
     opts =
       {
@@ -12,9 +12,10 @@
         ...
       }:
       {
+        enable = mkOpt types.bool false "Enable zen browser";
         package =
           mkOpt types.package inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-            "The package to use for zen browser";
+            "Zen package";
         autostart = mkOpt types.bool false "Whether to automatically start zen browser at startup";
       };
 
@@ -26,26 +27,27 @@
         ...
       }:
       {
-        environment.systemPackages = [
-          cfg.package
-        ];
+        config = lib.mkIf cfg.enable {
+          environment.systemPackages = [
+            cfg.package
+          ];
 
-        xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.browser == "zen") (
-          [
-            "text/html"
-            "application/xhtml+xml"
-            "application/x-extension-html"
-            "application/x-extension-htm"
-            "application/x-extension-shtml"
-            "x-scheme-handler/http"
-            "x-scheme-handler/https"
-            "image/svg+xml"
-            "application/pdf"
-          ]
-          |> lib.genAttrs (_: "zen.desktop")
-        );
+          xdg.mime.defaultApplications =
+            lib.genAttrs [
+              "text/html"
+              "application/xhtml+xml"
+              "application/x-extension-html"
+              "application/x-extension-htm"
+              "application/x-extension-shtml"
+              "x-scheme-handler/http"
+              "x-scheme-handler/https"
+              "image/svg+xml"
+              "application/pdf"
+            ] (_: "zen.desktop")
+            |> lib.mkIf (config.prefs.defaultApps.browser == "zen");
 
-        prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
+          prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
+        };
       };
   };
 }

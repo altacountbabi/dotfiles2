@@ -1,21 +1,19 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "git" {
-    path = "git";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.git";
 
     opts =
       { mkOpt, types, ... }:
       {
-        user.name = mkOpt (types.nullOr types.str) null "The username to use when creating git commits";
-        user.email = mkOpt (types.nullOr types.str) null "The email to use when creating git commits";
-
         githubAuth = mkOpt types.bool true "Whether to allow authenticating with the `gh` cli tool";
       };
 
     cfg =
       {
         modulesPath,
+        config,
         pkgs,
         lib,
         cfg,
@@ -26,35 +24,35 @@
           "${modulesPath}/programs/git.nix"
         ];
 
-        environment.shellAliases = {
-          clone = "git clone --depth 1";
-          lg = "lazygit";
-        };
+        config = lib.mkIf cfg.enable {
+          environment.shellAliases = {
+            clone = "git clone --depth 1";
+            lg = "lazygit";
+          };
 
-        environment.systemPackages =
-          with pkgs;
-          [
-            lazygit
-            difftastic
-          ]
-          ++ (lib.optional cfg.githubAuth pkgs.gh);
+          environment.systemPackages =
+            with pkgs;
+            [
+              lazygit
+              difftastic
+            ]
+            ++ (lib.optional cfg.githubAuth pkgs.gh);
 
-        programs.git = {
-          enable = true;
-          config = {
+          programs.git.config = {
             init.defaultBranch = "main";
             url = {
-              "https://github.com/" = {
-                insteadOf = [
-                  "gh:"
-                  "github:"
-                ];
-              };
+              "https://github.com/".insteadOf = [
+                "gh:"
+                "github:"
+              ];
             };
 
             diff.external = "difft";
 
-            inherit (cfg) user;
+            user = {
+              ${if config.prefs.user.vcs.name != null then "name" else null} = config.prefs.user.vcs.name;
+              ${if config.prefs.user.vcs.email != null then "email" else null} = config.prefs.user.vcs.email;
+            };
           }
           // (lib.optionalAttrs cfg.githubAuth {
             credential."https://github.com".helper = [

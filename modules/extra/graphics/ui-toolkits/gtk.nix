@@ -1,8 +1,8 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "gtk" {
-    path = "gtk";
+  flake.nixosModules = self.mkModule {
+    path = ".gtk";
 
     opts =
       { mkOpt, types, ... }:
@@ -22,6 +22,14 @@
         inherit (config.prefs.theme) polarity;
       in
       {
+        gtk.bookmarks = [
+          "~/Documents"
+          "~/Music"
+          "~/Pictures"
+          "~/Videos"
+          "~/Downloads"
+        ];
+
         programs.dconf = {
           enable = true;
           profiles.user.databases = [
@@ -37,25 +45,17 @@
 
         environment.etc =
           let
-            gtk-application-prefer-dark-theme = polarity == "dark";
-          in
-          {
-            "xdg/gtk-4.0/settings.ini".source = (pkgs.formats.ini { }).generate "gtk4-settings.ini" {
+            settings = (pkgs.formats.ini { }).generate "gtk-settings.ini" {
               Settings = {
-                inherit gtk-application-prefer-dark-theme;
+                gtk-application-prefer-dark-theme = polarity == "dark";
               };
             };
+          in
+          {
+            "xdg/gtk-4.0/settings.ini".source = settings;
+            "xdg/gtk-3.0/settings.ini".source = settings;
             "xdg/gtk-3.0/bookmarks".text =
-              (
-                cfg.bookmarks
-                ++ [
-                  "~/Documents"
-                  "~/Music"
-                  "~/Pictures"
-                  "~/Videos"
-                  "~/Downloads"
-                ]
-              )
+              cfg.bookmarks
               |> map (
                 path:
                 if (lib.substring 0 1 path) == "~" then
@@ -65,11 +65,6 @@
               )
               |> map (x: "file://${x}")
               |> lib.concatStringsSep "\n";
-            "xdg/gtk-3.0/settings.ini".source = (pkgs.formats.ini { }).generate "gtk3-settings.ini" {
-              Settings = {
-                inherit gtk-application-prefer-dark-theme;
-              };
-            };
           };
       };
   };

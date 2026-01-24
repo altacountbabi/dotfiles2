@@ -1,0 +1,18 @@
+{
+  flake.nixosModules.base =
+    { lib, ... }:
+    {
+      boot.loader.timeout = lib.mkDefault 0;
+
+      boot.kernel.sysctl = {
+        "vm.swappiness" = 10;
+      };
+
+      boot.initrd.systemd.enable = true;
+      system.etc.overlay.enable = true;
+      system.nixos-init.enable = true;
+
+      # Removes the need to import `not-detected.nix` in every host
+      hardware.enableRedistributableFirmware = lib.mkDefault true;
+    };
+}

@@ -1,7 +1,7 @@
 { self, inputs, ... }:
 
 {
-  flake.nixosModules = self.mkModule "base" {
+  flake.nixosModules = self.mkModule {
     path = "nix";
 
     opts =
@@ -102,8 +102,8 @@
           switch = "nh os switch";
         };
 
-        prefs.nushell.excludedAliases = lib.mkIf config.isDroid [ "switch" ];
-        prefs.nushell.extraConfig = lib.mkIf config.isDroid [
+        programs.nushell.excludedAliases = lib.mkIf config.isDroid [ "switch" ];
+        programs.nushell.extraConfig = lib.mkIf config.isDroid [
           "source ${self.packages.${pkgs.stdenv.hostPlatform.system}.nix-on-droid-switch}/bin/switch"
         ];
 

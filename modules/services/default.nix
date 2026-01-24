@@ -1,7 +1,7 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "services" {
+  flake.nixosModules = self.mkModule {
     opts =
       { mkOpt, types, ... }:
       {

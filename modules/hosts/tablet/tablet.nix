@@ -23,6 +23,8 @@
           {
             networking.hostName = "tablet";
 
+            xdg.compat.ssh = false;
+
             prefs =
               let
                 vcsUser = {
@@ -32,7 +34,6 @@
               in
               {
                 tools.ffmpeg = false;
-                xdg.patchSSH = false;
 
                 git.user = vcsUser;
                 jj.user = vcsUser;

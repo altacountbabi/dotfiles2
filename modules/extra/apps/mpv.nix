@@ -1,8 +1,8 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "mpv" {
-    path = "apps.mpv";
+  flake.nixosModules = self.mkModule {
+    path = ".programs.mpv";
 
     opts =
       {
@@ -12,7 +12,8 @@
         ...
       }:
       {
-        package = mkOpt types.package pkgs.mpv "The mpv package";
+        enable = mkOpt types.bool false "Enable mpv";
+        package = mkOpt types.package pkgs.mpv "Mpv package";
       };
 
     cfg =
@@ -23,10 +24,12 @@
         ...
       }:
       {
-        environment.systemPackages = [ cfg.package ];
+        config = lib.mkIf cfg.enable {
+          environment.systemPackages = [ cfg.package ];
 
-        xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.video == "mpv") {
-          "video/mp4=mpv.desktop" = "mpv.desktop";
+          xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.video == "mpv") {
+            "video/mp4" = "mpv.desktop";
+          };
         };
       };
   };

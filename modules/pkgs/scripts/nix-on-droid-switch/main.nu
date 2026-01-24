@@ -12,7 +12,7 @@ export def switch [
     $host
   }
   let flake = if ($flake | is-empty) {
-    # Re-use the `NH_FLAKE` env var, there's no point in making a new one
+    # Reuse the `NH_FLAKE` env var, there's no point in making a new one
     $env.NH_FLAKE
   } else {
     $flake

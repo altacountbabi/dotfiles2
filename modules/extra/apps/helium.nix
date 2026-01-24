@@ -1,22 +1,21 @@
-{ inputs, ... }:
+{ self, inputs, ... }:
 
 {
-  flake.nixosModules.helium =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      cfg = config.programs.helium;
-      inherit (lib) mkOpt types;
-    in
-    {
-      options.programs.helium = {
+  flake.nixosModules = self.mkModule {
+    path = ".programs.helium";
+
+    opts =
+      {
+        pkgs,
+        mkOpt,
+        types,
+        ...
+      }:
+      {
+        enable = mkOpt types.bool false "Enable helium";
         package =
           mkOpt types.package inputs.helium.defaultPackage.${pkgs.stdenv.hostPlatform.system}
-            "The package to use for helium";
+            "Helium package";
         autostart = mkOpt types.bool false "Whether to start helium at startup";
 
         settings = mkOpt (types.attrsOf (pkgs.formats.json { }).type) { } ''
@@ -25,36 +24,47 @@
         '';
       };
 
-      config = {
-        programs.helium.settings = {
-          browser.custom_chrome_frame = lib.mkDefault false;
-        };
+    cfg =
+      {
+        config,
+        lib,
+        cfg,
+        ...
+      }:
+      {
+        config = lib.mkIf cfg.enable {
+          programs.helium.settings = {
+            browser.custom_chrome_frame = lib.mkDefault false;
+          };
 
-        environment.systemPackages = [
-          cfg.package
-        ];
+          environment.systemPackages = [
+            cfg.package
+          ];
 
-        xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.browser == "helium") (
-          lib.genAttrs [
-            "text/html"
-            "application/xhtml+xml"
-            "application/x-extension-html"
-            "application/x-extension-htm"
-            "application/x-extension-shtml"
-            "x-scheme-handler/http"
-            "x-scheme-handler/https"
-            "image/svg+xml"
-            "application/pdf"
-          ] (_: "helium.desktop")
-        );
+          xdg.mime.defaultApplications =
+            lib.genAttrs [
+              "text/html"
+              "application/xhtml+xml"
+              "application/x-extension-html"
+              "application/x-extension-htm"
+              "application/x-extension-shtml"
+              "x-scheme-handler/http"
+              "x-scheme-handler/https"
+              "image/svg+xml"
+              "application/pdf"
+            ] (_: "helium.desktop")
+            |> lib.mkIf (config.prefs.defaultApps.browser == "helium");
 
-        prefs.autostart = lib.mkIf cfg.autostart [ cfg.package ];
+          prefs.autostart = lib.mkIf cfg.autostart [
+            cfg.package
+          ];
 
-        prefs.merged-configs.helium = {
-          path = "${config.prefs.user.home}/.config/net.imput.helium/Default/Preferences";
-          overlay = cfg.settings;
-          formatting.raw = true;
+          prefs.merged-configs.helium = {
+            path = "${config.prefs.user.home}/.config/net.imput.helium/Default/Preferences";
+            overlay = cfg.settings;
+            formatting.raw = true;
+          };
         };
       };
-    };
+  };
 }

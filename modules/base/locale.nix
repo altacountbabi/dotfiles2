@@ -1,7 +1,7 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "base" {
+  flake.nixosModules = self.mkModule {
     opts =
       {
         config,
@@ -10,11 +10,6 @@
         ...
       }:
       {
-        timeZone = mkOpt (types.nullOr types.str) null ''
-          The time zone used when displaying times and dates.
-          If null, the timezone will default to UTC and can be set imperatively
-        '';
-
         language = {
           primary = mkOpt (types.nullOr types.str) "en_US.UTF-8" "The primary language to use in the system";
           secondary =
@@ -26,26 +21,26 @@
     cfg =
       { cfg, lib, ... }:
       {
-        time.timeZone = cfg.timeZone;
-
         i18n =
           let
             inherit (cfg.language) primary secondary;
           in
           {
             defaultLocale = primary;
-            extraLocaleSettings = lib.mkIf (secondary != null) {
-              LC_NUMERIC = secondary;
-              LC_COLLATE = secondary;
-              LC_TIME = secondary;
-              LC_MONETARY = secondary;
-              LC_ADDRESS = secondary;
-              LC_IDENTIFICATION = secondary;
-              LC_MEASUREMENT = secondary;
-              LC_PAPER = secondary;
-              LC_TELEPHONE = secondary;
-              LC_NAME = secondary;
-            };
+            extraLocaleSettings =
+              lib.genAttrs [
+                "LC_NUMERIC"
+                "LC_COLLATE"
+                "LC_TIME"
+                "LC_MONETARY"
+                "LC_ADDRESS"
+                "LC_IDENTIFICATION"
+                "LC_MEASUREMENT"
+                "LC_PAPER"
+                "LC_TELEPHONE"
+                "LC_NAME"
+              ] (_: secondary)
+              |> lib.mkIf (secondary != null);
           };
       };
   };

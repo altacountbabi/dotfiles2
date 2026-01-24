@@ -1,7 +1,7 @@
 { self, ... }:
 
 {
-  flake.nixosModules = self.mkModule "ssh" {
+  flake.nixosModules = self.mkModule {
     path = "ssh";
 
     opts =
@@ -21,8 +21,7 @@
         users.users.${config.prefs.user.name}.openssh.authorizedKeys.keys = cfg.pubKeys;
 
         services.openssh = {
-          enable = true;
-          settings.PasswordAuthentication = (lib.length cfg.pubKeys) != 0;
+          settings.PasswordAuthentication = lib.mkDefault ((lib.length cfg.pubKeys) != 0);
         };
       };
   };
