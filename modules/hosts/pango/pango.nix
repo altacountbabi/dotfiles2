@@ -46,10 +46,7 @@
             rightWidgets = [
               "systemTray"
               "clipboard"
-              "cpuUsage"
-              "memUsage"
               "notificationButton"
-              "battery"
               "controlCenterButton"
             ];
             spacing = 0;
