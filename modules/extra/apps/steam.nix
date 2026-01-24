@@ -18,7 +18,6 @@
 
     cfg =
       {
-        pkgs,
         lib,
         cfg,
         ...
@@ -27,7 +26,6 @@
         programs.steam = {
           enable = true;
           inherit (cfg) package;
-          extraCompatPackages = with pkgs; [ proton-ge-bin ];
         };
 
         prefs.autostart = lib.mkIf cfg.autostart [ "steam" ];
