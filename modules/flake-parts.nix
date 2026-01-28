@@ -32,6 +32,7 @@
           iso
           {
             prefs.iso.enable = true;
+            programs.installer.enable = true;
           }
         ];
       };

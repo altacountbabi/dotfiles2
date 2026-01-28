@@ -37,7 +37,7 @@
             enableVPN = true;
             enableDynamicTheming = true;
             enableAudioWavelength = true;
-            enableCalendarEvents = true;
+            enableCalendarEvents = false;
 
             session.wallpaperPath =
               let
@@ -122,7 +122,6 @@
               "Mod+Shift+V" = "dms ipc clipboard toggle";
               "Mod+N" = "dms ipc notifications toggle";
               "Mod+P" = "dms ipc powermenu toggle";
-              "Mod+L" = "dms ipc lock lock";
 
               # Audio
               "Alt+7" = "dms ipc mpris previous";

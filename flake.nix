@@ -34,7 +34,6 @@
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     dms.url = "github:AvengeMedia/DankMaterialShell";
     helium.url = "github:FKouhai/helium2nix/main";
-    nixcord.url = "github:altacountbabi/nixcord";
     helix.url = "github:nik-contrib/helix/powerful-file-explorer";
     opencode.url = "github:sst/opencode";
     microfetch.url = "github:NotAShelf/microfetch";

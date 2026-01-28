@@ -62,7 +62,6 @@
           prefs.merged-configs.helium = {
             path = "${config.prefs.user.home}/.config/net.imput.helium/Default/Preferences";
             overlay = cfg.settings;
-            formatting.raw = true;
           };
         };
       };

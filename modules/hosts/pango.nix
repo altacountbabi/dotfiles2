@@ -95,26 +95,60 @@
             kernelModules = [ "kvm-amd" ];
           };
 
-          fileSystems = {
-            "/" = {
-              device = "/dev/disk/by-uuid/79fc98fa-d1bc-4815-8441-68863ea206b3";
-              fsType = "ext4";
-            };
+          disko.devices.disk = {
+            main = {
+              # device = "/dev/disk/by-uuid/79fc98fa-d1bc-4815-8441-68863ea206b3";
+              device = "/dev/sda";
+              type = "disk";
 
-            "/boot" = {
-              device = "/dev/disk/by-uuid/1677-BF10";
-              fsType = "vfat";
-              options = [
-                "fmask=0077"
-                "dmask=0077"
-              ];
+              content = {
+                type = "gpt";
+                partitions = {
+                  ESP = {
+                    type = "EF00";
+                    size = "500M";
+                    content = {
+                      type = "filesystem";
+                      format = "vfat";
+                      mountpoint = "/boot";
+                      mountOptions = [ "umask=0077" ];
+                    };
+                  };
+                  root = {
+                    end = "-8G";
+                    content = {
+                      type = "filesystem";
+                      format = "f2fs";
+                      mountpoint = "/";
+                      extraArgs = [
+                        "-O"
+                        "extra_attr,inode_checksum,sb_checksum,compression"
+                      ];
+                      mountOptions = [
+                        "compress_algorithm=zstd:6,compress_chksum,atgc,gc_merge,lazytime"
+                      ];
+                    };
+                  };
+                };
+              };
             };
+            # ssd = {
+            #   device = "/dev/disk/by-uuid/bc609d31-e346-467c-80d3-5f3ef9ec70bc";
+            #   type = "disk";
 
-            "/mnt/sdd" = {
-              device = "/dev/disk/by-uuid/bc609d31-e346-467c-80d3-5f3ef9ec70bc";
-              fsType = "ext4";
-              options = [ "nofail" ];
-            };
+            #   content = {
+            #     type = "filesystem";
+            #     format = "f2fs";
+            #     mountpoint = "/";
+            #     extraArgs = [
+            #       "-O"
+            #       "extra_attr,inode_checksum,sb_checksum,compression"
+            #     ];
+            #     mountOptions = [
+            #       "compress_algorithm=zstd:6,compress_chksum,atgc,gc_merge,lazytime,nofail"
+            #     ];
+            #   };
+            # };
           };
 
           hardware.amdgpu.enable = true;

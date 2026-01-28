@@ -2,7 +2,7 @@
 
 {
   flake.nixosModules = self.mkModule {
-    path = ".programs.web-kiosk";
+    path = ".programs.firefox-pwa";
 
     opts =
       {
@@ -14,13 +14,14 @@
       }:
       {
         enable = mkOpt types.bool false "Enable web kiosk";
-        package = mkOpt types.package pkgs.firefox-bin "Firefox package to use";
+        package = mkOpt types.package pkgs.firefox-bin "Firefox package";
 
         websites = mkOpt (
           with types;
           attrsOf (submodule {
             options = {
-              name = mkOpt str "Name of website";
+              name = mkOpt str "" "Name of website";
+              icon = mkOpt (either str path) "firefox" "Icon of the website";
               url = mkOpt str "" "Website URL";
               extensions = mkOpt (listOf package) [ ] "List of .xpi extensions to add to profile" // {
                 example = lib.literalExpression ''
@@ -54,21 +55,23 @@
               settings
               |> lib.mapAttrsToList (
                 k: v: ''
-                  user_pref("${k}", ${if lib.isString v then "\"${v}\"" else lib.boolToString v})
+                  user_pref("${k}", ${
+                    if lib.isString v then
+                      "\"${v}\""
+                    else if lib.isBool v then
+                      lib.boolToString v
+                    else
+                      toString v
+                  });
                 ''
               )
               |> lib.concatStringsSep "\n"
               |> pkgs.writeText "user.js";
 
-            extensionsDir =
-              extensions
-              |> lib.imap1 (
-                i: ext: {
-                  name = "extension${i}.xpi";
-                  path = ext;
-                }
-              )
-              |> pkgs.linkFarm "firefox-extensions-${name}";
+            mergedExtensions = pkgs.buildEnv {
+              name = "firefox-extensions-${name}";
+              paths = extensions;
+            };
           in
           pkgs.linkFarm "firefox-profile-${name}" [
             {
@@ -77,7 +80,7 @@
             }
             {
               name = "extensions";
-              path = extensionsDir;
+              path = "${mergedExtensions}/share/mozilla/extensions";
             }
           ];
 
@@ -90,18 +93,40 @@
                 name = k;
                 inherit (v) settings extensions;
               };
-            in
-            inputs.wrappers.lib.wrapPackage {
-              inherit pkgs;
-              package = cfg.package;
 
-              env.MOZ_LEGACY_PROFILES = "1";
-              flags = {
-                "--profile" = profile;
-                "--kiosk" = v.url;
+              firefoxWrapped = inputs.wrappers.lib.wrapPackage {
+                inherit pkgs;
+                package = cfg.package;
+
+                env.MOZ_LEGACY_PROFILES = "1";
+                flags = {
+                  "--kiosk" = v.url;
+                };
               };
-            }
+
+              runtimeWrapper = pkgs.writeShellScriptBin k ''
+                set -eu
+
+                PROFILE_SRC="${profile}"
+                PROFILE_DST="$XDG_STATE_HOME/firefox-pwa/${k}"
+
+                if [ ! -d "$PROFILE_DST" ]; then
+                  mkdir -p "$PROFILE_DST"
+                  cp -rT "$PROFILE_SRC" "$PROFILE_DST"
+                  chmod -R u+w "$PROFILE_DST"
+                fi
+
+                exec ${lib.getExe firefoxWrapped} \
+                  --name "${k}" \
+                  --new-instance --no-remote \
+                  --profile "$PROFILE_DST" \
+                  --kiosk \
+                  "$@"
+              '';
+            in
+            runtimeWrapper
           );
+
       in
       {
         config = lib.mkIf cfg.enable {
@@ -109,17 +134,15 @@
 
           prefs.desktop-entries =
             cfg.websites
-            |> lib.mapAttrsToList (
+            |> lib.concatMapAttrs (
               k: v: {
-                "web-kiosk-${k}.desktop" = {
-                  name = v.name;
+                "firefox-pwa-${k}.desktop" = {
+                  inherit (v) name icon;
                   exec = lib.getExe wrappers.${k};
-                  icon = "firefox";
                   terminal = false;
                 };
               }
-            )
-            |> lib.listToAttrs;
+            );
         };
       };
   };

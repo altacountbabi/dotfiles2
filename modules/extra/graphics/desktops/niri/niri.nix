@@ -69,6 +69,7 @@
                 spawn-at-startup = [
                   "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
                   "${pkgs.gnome-keyring}/bin/gnome-keyring-daemon"
+                  "xwayland-satellite"
                 ]
                 ++ (
                   config.prefs.autostart
@@ -338,8 +339,6 @@
             environment.systemPackages = with pkgs; [
               adwaita-icon-theme
               xwayland-satellite
-              # TODO: Add this back later when writing quickshell config
-              # inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default
             ];
 
             programs.dms-shell.enable = true;

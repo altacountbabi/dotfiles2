@@ -16,8 +16,8 @@
           options = with types; {
             type = mkOpt str "Application" "Type of desktop entry";
             name = mkOpt' str "Name of desktop entry";
-            exec = mkOpt' str "Command to execute in desktop entry";
-            icon = mkOpt (nullOr str) null "Icon of desktop entry";
+            exec = mkOpt' (either str path) "Command to execute in desktop entry";
+            icon = mkOpt (nullOr (either str path)) null "Icon of desktop entry";
             comment = mkOpt (nullOr str) null "Tooltip";
             categories = mkOpt (listOf str) [ ] "Categories desktop entry is in";
             terminal = mkOpt bool false "Whether the command should be executed in a terminal";
@@ -44,8 +44,8 @@
               "Desktop Entry" = with v; {
                 Type = type;
                 Name = name;
-                Exec = exec;
-                ${optional (icon != null) "Icon"} = icon;
+                Exec = toString exec;
+                ${optional (icon != null) "Icon"} = toString icon;
                 ${optional (comment != null) "Comment"} = comment;
                 ${optional (categories != [ ]) "Categories"} = categories |> lib.concatStringsSep ";";
                 Terminal = terminal;

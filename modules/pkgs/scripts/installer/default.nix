@@ -13,6 +13,7 @@
       }:
       {
         enable = mkOpt types.bool false "Enable installer";
+        autostart = mkOpt types.bool false "Autostart the installer on tty1";
         host =
           mkOpt (types.nullOr types.str) config.networking.hostName
             "The host to automatically pick in the installer";
@@ -27,26 +28,49 @@
         ...
       }:
       {
-        config = lib.mkIf cfg.enable {
-          prefs.iso.copyConfig = true;
+        config = lib.mkIf cfg.enable (
+          let
+            wrapper = inputs.wrappers.lib.wrapPackage {
+              inherit pkgs;
+              package = self.packages.${pkgs.stdenv.hostPlatform.system}.installer;
+              args =
+                (lib.optionals (cfg.host != null) [
+                  "--host"
+                  cfg.host
+                ])
+                ++ [
+                  "${config.prefs.user.home}/conf"
+                ];
+            };
+          in
+          {
+            prefs.iso.copyConfig = true;
 
-          disko.devices = lib.mkForce { };
+            disko.devices = lib.mkForce { };
 
-          services.getty = {
-            silentAutologin = true;
-            autologinUser = "root";
-          };
+            programs.jujutsu.enable = true;
+            programs.git.enable = true;
 
-          prefs.autostart-shell = [
-            (
-              let
-                exe = self.packages.${pkgs.stdenv.hostPlatform.system}.installer |> lib.getExe;
-                host = lib.optionalString (cfg.host != null) "--host ${cfg.host}";
-              in
-              "${exe} ${host} ${config.prefs.user.home}/conf"
-            )
-          ];
-        };
+            environment.systemPackages = [
+              wrapper
+            ];
+
+            prefs.desktop-entries.installer = {
+              name = "Installer";
+              exec = wrapper;
+              terminal = true;
+            };
+
+            services.getty = lib.mkIf cfg.autostart {
+              silentAutologin = true;
+              autologinUser = "root";
+            };
+
+            prefs.autostart-shell = lib.mkIf cfg.autostart [
+              (lib.getExe wrapper)
+            ];
+          }
+        );
       };
   };
 
@@ -58,7 +82,6 @@
         name = "installer";
         packages = with pkgs; [
           nushell
-          jujutsu
           disko
         ];
         text = lib.readFile ./main.nu;

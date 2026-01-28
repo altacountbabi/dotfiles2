@@ -192,7 +192,19 @@
           environment.systemPackages = [ wrapped ];
 
           xdg.mime.defaultApplications = lib.mkIf (config.prefs.defaultApps.terminal == "wezterm") {
-            "x-scheme-handler/terminal" = "wezterm.desktop";
+            "x-scheme-handler/terminal" = "org.wezfurlong.wezterm.desktop";
+            "x-terminal-emulator" = "org.wezfurlong.wezterm.desktop";
+          };
+
+          xdg.terminal-exec = {
+            enable = true;
+            settings.default = [
+              "org.wezfurlong.wezterm.desktop"
+            ];
+          };
+
+          environment.sessionVariables = {
+            TERMINAL = "wezterm";
           };
 
           prefs.autostart = [ "${wrapped}/bin/wezterm-mux-server" ];

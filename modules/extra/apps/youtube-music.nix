@@ -2,13 +2,13 @@
 
 {
   flake.nixosModules = self.mkModule {
-    path = ".programs.discord";
+    path = ".programs.youtube-music";
 
     opts =
       { mkOpt, types, ... }:
       {
-        enable = mkOpt types.bool false "Enable discord";
-        autostart = mkOpt types.bool false "Whether to automatically start discord at startup";
+        enable = mkOpt types.bool false "Enable youtube music";
+        autostart = mkOpt types.bool false "Whether to automatically start youtube music at startup";
       };
 
     cfg =
@@ -22,10 +22,10 @@
         config = lib.mkIf cfg.enable {
           programs.firefox-pwa = {
             enable = true;
-            websites.discord = {
-              name = "Discord";
-              icon = "${pkgs.discord}/share/icons/hicolor/256x256/apps/discord.png";
-              url = "https://discord.com/app";
+            websites.youtube-music = {
+              name = "Youtube Music";
+              icon = "${pkgs.pear-desktop}/share/icons/hicolor/1024x1024/apps/pear-desktop.png";
+              url = "https://music.youtube.com";
               settings = {
                 "browser.startup.page" = 1;
                 "browser.shell.checkDefaultBrowser" = false;
@@ -57,12 +57,13 @@
               };
               extensions = with pkgs.nur.repos.rycee.firefox-addons; [
                 ublock-origin
+                # TODO: Add better lyrics extension
               ];
             };
           };
 
           prefs.autostart = lib.mkIf cfg.autostart [
-            "discord"
+            "youtube-music"
           ];
         };
       };
