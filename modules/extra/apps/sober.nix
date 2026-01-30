@@ -11,7 +11,7 @@
         ...
       }:
       {
-        enable = mkOpt types.bool false "Enable sober browser";
+        enable = mkOpt types.bool false "Enable sober";
       };
 
     cfg =
@@ -37,7 +37,7 @@
               Type = "simple";
               User = config.prefs.user.name;
               Group = "users";
-              ExecStart = "${pkgs.bash}/bin/bash -c 'flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak install -y --noninteractive --user flathub org.vinegarhq.Sober'";
+              ExecStart = "${lib.getExe pkgs.bash} -c 'flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak install -y --noninteractive --user flathub org.vinegarhq.Sober'";
             };
           };
         };

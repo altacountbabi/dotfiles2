@@ -94,6 +94,11 @@
 
                 lockScreenShowMediaPlayer = false;
                 lockBeforeSuspend = true;
+
+                notificationOverlayEnabled = true;
+                notificationPopupPosition = 3; # Bottom Right
+
+                osdAlwaysShowValue = true; # Show percentages in OSDs (volume, brightness, etc..)
               };
           };
 

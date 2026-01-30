@@ -57,7 +57,7 @@
 
             prefs.desktop-entries.installer = {
               name = "Installer";
-              exec = wrapper;
+              exec = "run0 --unit=installer --background=0 sh -c 'clear; ${lib.getExe wrapper}'";
               terminal = true;
             };
 

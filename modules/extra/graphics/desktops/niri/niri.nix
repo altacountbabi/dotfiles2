@@ -17,6 +17,14 @@
           let
             anyGreeters =
               config.services.displayManager
+              |> lib.filterAttrs (
+                k: _:
+                !(lib.elem k [
+                  "environment"
+                  "execCmd"
+                  "preStart"
+                ])
+              )
               |> lib.mapAttrsToList (_: v: (builtins.tryEval (v.enable or false)).value)
               |> lib.any (x: x);
           in

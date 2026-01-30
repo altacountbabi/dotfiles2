@@ -45,7 +45,7 @@ def main [
   let outLink = $tmpdir | path join "system"
   (
     nix build
-      --out-link $outLink     
+      --out-link $outLink
       --store /mnt
       $"($config)#nixosConfigurations.($host).config.system.build.toplevel"
   )
