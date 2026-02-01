@@ -39,7 +39,7 @@ jobs:
 
       - name: Commit and push new index
         run: |
-          git add -A
+          git add *.json
           git stash save
           git checkout --orphan nix-index
           git rm -rf .
