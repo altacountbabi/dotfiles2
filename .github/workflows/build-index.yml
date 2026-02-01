@@ -1,4 +1,4 @@
-name: Build and Push package index
+name: Build and Push nix index
 
 on:
   push:
@@ -26,25 +26,25 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes pipe-operators
 
-      - name: Build package index
+      - name: Build nix index
         run: |
           nix build .#packages.x86_64-linux.index -L
-          cp -Lf result index.json
-          chmod 644 index.json
+          cp -Lf result/*.json .
+          chmod 644 *.json
 
       - name: Configure Git
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-      - name: Commit and push new package index
+      - name: Commit and push new index
         run: |
           git add index.json
           git stash save
-          git checkout --orphan package-index
+          git checkout --orphan nix-index
           git rm -rf .
           git stash apply
-          git commit -m "Update package index" || echo "No changes"
-          git push origin package-index -f
+          git commit -m "Update nix index" || echo "No changes"
+          git push origin nix-index -f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

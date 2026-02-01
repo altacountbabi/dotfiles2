@@ -74,13 +74,13 @@
 
             programs.nushell.extraConfig =
               let
-                index = self.packages.${pkgs.stdenv.hostPlatform.system}.indexCached;
+                index = self.packages.${pkgs.stdenv.hostPlatform.system}.index;
               in
               [
                 # nushell
                 ''
                   def packages [] {
-                    open ${index}
+                    open ${index}/pkgsCompletions.json
                   }
 
                   def "nix shell" [...packages: string@packages] {

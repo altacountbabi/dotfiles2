@@ -14,10 +14,11 @@
     wrappers.url = "github:lassulus/wrappers";
 
     # package name completions in shells
-    package-index = {
-      url = "github:altacountbabi/dotfiles2/package-index";
+    nix-index = {
+      url = "github:altacountbabi/dotfiles2/nix-index";
       flake = false;
     };
+    noogle.url = "github:nix-community/noogle";
 
     # SDDM Theme
     silentSDDM = {

@@ -48,6 +48,7 @@
       base =
         {
           modulesPath,
+          options,
           config,
           pkgs,
           lib,
@@ -66,6 +67,7 @@
           args = {
             inherit
               modulesPath
+              options
               config
               pkgs
               lib
