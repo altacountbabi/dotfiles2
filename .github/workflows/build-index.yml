@@ -28,7 +28,7 @@ jobs:
 
       - name: Build nix index
         run: |
-          nix build .#packages.x86_64-linux.index -L
+          nix build .#packages.x86_64-linux.index -L --no-write-lock-file
           cp -Lf result/*.json .
           chmod 644 *.json
 

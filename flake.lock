@@ -504,6 +504,23 @@
         "type": "github"
       }
     },
+    "nix-index": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1769910441,
+        "narHash": "sha256-xJIvmBgAkahzxpSyYPlEDjlwTonKMaVrdy971RTrlOM=",
+        "owner": "altacountbabi",
+        "repo": "dotfiles2",
+        "rev": "0a28cb9ec7ce278bc46b680a3a3a7ded2b5a8566",
+        "type": "github"
+      },
+      "original": {
+        "owner": "altacountbabi",
+        "ref": "nix-index",
+        "repo": "dotfiles2",
+        "type": "github"
+      }
+    },
     "nix-master": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -1010,23 +1027,6 @@
         "type": "github"
       }
     },
-    "package-index": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1769736195,
-        "narHash": "sha256-DPNaEWbUCoPcyMXrNJPchu000SYgX+RXzfvgrUR4diY=",
-        "owner": "altacountbabi",
-        "repo": "dotfiles2",
-        "rev": "80b0621981be106f2a4c32b1482521da5acbaeb2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "altacountbabi",
-        "ref": "package-index",
-        "repo": "dotfiles2",
-        "type": "github"
-      }
-    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_3",
@@ -1105,12 +1105,12 @@
         "import-tree": "import-tree",
         "mcp-nixos": "mcp-nixos",
         "microfetch": "microfetch",
+        "nix-index": "nix-index",
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs_9",
         "noogle": "noogle",
         "nur": "nur",
         "opencode": "opencode",
-        "package-index": "package-index",
         "quickshell": "quickshell_2",
         "silentSDDM": "silentSDDM",
         "wrappers": "wrappers",
