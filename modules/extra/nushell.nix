@@ -191,7 +191,7 @@
                 }
 
                 $env.PROMPT_COMMAND = {||
-                  let dir = match (do -i { $env.PWD | path relative-to $nu.home-path }) {
+                  let dir = match (do -i { $env.PWD | path relative-to $env.HOME }) {
                     null => $env.PWD
                     "" => "~"
                     $relative_pwd => ([~ $relative_pwd] | path join)
