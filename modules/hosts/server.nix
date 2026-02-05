@@ -10,8 +10,6 @@
       config = {
         prefs = {
           profiles.server = true;
-          themes.base16-default-dark = true;
-          themes.green = false;
 
           user = {
             name = "user";

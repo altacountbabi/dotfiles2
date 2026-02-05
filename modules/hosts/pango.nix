@@ -12,8 +12,6 @@
         config = {
           prefs = {
             profiles.desktop = true;
-            themes.base16-default-dark = true;
-            themes.green = false;
 
             user.name = "user";
           };

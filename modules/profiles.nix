@@ -12,7 +12,7 @@
           minimal = {
             programs.nushell.enable = mkDefault true;
             programs.helix.enable = mkDefault true;
-            prefs.themes.green = mkDefault true;
+            prefs.themes.base16-default-dark = mkDefault true;
           };
           server = {
             prefs.profiles.minimal = mkDefault true;

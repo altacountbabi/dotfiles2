@@ -135,7 +135,7 @@ in
         ...
       }:
       let
-        index' = self.packages.${pkgs.stdenv.hostPlatform.system}.index;
+        index' = self.packages.${pkgs.stdenv.hostPlatform.system}.indexCached;
         index = pkgs.linkFarm "index" [
           {
             name = "pkgs.json";
@@ -176,7 +176,6 @@ in
   perSystem =
     { pkgs, lib, ... }:
     let
-      # Extract packages from nixpkgs with metadata
       packages =
         pkgs
         |> lib.mapAttrsToList (
@@ -187,7 +186,6 @@ in
             insecure = try.success && (try.value.meta.insecure or false);
             unfree = try.success && (try.value.meta.license.free or false == false);
 
-            # Raw description without any prefix
             description = if try.success then (try.value.meta.description or null) else null;
             version = if try.success then (try.value.meta.version or null) else null;
           in
@@ -207,7 +205,7 @@ in
         )
         |> lib.listToAttrs;
 
-      noogleDataPkg = inputs.noogle.packages.${pkgs.stdenv.system}.data-json;
+      noogleDataPkg = inputs.noogle.packages.${pkgs.stdenv.hostPlatform.system}.data-json;
 
       pkgsCompletions =
         packages
@@ -238,7 +236,6 @@ in
         |> lib.sort (a: b: a.value < b.value);
     in
     {
-      # Three separate index files
       packages.index =
         let
           json = (pkgs.formats.json { }).generate;
@@ -255,12 +252,14 @@ in
         ]
         |> pkgs.linkFarmFromDrvs "index";
 
-      # Keep the old cached index for reference if needed
       packages.indexCached =
         builtins.readDir inputs.nix-index
         |> lib.attrNames
-        |> map (x: "${inputs.nix-index}/${x}")
-        |> pkgs.linkFarmFromDrvs "cached-index";
+        |> map (x: {
+          name = x;
+          path = "${inputs.nix-index}/${x}";
+        })
+        |> pkgs.linkFarm "cached-index";
 
       packages.nix-fzf = self.lib.nushellScript {
         inherit pkgs;
