@@ -86,9 +86,5 @@
         hardware.cpu.intel.updateMicrocode = true;
       };
     };
-
-    iso = {
-      programs.installer.enable = true;
-    };
   };
 }
