@@ -144,6 +144,15 @@
                   ps | where ($it.name | str contains $name)
                 }
 
+                @example "Sleep for 1 second" {
+                  time { sleep 1sec }
+                } --result "1sec 246µs ..."
+                def time [fn: closure]: nothing -> duration {
+                  let start = date now
+                  do $fn
+                  (date now) - $start
+                }
+
                 # Single command to cat files and list directories
                 def l [...paths] {
                   if ($paths | is-empty) {
