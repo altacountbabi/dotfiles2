@@ -62,6 +62,7 @@
               settings = {
                 hide_kernel_threads = true;
                 hide_userland_threads = true;
+                tree_view = true;
               };
             };
           })
