@@ -21,10 +21,13 @@ def sections [] {
 }
 
 def description []: string -> string {
+  # Bind it here otherwise `$in` will be the thrown error in the catch block
+  let value = $in
+
   try {
-    $in | mdcat --ansi --no-pager -
+    $value | mdcat --ansi --no-pager -
   } catch {
-    $in
+    $value
   }
   | str replace -a "  " " "
   | indent

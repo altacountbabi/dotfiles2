@@ -265,7 +265,7 @@ in
         inherit pkgs;
         name = "nix-fzf";
         packages = with pkgs; [
-          mcat
+          mdcat
           bat
           fzf
         ];
