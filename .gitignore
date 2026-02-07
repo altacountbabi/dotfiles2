@@ -1,1 +1,6 @@
 /result
+
+# VM Data
+*.qcow2
+*-efi-vars.fd
+*-swtpm/
