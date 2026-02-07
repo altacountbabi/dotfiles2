@@ -20,11 +20,18 @@
           cores = 8;
           memorySize = 8 * 1024;
           tpm.enable = true;
-          qemu.options = [
-            "-device virtio-gpu-gl"
-            "-display gtk,show-menubar=off,zoom-to-fit=off,gl=on"
-            "-vga virtio"
-          ];
+          qemu = {
+            consoles = lib.mkForce [
+              "ttyS0,115200n8"
+            ];
+            options = [
+              # TODO: Figure out a way to make this easily toggleable
+              # "-device virtio-gpu-gl"
+              # "-display gtk,show-menubar=off,zoom-to-fit=off,gl=on"
+              # "-vga virtio"
+              "-nographic"
+            ];
+          };
         };
       };
 
