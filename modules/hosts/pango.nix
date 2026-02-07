@@ -18,8 +18,6 @@
 
           time.timeZone = "America/Toronto";
 
-          programs.nix-fzf.enable = true;
-
           programs.niri.settings = {
             workspaces.void = {
               layout.background-color = "#000000";
