@@ -17,6 +17,8 @@
               name = "Whoman";
               email = "altacountbabi@users.noreply.github.com";
             };
+
+            password = "user-password";
           };
         };
 

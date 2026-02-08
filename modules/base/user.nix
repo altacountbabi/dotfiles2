@@ -19,6 +19,7 @@
             "The name displayed on the login screen for the default user";
 
         initialPassword = mkOpt types.str "123" "The initial password for the default user and root";
+        password = mkOpt (types.nullOr types.str) null "Sops secret to configure as user password";
 
         groups = mkOpt (types.listOf types.str) [ ] "The groups that the default user is in";
         shell = mkOpt types.package pkgs.bash "The shell of the default user";
@@ -36,24 +37,43 @@
       };
 
     cfg =
-      { cfg, ... }:
       {
-        users.users = {
-          root = {
-            inherit (cfg) shell initialPassword;
-          };
-          ${cfg.name} = {
-            isNormalUser = true;
-            description = cfg.displayName;
-            extraGroups = cfg.groups ++ [
-              "wheel"
-              "video"
-              "input"
-            ];
-
-            inherit (cfg) shell initialPassword;
-          };
+        config,
+        lib,
+        cfg,
+        ...
+      }:
+      {
+        sops.secrets = lib.mkIf (cfg.password != null) {
+          ${cfg.password}.neededForUsers = true;
         };
+
+        users.users =
+          let
+            optional = cond: val: if cond then val else null;
+          in
+          {
+            root = {
+              ${optional (cfg.password != null) "hashedPasswordFile"} = config.sops.secrets.${cfg.password}.path;
+              ${optional (cfg.password == null) "initialPassword"} = cfg.initialPassword;
+
+              inherit (cfg) shell;
+            };
+            ${cfg.name} = {
+              isNormalUser = true;
+              description = cfg.displayName;
+              extraGroups = cfg.groups ++ [
+                "wheel"
+                "video"
+                "input"
+              ];
+
+              ${optional (cfg.password != null) "hashedPasswordFile"} = config.sops.secrets.${cfg.password}.path;
+              ${optional (cfg.password == null) "initialPassword"} = cfg.initialPassword;
+
+              inherit (cfg) shell;
+            };
+          };
 
         services.userborn.enable = true;
       };
