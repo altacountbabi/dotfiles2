@@ -122,12 +122,6 @@
             src = ../.;
           }
         );
-        rootWithGit = lib.mkConst (
-          lib.cleanSourceWith {
-            filter = name: type: (type != "symlink" && name != "result") || name == ".git";
-            src = ../.;
-          }
-        );
       };
     };
 }

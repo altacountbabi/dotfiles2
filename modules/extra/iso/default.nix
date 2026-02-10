@@ -317,11 +317,10 @@
               RemainAfterExit = true;
               ExecStart =
                 let
-                  src = config.rootWithGit;
                   inherit (config.prefs.user) home;
                   copyConfig = pkgs.writeText "copy-config.sh" ''
                     mkdir -p ${home}
-                    cp -r ${src} ${home}/conf
+                    cp -r ${config.root} ${home}/conf
                     chown -R 1000:100 ${home}/conf
                     chmod +w -R ${home}/conf
                   '';
