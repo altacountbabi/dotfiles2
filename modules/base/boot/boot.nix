@@ -19,7 +19,6 @@
         virtualisation = {
           cores = 8;
           memorySize = 8 * 1024;
-          tpm.enable = true;
           qemu = {
             consoles = lib.mkForce [
               "ttyS0,115200n8"
