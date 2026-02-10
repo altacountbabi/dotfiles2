@@ -2,6 +2,14 @@
 
 # TODO: Use a better markdown renderer, mdcat sucks ass
 
+def optional [record: any, item: cell-path, value: closure] {
+  if ($record | get -o $item | is-not-empty) {
+    do $value
+  } else {
+    null
+  }
+}
+
 def ansi-wrap [color: string, text: string] {
   $"(ansi $color)($text)(ansi reset)"
 }
@@ -79,7 +87,7 @@ def "format option" [name: string, index: record]: nothing -> string {
     ]
 
     # Description
-    (if ($opt.description | is-not-empty) {
+    (optional $opt description {
       [
         (section "Description")
         ($opt.description | description)
@@ -88,7 +96,7 @@ def "format option" [name: string, index: record]: nothing -> string {
     })
 
     # Type
-    (if ($opt.type | is-not-empty) {
+    (optional $opt type {
       [
         (section "Type")
         (ansi-wrap "yellow" $opt.type | indent)
@@ -97,7 +105,7 @@ def "format option" [name: string, index: record]: nothing -> string {
     })
 
     # Declarations
-    (if ($opt.declarations | is-not-empty) {
+    (optional $opt declarations {
       [
         (section "Declarations")
         (ansi-wrap "magenta" ($opt.declarations | str join "\n") | indent)
@@ -106,7 +114,7 @@ def "format option" [name: string, index: record]: nothing -> string {
     })
 
     # Default Value
-    (if ($opt.default | is-not-empty) {
+    (optional $opt default {
       [
         (section "Default Value")
         ($opt.default | format value | indent)
@@ -133,7 +141,7 @@ def "format package" [name: string, index: record]: nothing -> string {
     ]
 
     # Description
-    (if ($pkg.description != null) {
+    (optional $pkg description {
       let desc = $pkg.description
         | lines
         | each {|x| "  " + $x}
@@ -177,7 +185,7 @@ def "format lib" [name: string, index: list]: nothing -> string {
     ]
 
     # Description
-    (if ($content.content.0 | is-not-empty) {
+    (optional $content content.0 {
       [
         (section "Description")
         ($content.content.0 | description)
