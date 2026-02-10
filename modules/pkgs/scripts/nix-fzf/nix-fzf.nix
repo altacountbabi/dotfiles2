@@ -10,6 +10,13 @@ let
             { system.stateVersion = "26.05"; }
           ];
         }).options,
+      config ?
+        (inputs.nixpkgs.lib.nixosSystem {
+          inherit (pkgs.stdenv.hostPlatform) system;
+          modules = [
+            { system.stateVersion = "26.05"; }
+          ];
+        }).config,
       pkgs,
       lib,
       ...
@@ -77,7 +84,14 @@ let
               description = opt.description or null;
               type = opt.type.description or opt.type.name or null;
               default = getDefault opt;
-              declarations = opt.declarations or null;
+              declarations =
+                let
+                  decls = opt.declarations or null;
+                in
+                if decls != null then
+                  decls |> map (x: lib.replaceString (toString config.root) config.prefs.nix.flakePath x)
+                else
+                  null;
               loc = opt.loc or null;
               readOnly = opt.readOnly or false;
             }
@@ -129,6 +143,7 @@ in
     cfg =
       {
         options,
+        config,
         pkgs,
         lib,
         cfg,
@@ -153,6 +168,7 @@ in
             name = "options.json";
             path = (pkgs.formats.json { }).generate "options.json" (mkOptions {
               opts = options;
+              config = config;
               inherit pkgs lib;
             });
           }
