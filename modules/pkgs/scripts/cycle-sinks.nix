@@ -11,7 +11,7 @@
           pulseaudio
           libnotify
         ];
-        text = # nushell
+        text = # nu
           ''
             let sinks = pactl -f json list sinks | from json
             let default_sink = pactl get-default-sink

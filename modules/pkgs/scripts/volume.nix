@@ -11,7 +11,7 @@
           pamixer
           libnotify
         ];
-        text = # nushell
+        text = # nu
           ''
             let id_path = "/tmp/volume_osd_id"
 

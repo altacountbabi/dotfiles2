@@ -78,7 +78,7 @@
                 index = self.packages.${pkgs.stdenv.hostPlatform.system}.indexCached;
               in
               [
-                # nushell
+                # nu
                 ''
                   def packages [] {
                     open ${index}/pkgsCompletions.json

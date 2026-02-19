@@ -25,7 +25,7 @@
                     self.lib.nushellRun {
                       inherit pkgs;
                       name = "merged-configs-formats";
-                      text = # nushell
+                      text = # nu
                         ''
                           def get-cmds [name: string]: nothing -> list<string> {
                             scope commands
@@ -81,7 +81,7 @@
                       self.lib.nushellScript {
                         inherit pkgs;
                         name = "merge-config";
-                        text = # nushell
+                        text = # nu
                           ''
                             def main [
                               path: path

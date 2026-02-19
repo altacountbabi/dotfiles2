@@ -69,7 +69,7 @@
 
           programs.nushell.excludedAliases = [ "jjn" ];
           programs.nushell.extraConfig = [
-            # nushell
+            # nu
             ''
               def jjn --wrapped [...args] {
                 jj new ...$args; jj bookmark move --from @- --to @ ...$args

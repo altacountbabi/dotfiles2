@@ -17,7 +17,7 @@
         inherit name;
         destination = "/bin/${name}";
         executable = true;
-        text = # nushell
+        text = # nu
           ''
             #!${lib.getExe pkgs.nushell}
             source ${./nushell-lib.nu}

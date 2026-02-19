@@ -11,7 +11,7 @@
           libnotify
           self.packages.${pkgs.stdenv.hostPlatform.system}.volume
         ];
-        text = # nushell
+        text = # nu
           ''
             let time = (date now | format date `%-I:%M`)
             let date = (date now | format date `%A, %d, %B`)

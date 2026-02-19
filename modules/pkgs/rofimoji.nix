@@ -14,7 +14,7 @@
         env = {
           inherit emojis;
         };
-        text = # nushell
+        text = # nu
           ''
             let emojis = open $env.emojis
               | get emojis
