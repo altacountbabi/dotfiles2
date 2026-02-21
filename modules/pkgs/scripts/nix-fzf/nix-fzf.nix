@@ -89,7 +89,8 @@ let
                   decls = opt.declarations or null;
                 in
                 if decls != null then
-                  decls |> map (x: lib.replaceString (toString config.root) config.prefs.nix.flakePath x)
+                  decls
+                  |> map (x: lib.replaceString (toString config.root or ../../../..) config.prefs.nix.flakePath x)
                 else
                   null;
               loc = opt.loc or null;
