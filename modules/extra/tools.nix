@@ -77,31 +77,29 @@
               let
                 index = self.packages.${pkgs.stdenv.hostPlatform.system}.indexCached;
               in
-              [
-                # nu
-                ''
-                  def packages [] {
-                    open ${index}/pkgsCompletions.json
-                  }
+              # nu
+              ''
+                def packages [] {
+                  open ${index}/pkgsCompletions.json
+                }
 
-                  def "nix shell" [...packages: string@packages] {
-                    let packages = $packages | each {|x| default-to-nixpkgs $x }
+                def "nix shell" [...packages: string@packages] {
+                  let packages = $packages | each {|x| default-to-nixpkgs $x }
 
-                    $env.name = "nix-shell"
-                    nom shell ...$packages --command nu
-                  }
+                  $env.name = "nix-shell"
+                  nom shell ...$packages --command nu
+                }
 
-                  def "nix run" [package: string@packages, ...program_args] {
-                    let package = default-to-nixpkgs $package
+                def "nix run" [package: string@packages, ...program_args] {
+                  let package = default-to-nixpkgs $package
 
-                    let exe = nom getExe $package
-                    ^$exe ...$program_args
-                  }
+                  let exe = nom getExe $package
+                  ^$exe ...$program_args
+                }
 
-                  alias ns = nix shell
-                  alias nsr = nix run
-                ''
-              ];
+                alias ns = nix shell
+                alias nsr = nix run
+              '';
 
             environment.systemPackages = with pkgs; [
               nix-output-monitor

@@ -71,6 +71,10 @@
                             ''
                               import (builtins.getFlake "${config.prefs.nix.flakePath}").inputs.nixpkgs { }
                             '';
+                          options.nixpkgs.expr = # nix
+                            ''
+                              import (builtins.getFlake "${config.prefs.nix.flakePath}").nixosConfigurations.${config.networking.hostName}.options
+                            '';
                         };
                       };
                     };
@@ -530,9 +534,10 @@
           environment.shellAliases.v = "hx";
 
           programs.nushell.excludedAliases = [ "v" ];
-          programs.nushell.extraConfig = [
-            "source ${./completions.nu}"
-          ];
+          programs.nushell.extraConfig = # nu
+            ''
+              source ${./completions.nu}
+            '';
         };
       };
   };

@@ -247,7 +247,27 @@ export def nix-fzf [index_dir: string] {
     return
   }
 
-  format $selection $index_dir
+  # TODO: Logic here is a bit redundant
+  let parsed = $selection | str trim --char "'" | parse "<{category}> {name}"
+
+  let category = $parsed.category | first
+  let name = $parsed.name | first
+
+  match $category {
+    "opt" => {
+      let options = (open ($index_dir | path join "options.json"))
+      format option $name $options
+    },
+    "pkg" => {
+      print $name
+      nix shell nixpkgs#($name)
+    },
+    "lib" => {
+      let lib = (open ($index_dir | path join "lib.json"))
+      format lib $name $lib
+    },
+    _ => (ansi-wrap "red" $"Unknown category: ($category)")
+  }
 }
 
 export alias main = nix-fzf

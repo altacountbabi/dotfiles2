@@ -13,14 +13,14 @@
             programs.nushell.enable = mkDefault true;
             programs.helix.enable = mkDefault true;
             programs.nix-fzf.enable = mkDefault true;
+            programs.git.enable = mkDefault true;
+            programs.jujutsu.enable = mkDefault true;
+
             prefs.themes.base16-default-dark = mkDefault true;
           };
           server = {
             prefs.profiles.minimal = mkDefault true;
             services.openssh.enable = mkDefault true;
-
-            programs.git.enable = mkDefault true;
-            programs.jujutsu.enable = mkDefault true;
           };
           desktop = {
             prefs.profiles.minimal = mkDefault true;

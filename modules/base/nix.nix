@@ -103,9 +103,11 @@
         };
 
         programs.nushell.excludedAliases = lib.mkIf config.isDroid [ "switch" ];
-        programs.nushell.extraConfig = lib.mkIf config.isDroid [
-          "source ${self.packages.${pkgs.stdenv.hostPlatform.system}.nix-on-droid-switch}/bin/switch"
-        ];
+        programs.nushell.extraConfig =
+          lib.mkIf config.isDroid # nu
+            ''
+              source ${self.packages.${pkgs.stdenv.hostPlatform.system}.nix-on-droid-switch}/bin/switch
+            '';
 
         systemd.services.copy-nixpkgs = lib.mkIf config.prefs.nix.localNixpkgs {
           description = "copy nixpkgs to store early";

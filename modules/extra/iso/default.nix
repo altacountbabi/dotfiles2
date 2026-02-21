@@ -193,7 +193,7 @@
               mkdir contents
               cp -r ${efiDir}/* contents/
 
-              truncate --size=80M "$out"
+              truncate --size=100M "$out"
               mkfs.vfat -n EFIBOOT "$out"
 
               mmd -i "$out" ::/EFI

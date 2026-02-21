@@ -52,7 +52,7 @@
 
         package = mkOpt types.package pkgs.nushell "The package to use for nushell";
 
-        extraConfig = mkOpt (types.listOf types.str) [ ] "Extra items to add to the config";
+        extraConfig = mkOpt (types.lines) "" "Extra items to add to the config";
 
         excludedAliases = mkOpt (types.listOf types.str) [ ] ''
           Aliases from `environment.shellAliases` to exclude from the config.
@@ -117,8 +117,6 @@
                         "${lib.getExe v}";
                   in
                   config.prefs.autostart-shell |> map cmd |> lib.concatStringsSep "\n";
-
-                extraConfig = cfg.extraConfig |> lib.concatStringsSep "\n";
               in
               # nu
               ''
@@ -129,7 +127,7 @@
                 ${aliases}
                 ${autostart}
 
-                ${extraConfig}
+                ${cfg.extraConfig}
 
                 alias ffmpeg = ffmpeg -hide_banner
                 alias ffprobe = ffprobe -hide_banner
