@@ -9,20 +9,21 @@
       {
         fonts.fontconfig.defaultFonts = lib.mkDefault {
           emoji = [ "Twemoji Color" ];
-          serif = [ "Bitstream Vera" ];
-          sansSerif = [ "Bitstream Vera" ];
+          serif = [ "Noto Sans" ];
+          sansSerif = [ "Noto Sans Serif" ];
           monospace = [ "FiraCode Nerd Font" ];
         };
 
         fonts.packages = with pkgs; [
           inter
-          noto-fonts
           corefonts
           dejavu_fonts
-          nerd-fonts.fira-code
 
+          noto-fonts
+          noto-fonts-cjk-sans
           material-symbols
-          twemoji-color-font
+
+          nerd-fonts.fira-code
 
           self.packages.${stdenv.hostPlatform.system}.segoe-ui
         ];
