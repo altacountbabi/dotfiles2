@@ -30,6 +30,8 @@
 
         programs.git.githubAuth = false;
 
+        networking.wakeOnLan = "enp2s0";
+
         boot = {
           initrd.availableKernelModules = [
             "xhci_pci"
