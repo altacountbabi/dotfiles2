@@ -28,6 +28,8 @@
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICr+MnG3i1kRYpef8+1jhhaCKZeBKBpE0GFskJbqatqm" # tablet
         ];
 
+        programs.git.githubAuth = false;
+
         boot = {
           initrd.availableKernelModules = [
             "xhci_pci"
