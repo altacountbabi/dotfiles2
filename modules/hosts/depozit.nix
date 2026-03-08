@@ -17,8 +17,6 @@
               name = "Whoman";
               email = "altacountbabi@users.noreply.github.com";
             };
-
-            password = "user-password";
           };
         };
 
@@ -43,7 +41,7 @@
         };
 
         disko.devices.disk.main = {
-          device = "/dev/sda";
+          device = "/dev/nvme0n1";
           type = "disk";
           content = {
             type = "gpt";
@@ -62,15 +60,8 @@
                 end = "-8G";
                 content = {
                   type = "filesystem";
-                  format = "f2fs";
+                  format = "ext4";
                   mountpoint = "/";
-                  extraArgs = [
-                    "-O"
-                    "extra_attr,inode_checksum,sb_checksum,compression"
-                  ];
-                  mountOptions = [
-                    "compress_algorithm=zstd:6,compress_chksum,atgc,gc_merge,lazytime"
-                  ];
                 };
               };
               swap = {
@@ -84,7 +75,10 @@
           };
         };
 
-        hardware.nvidia.enable = true;
+        hardware.nvidia = {
+          enable = true;
+          open = false;
+        };
         hardware.cpu.intel.updateMicrocode = true;
       };
     };
