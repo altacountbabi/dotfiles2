@@ -108,6 +108,7 @@
               nix-tree
               nixfmt
               nixd
+              nil
             ];
           })
 

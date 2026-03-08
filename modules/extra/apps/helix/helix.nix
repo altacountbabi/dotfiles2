@@ -56,13 +56,13 @@
                       languages = [
                         {
                           name = "nix";
-                          language-servers = [ "nixd" ];
+                          language-servers = [ "nixd" "nil" ];
                           formatter.command = pkgs.nixfmt |> lib.getExe;
                           auto-format = true;
                         }
                       ];
                       lsps.nixd = {
-                        command = "${pkgs.nixd |> lib.getExe}";
+                        command = "${lib.getExe pkgs.nixd}";
                         args = [ "--inlay-hints=true" ];
 
                         config.nixd = {
@@ -76,6 +76,9 @@
                               import (builtins.getFlake "${config.prefs.nix.flakePath}").nixosConfigurations.${config.networking.hostName}.options
                             '';
                         };
+                      };
+                      lsps.nil = {
+                        command = "${lib.getExe pkgs.nil}";
                       };
                     };
                     nu = {
