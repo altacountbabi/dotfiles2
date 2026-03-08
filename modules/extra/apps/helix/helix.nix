@@ -406,7 +406,7 @@
                   bg = "crust";
                 };
 
-                "ui.text" = "tex;t";
+                "ui.text" = "text";
                 "ui.text.focus" = {
                   fg = "text";
                   bg = "surface0";
