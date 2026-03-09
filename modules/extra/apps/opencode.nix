@@ -69,7 +69,7 @@
           ];
 
           environment.shellAliases = {
-            oc = wrapped;
+            oc = lib.getExe wrapped;
           };
         };
       };
