@@ -25,7 +25,7 @@
         config = lib.mkIf cfg.enable (
           let
             ports.jellyfin = 8096;
-            subdomain = "https://jellyfin.${config.networking.domain}";
+            subdomain = "jellyfin.${config.networking.domain}";
           in
           {
             prefs.ports = ports;
@@ -80,7 +80,6 @@
 
                 network = mkDefault {
                   internalHttpPort = ports.jellyfin;
-                  baseUrl = subdomain;
                 };
 
                 branding.customCss = mkDefault "@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/scyfin-theme.css');";
