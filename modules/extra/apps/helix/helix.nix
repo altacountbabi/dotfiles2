@@ -17,7 +17,9 @@
       {
         enable = mkOpt types.bool false "Enable helix";
 
-        package = mkOpt types.package inputs.helix.packages.${pkgs.stdenv.hostPlatform.system}.default "Helix package";
+        package =
+          mkOpt types.package inputs.helix.packages.${pkgs.stdenv.hostPlatform.system}.default
+            "Helix package";
 
         settings = mkOpt toml { } "See <https://docs.helix-editor.com/configuration.html>";
         languages = mkOpt toml { } "See <https://docs.helix-editor.com/languages.html>";
@@ -138,7 +140,7 @@
                 };
 
                 lsp = {
-                  display-inlay-hints = true;
+                  display-progress-messages = true;
                   display-messages = true;
                 };
               };
