@@ -38,32 +38,45 @@
             ]
             ++ (lib.optional cfg.githubAuth pkgs.gh);
 
-          programs.git.config = {
-            init.defaultBranch = "main";
-            url = {
-              "https://github.com/".insteadOf = [
-                "gh:"
-                "github:"
+          programs.git.config =
+            let
+              optional = x: y: if x != null then y else null;
+              inherit (config.prefs.user.vcs) name email;
+              inherit (config.prefs.ssh) pubKey;
+            in
+            {
+              init.defaultBranch = "main";
+              url = {
+                "https://github.com/".insteadOf = [
+                  "gh:"
+                  "github:"
+                ];
+              };
+
+              diff.external = "difft";
+
+              user = {
+                ${optional name "name"} = name;
+                ${optional email "email"} = email;
+                ${optional pubKey "signingkey"} = pubKey;
+              };
+
+              gpg = {
+                format = "ssh";
+                ssh.allowedSignersFile = pubKey; # This assumes that only one public key will be used for signing
+              };
+              commit.gpgsign = true;
+            }
+            // (lib.optionalAttrs cfg.githubAuth {
+              credential."https://github.com".helper = [
+                null
+                "!${pkgs.gh}/bin/gh auth git-credential"
               ];
-            };
-
-            diff.external = "difft";
-
-            user = {
-              ${if config.prefs.user.vcs.name != null then "name" else null} = config.prefs.user.vcs.name;
-              ${if config.prefs.user.vcs.email != null then "email" else null} = config.prefs.user.vcs.email;
-            };
-          }
-          // (lib.optionalAttrs cfg.githubAuth {
-            credential."https://github.com".helper = [
-              null
-              "!${pkgs.gh}/bin/gh auth git-credential"
-            ];
-            credential."https://gist.github.com".helper = [
-              null
-              "!${pkgs.gh}/bin/gh auth git-credential"
-            ];
-          });
+              credential."https://gist.github.com".helper = [
+                null
+                "!${pkgs.gh}/bin/gh auth git-credential"
+              ];
+            });
         };
       };
   };

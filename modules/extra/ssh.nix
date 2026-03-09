@@ -5,9 +5,18 @@
     path = "ssh";
 
     opts =
-      { mkOpt, types, ... }:
       {
-        pubKeys = mkOpt (types.listOf types.str) [ ] "List of public ssh keys to authorize";
+        config,
+        mkOpt,
+        types,
+        ...
+      }:
+      with types;
+      {
+        pubKeys = mkOpt (listOf str) [ ] "List of public ssh keys to authorize";
+        pubKey =
+          mkOpt (nullOr str) "${config.prefs.user.home}/.ssh/id_ed25519.pub"
+            "This machine's public key";
       };
 
     cfg =
@@ -22,12 +31,12 @@
         users.users.${config.prefs.user.name}.openssh.authorizedKeys.keys = cfg.pubKeys;
 
         services.openssh = {
-          settings.PasswordAuthentication = lib.mkDefault ((lib.length cfg.pubKeys) != 0);
+          settings.PasswordAuthentication = lib.mkDefault (!(lib.length cfg.pubKeys > 0));
         };
 
         systemd.user.services.ssh-agent = {
           description = "SSH key agent";
-          wantedBy = ["default.target"];
+          wantedBy = [ "default.target" ];
           serviceConfig = {
             Type = "simple";
             Environment = "SSH_AUTH_SOCK=%t/ssh-agent.sock";
