@@ -25,10 +25,10 @@
           services.frigate = {
             enable = true;
             settings.cameras = {
-              test.ffmpeg.inputs = lib.singleton {
-                path = "rtsp://localhost";
-                roles = [ "record" ];
-              };
+              # test.ffmpeg.inputs = lib.singleton {
+              #   path = "rtsp://localhost";
+              #   roles = [ "record" ];
+              # };
             };
           };
 
