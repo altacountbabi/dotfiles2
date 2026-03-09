@@ -7,7 +7,6 @@
     opts =
       {
         pkgs,
-        lib,
         mkOpt,
         types,
         ...
@@ -18,7 +17,7 @@
       {
         enable = mkOpt types.bool false "Enable helix";
 
-        package = lib.mkPackageOption pkgs "helix" { };
+        package = mkOpt types.package inputs.helix.packages.${pkgs.stdenv.hostPlatform.system}.default "Helix package";
 
         settings = mkOpt toml { } "See <https://docs.helix-editor.com/configuration.html>";
         languages = mkOpt toml { } "See <https://docs.helix-editor.com/languages.html>";
@@ -53,18 +52,13 @@
                 presetLangs =
                   {
                     nix = {
-                      languages = [
+                      language = [
                         {
                           name = "nix";
-                          language-servers = [
-                            "nixd"
-                            "nil"
-                          ];
-                          formatter.command = pkgs.nixfmt |> lib.getExe;
                           auto-format = true;
                         }
                       ];
-                      lsps.nixd = {
+                      language-server.nixd = {
                         command = "${lib.getExe pkgs.nixd}";
                         args = [ "--inlay-hints=true" ];
 
@@ -80,22 +74,19 @@
                             '';
                         };
                       };
-                      lsps.nil = {
-                        command = "${lib.getExe pkgs.nil}";
-                      };
                     };
                     nu = {
-                      languages = [
+                      language = [
                         {
                           name = "nu";
                           language-servers = [ "nu" ];
-                          formatter.command = "${pkgs.nufmt |> lib.getExe} --stdin";
+                          formatter.command = "${lib.getExe pkgs.nufmt} --stdin";
                           auto-format = true;
                         }
                       ];
-                      lsps.nu = {
+                      language-server.nu = {
                         # TODO: If the builtin nushell lsp reads the nushell config this should use the wrapped nushell package
-                        command = "${pkgs.nushell |> lib.getExe} --lsp";
+                        command = "${lib.getExe pkgs.nushell} --lsp";
                       };
                     };
                   }
@@ -106,7 +97,6 @@
                 userLangs = lib.removeAttrs cfg.languages [ "preset" ];
               in
               userLangs // presetLangs;
-
           }).wrapper;
       in
       {
@@ -156,11 +146,8 @@
               keys = {
                 insert = {
                   A-space = "completion";
-                  C-q = ":q";
-                  C-s = [
-                    ":w!"
-                    ":fmt"
-                  ];
+                  C-q = ":q!";
+                  C-s = ":w!";
                   C-v = ":clipboard-paste-before";
                   C-w = ":buffer-close!";
                 };

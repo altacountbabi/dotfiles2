@@ -43,7 +43,7 @@
               "all()"
             ];
             ui.diff-formatter = [
-              "${pkgs.difftastic |> lib.getExe}"
+              "${lib.getExe pkgs.difftastic}"
               "--color=always"
               "$left"
               "$right"
@@ -55,7 +55,7 @@
             };
           };
 
-          environment.systemPackages = with pkgs; [
+          environment.systemPackages = [
             wrapped
           ];
 

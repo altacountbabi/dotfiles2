@@ -34,7 +34,7 @@
     # Apps
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     dms.url = "github:AvengeMedia/DankMaterialShell";
-    helix.url = "github:nik-contrib/helix/powerful-file-explorer";
+    helix.url = "github:altacountbabi/helix/feat/file-manager";
     opencode.url = "github:sst/opencode";
     microfetch.url = "github:NotAShelf/microfetch";
 

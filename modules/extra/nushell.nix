@@ -245,7 +245,7 @@
                 }
 
                 let fish_completer = {|spans|
-                  ${pkgs.fish |> lib.getExe} --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
+                  ${lib.getExe pkgs.fish} --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
                     | from tsv --flexible --noheaders --no-infer
                     | rename value description
                     | update value {|row|

@@ -47,7 +47,7 @@
               nixos = {
                 type = "local";
                 command = [
-                  (inputs.mcp-nixos.packages.${pkgs.stdenv.hostPlatform.system}.default |> lib.getExe)
+                  (lib.getExe inputs.mcp-nixos.packages.${pkgs.stdenv.hostPlatform.system}.default)
                   "--"
                 ];
               };
@@ -55,7 +55,7 @@
                 type = "local";
                 # TODO: Package this properly
                 command = [
-                  "${pkgs.bun |> lib.getExe}"
+                  "${lib.getExe pkgs.bun}"
                   "--"
                   "x"
                   "@nuskey8/docs-rs-mcp@latest"
