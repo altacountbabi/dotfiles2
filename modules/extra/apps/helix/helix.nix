@@ -56,7 +56,10 @@
                       languages = [
                         {
                           name = "nix";
-                          language-servers = [ "nixd" "nil" ];
+                          language-servers = [
+                            "nixd"
+                            "nil"
+                          ];
                           formatter.command = pkgs.nixfmt |> lib.getExe;
                           auto-format = true;
                         }
@@ -154,8 +157,11 @@
                 insert = {
                   A-space = "completion";
                   C-q = ":q";
-                  C-s = ":w!";
-                  C-v = [ ":clipboard-paste-before" ];
+                  C-s = [
+                    ":w!"
+                    ":fmt"
+                  ];
+                  C-v = ":clipboard-paste-before";
                   C-w = ":buffer-close!";
                 };
 
