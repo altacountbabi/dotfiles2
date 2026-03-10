@@ -133,13 +133,14 @@
                 alias ffprobe = ffprobe -hide_banner
 
                 alias cal = cal --week-start mo
+                alias e = explore
 
                 def --env mkcd [dir: path] {
                   mkdir $dir; cd $dir
                 }
 
                 def psn [name: string] {
-                  ps | where ($it.name | str contains $name)
+                  ps | where $it.name =~ $name
                 }
 
                 @example "Sleep for 1 second" {
@@ -168,8 +169,9 @@
                   }
                 }
 
-                # Resolve a symlink for a file
-                def "resolve link" [path: path] {
+                # Replace a symlink with the file its targeting
+                # Also makes target writable if its from the nix store
+                def resolve-link [path: path] {
                   let original = (ls -l $path | get target.0);
                   cp $original .unlink-tmp
                   mv .unlink-tmp $path
@@ -178,6 +180,20 @@
                     chmod +w $path
                   }
                 }
+
+                # Specialized version of the `which` builtin that dereferences symlinks from `/run/current-system`
+                def which_nix [...applications: string]: nothing -> table {
+                  which ...$applications
+                    | each {|x|
+                      if ($x.path? | str starts-with "/run/current-system") {
+                        $x | update path (ls -l $x.path | get target.0)
+                      } else {
+                        $x
+                      }
+                    }
+                }
+
+                alias which = which_nix
 
                 # Show the status of modules in the Linux Kernel
                 def lsmod [
@@ -201,44 +217,42 @@
                   let dir = match (do -i { $env.PWD | path relative-to $env.HOME }) {
                     null => $env.PWD
                     "" => "~"
-                    $relative_pwd => ([~ $relative_pwd] | path join)
+                    $relative => ([~ $relative] | path join)
                   }
 
-                  let path_color = (if (is-admin) { ansi red_bold } else { ansi green_bold })
-                  let separator_color = (if (is-admin) { ansi light_red_bold } else { ansi light_green_bold })
-                  let path_segment = $"($path_color)($dir)(ansi reset)"
-                  let shell_name = if ($env.name? | is-not-empty) {
-                    $"(ansi blue_bold)\((if ($env.name == "devenv-shell-env") { "devenv" } else { $env.name })\)(ansi reset) "
-                  } else { "" }
+                  let path_color = if (is-admin) { ansi red_bold } else { ansi green_bold }
+                  let separator_color = if (is-admin) { ansi light_red_bold } else { ansi light_green_bold }
 
-                  $"($shell_name)($path_segment)" | str replace --all (char path_sep) $"($separator_color)(char path_sep)($path_color)"
+                  let path_segment = $"($path_color)($dir)(ansi reset)"
+
+                  let shell_name = if ($env.name? | is-not-empty) {
+                    $"(ansi blue_bold)\(($env.name)\)(ansi reset) "
+                  } else {
+                    ""
+                  }
+
+                  let shell_name = if ($env.SSH_CONNECTION? | is-not-empty) {
+                    $"(ansi green_bold)\(ssh: (hostname)\)(ansi reset) ($shell_name)"
+                  } else {
+                    $shell_name
+                  }
+
+                  $"($shell_name)($path_segment)"
+                    | str replace --all (char path_sep) $"($separator_color)(char path_sep)($path_color)"
                 }
 
-                $env.PROMPT_COMMAND_RIGHT = {|| "" }
-
-                $env.PROMPT_INDICATOR = {|| "> " }
-                $env.PROMPT_INDICATOR_VI_INSERT = {|| ": " }
-                $env.PROMPT_INDICATOR_VI_NORMAL = {|| "> " }
-                $env.PROMPT_MULTILINE_INDICATOR = {|| "::: " }
+                $env.PROMPT_COMMAND_RIGHT = ""
 
                 $env.ENV_CONVERSIONS = {
                   "PATH": {
-                    from_string: { |s| $s | split row (char esep) | path expand --no-symlink }
-                    to_string: { |v| $v | path expand --no-symlink | str join (char esep) }
+                    from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
+                    to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
                   }
                   "Path": {
-                    from_string: { |s| $s | split row (char esep) | path expand --no-symlink }
-                    to_string: { |v| $v | path expand --no-symlink | str join (char esep) }
+                    from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
+                    to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
                   }
                 }
-
-                $env.NU_LIB_DIRS = [
-                  ($nu.default-config-dir | path join 'scripts')
-                ]
-
-                $env.NU_PLUGIN_DIRS = [
-                  ($nu.default-config-dir | path join 'plugins')
-                ]
 
                 let fish_completer = {|spans|
                   ${lib.getExe pkgs.fish} --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
@@ -408,6 +422,79 @@
                 display_output = "if (term size).columns >= 100 { table -e } else { table }";
                 command_not_found = lib.mkNushellInline "{ null }";
               };
+
+              menus = [
+                {
+                  name = "ide_completion_menu";
+                  only_buffer_difference = false;
+                  marker = "> ";
+                  type = {
+                    layout = "ide";
+                    min_completion_width = 25;
+                    max_completion_width = 1000;
+                    max_completion_height = 1000;
+                    padding = 0;
+                    border = false;
+                    cursor_offset = 0;
+                    description_mode = "prefer_right";
+                    min_description_width = 0;
+                    max_description_width = 50;
+                    max_description_height = 10;
+                    description_offset = 1;
+                    correct_cursor_pos = true;
+                  };
+                  style = {
+                    text = "green";
+                    selected_text = {
+                      attr = "r";
+                    };
+                    description_text = "yellow";
+                    match_text = {
+                      attr = "u";
+                    };
+                    selected_match_text = {
+                      attr = "ur";
+                    };
+                  };
+                }
+              ];
+
+              keybindings = [
+                {
+                  name = "completion_menu";
+                  modifier = "none";
+                  keycode = "tab";
+                  mode = [
+                    "emacs"
+                    "vi_normal"
+                    "vi_insert"
+                  ];
+                  event = {
+                    until = [
+                      {
+                        send = "menu";
+                        name = "ide_completion_menu";
+                      }
+                      { send = "menunext"; }
+                      { edit = "complete"; }
+                    ];
+                  };
+                }
+                {
+                  name = "move_right_or_take_history_hint";
+                  modifier = "alt";
+                  keycode = "char_s";
+                  mode = "emacs";
+                  event = {
+                    until = [
+                      { send = "historyhintcomplete"; }
+                      { send = "menuright"; }
+                      { send = "right"; }
+                    ];
+                  };
+                }
+              ];
+
             };
           };
 

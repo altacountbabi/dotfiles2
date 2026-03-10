@@ -8,14 +8,13 @@ No home management system is used, the way user apps are configured are either t
 - `./modules/pkgs/` - Custom packages
 - `./modules/base/` - Base modules
 - `./modules/extra/desktop` - Modules to configure the desktop
-- `./modules/extra/apps` - Modules to configure graphical apps
-- `./modules/extra/vcs` - Extra modules to configure VCSs
+- `./modules/extra/apps` - Modules to configure apps
+- `./modules/extra/apps/vcs` - Extra modules to configure VCSs
 - `./modules/extra/browsers` - Browsers
 - `./modules/extra/terminals` - Terminals
 - `./modules/extra/iso` - Modules to generate an ISO image
 
 ## Rules
-- JJ VCS is used, not git
 - Never push commits, only work locally.
 - To check if the config builds, use the command: `nix flake check`
 - Module options are added on top of the `base` `nixosModule` so that even if the implementation module isn't imported, the options and their defaults will still exist.
