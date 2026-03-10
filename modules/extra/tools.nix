@@ -40,12 +40,12 @@
             };
 
             environment.systemPackages = with pkgs; [
+              self.packages.${pkgs.stdenv.hostPlatform.system}.strace
               (lib.hideDesktop {
                 inherit pkgs;
                 package = btop;
               })
               libnotify
-              strace
               file
               tree
               wget
@@ -132,4 +132,25 @@
         ];
       };
   };
+
+  perSystem =
+    { pkgs, ... }:
+    {
+      packages.strace = pkgs.strace.overrideAttrs (
+        prev:
+        let
+          colorsPatch = pkgs.fetchFromGitHub {
+            owner = "xfgusta";
+            repo = "strace-with-colors";
+            rev = "c1e6b62659d26fed4f717d638319e287db5f1200";
+            hash = "sha256-Jr/GgY+eSkEX/RJ5fgMC8x4hNJLyt6yDWVv73jQ30Wg=";
+          };
+        in
+        {
+          patches = (prev.patches or [ ]) ++ [
+            "${colorsPatch}/strace-with-colors.patch"
+          ];
+        }
+      );
+    };
 }
