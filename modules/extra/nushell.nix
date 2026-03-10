@@ -147,7 +147,7 @@
                 } --result "1sec 246µs ..."
                 def time [fn: closure]: nothing -> duration {
                   let start = date now
-                  do $fn
+                  do -i $fn
                   (date now) - $start
                 }
 
