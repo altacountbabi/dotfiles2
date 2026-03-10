@@ -240,10 +240,6 @@
                   ($nu.default-config-dir | path join 'plugins')
                 ]
 
-                let carapace_completer = {|spans|
-                  carapace $spans.0 nushell ...$spans | from json
-                }
-
                 let fish_completer = {|spans|
                   ${lib.getExe pkgs.fish} --command $"complete '--do-complete=($spans | str replace --all "'" "\\'" | str join ' ')'"
                     | from tsv --flexible --noheaders --no-infer
@@ -271,13 +267,7 @@
                     $spans
                   }
 
-                  match $spans.0 {
-                    # carapace completions are incorrect for nu
-                    nu => $fish_completer
-                    # fish completes commits and branch names in a nicer way
-                    git => $fish_completer
-                    _ => $carapace_completer
-                  } | do $in $spans
+                  do $fish_completer $spans
                 }
 
                 $env.config.completions.external = {
@@ -311,8 +301,7 @@
       in
       {
         config = lib.mkIf cfg.enable {
-          environment.systemPackages = with pkgs; [
-            carapace
+          environment.systemPackages = [
             wrapped
           ];
 
