@@ -30,13 +30,12 @@
             lg = "lazygit";
           };
 
-          environment.systemPackages =
-            with pkgs;
-            [
-              lazygit
-              difftastic
-            ]
-            ++ (lib.optional cfg.githubAuth pkgs.gh);
+          programs.lazygit.enable = true;
+
+          environment.systemPackages = [
+            pkgs.difftastic
+          ]
+          ++ (lib.optional cfg.githubAuth pkgs.gh);
 
           programs.git.config =
             let
