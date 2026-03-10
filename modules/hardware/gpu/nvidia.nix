@@ -18,9 +18,9 @@
       }:
       {
         config = lib.mkIf config.hardware.nvidia.enable {
-          hardware.nvidia = {
-            package = lib.mkDefault config.boot.kernelPackages.nvidiaPackages.stable;
-            open = lib.mkDefault true;
+          hardware.nvidia = lib.mkDefault {
+            package = config.boot.kernelPackages.nvidiaPackages.stable;
+            open = true;
           };
 
           services.xserver.videoDrivers = [ "nvidia" ];
