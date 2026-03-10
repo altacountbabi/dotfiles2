@@ -15,8 +15,13 @@
         config = lib.mkIf cfg.enable {
           programs.lazygit.settings = lib.mkDefault {
             gui = {
+              # Hide some UI elements
               showRandomTip = false;
-              # From helix
+              showBottomLine = false;
+              showCommandLog = false;
+              showPanelJumps = false;
+
+              # Spinner from helix
               spinner = {
                 frames = [
                   "⣾"
