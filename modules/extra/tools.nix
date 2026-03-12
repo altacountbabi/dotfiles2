@@ -41,10 +41,6 @@
 
             environment.systemPackages = with pkgs; [
               self.packages.${pkgs.stdenv.hostPlatform.system}.strace
-              (lib.hideDesktop {
-                inherit pkgs;
-                package = btop;
-              })
               libnotify
               file
               tree
@@ -52,6 +48,8 @@
               duf
               bat
             ];
+
+            programs.btop.enable = true;
 
             programs.htop = {
               enable = true;

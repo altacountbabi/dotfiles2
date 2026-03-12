@@ -212,6 +212,7 @@
       };
   };
 
+  # TODO: Clean up and upstream
   flake.wrapperModules.wezterm = inputs.wrappers.lib.wrapModule (
     {
       config,
