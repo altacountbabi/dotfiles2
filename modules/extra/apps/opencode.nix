@@ -53,12 +53,8 @@
               };
               docs-rs = {
                 type = "local";
-                # TODO: Package this properly
                 command = [
-                  "${lib.getExe pkgs.bun}"
-                  "--"
-                  "x"
-                  "@nuskey8/docs-rs-mcp@latest"
+                  (lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.docs-rs-mcp)
                 ];
               };
             };
