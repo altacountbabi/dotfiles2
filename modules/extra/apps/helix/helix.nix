@@ -273,7 +273,7 @@
 
                 "variable" = "text";
                 "variable.parameter" = {
-                  fg = "maroon";
+                  fg = "red";
                   modifiers = [ "italic" ];
                 };
                 "variable.builtin" = "red";
