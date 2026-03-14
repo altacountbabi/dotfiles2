@@ -57,6 +57,7 @@
                       accel-profile = "flat";
                     };
 
+                    # TODO: Figure out xcursor issues
                     # shell = {
                     #   cursor-theme = "Adwaita";
                     #   cursor-size = 24;
