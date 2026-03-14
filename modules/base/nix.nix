@@ -133,7 +133,11 @@
         };
 
         nixpkgs = {
-          config.allowUnfree = true;
+          config = {
+            allowUnfree = true;
+            allowBroken = false;
+            allowInsecure = false;
+          };
           overlays = lib.attrValues self.overlays;
         };
 
