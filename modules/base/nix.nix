@@ -97,17 +97,29 @@
         };
 
         programs.nh.enable = true;
-        environment.sessionVariables.NH_FLAKE = config.prefs.nix.flakePath;
-        environment.shellAliases = {
-          switch = "nh os switch";
+        environment = {
+          sessionVariables =
+            with config.nixpkgs.config;
+            let
+              bool = x: if x then "1" else "0";
+            in
+            {
+              NH_FLAKE = config.prefs.nix.flakePath;
+              NIXPKGS_ALLOW_UNFREE = bool allowUnfree;
+              NIXPKGS_ALLOW_BROKEN = bool allowBroken;
+              NIXPKGS_ALLOW_INSECURE = bool allowInsecure;
+            };
+          shellAliases.switch = "nh os switch";
         };
 
-        programs.nushell.excludedAliases = lib.mkIf config.isDroid [ "switch" ];
-        programs.nushell.extraConfig =
-          lib.mkIf config.isDroid # nu
-            ''
-              source ${self.packages.${pkgs.stdenv.hostPlatform.system}.nix-on-droid-switch}/bin/switch
-            '';
+        programs.nushell = {
+          excludedAliases = lib.mkIf config.isDroid [ "switch" ];
+          extraConfig =
+            lib.mkIf config.isDroid # nu
+              ''
+                source ${self.packages.${pkgs.stdenv.hostPlatform.system}.nix-on-droid-switch}/bin/switch
+              '';
+        };
 
         systemd.services.copy-nixpkgs = lib.mkIf config.prefs.nix.localNixpkgs {
           description = "copy nixpkgs to store early";
