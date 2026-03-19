@@ -6,14 +6,12 @@
 
     opts =
       {
-        pkgs,
         config,
         mkOpt,
         types,
         ...
       }:
       {
-        package = mkOpt types.package pkgs.nixVersions.latest "The package to use for nix";
         localNixpkgs =
           mkOpt types.bool false
             "Whether to make a local copy of nixpkgs from the flake inputs";
@@ -37,7 +35,7 @@
       }:
       {
         nix = {
-          inherit (cfg) package;
+          package = inputs.detnix.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
           settings = {
             experimental-features = [

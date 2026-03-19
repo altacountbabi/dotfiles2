@@ -26,6 +26,9 @@
           environment.shellAliases = {
             run0 = "run0 --background=0";
           };
+
+          # TODO: Remove this workaround on next util-linux release
+          security.pam.services.login.updateWtmp = lib.mkForce false;
         }
 
         (lib.mkIf cfg.sudo-rs {
