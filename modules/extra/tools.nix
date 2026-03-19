@@ -33,7 +33,7 @@
 
           (lib.mkIf cfg.sys {
             environment.shellAliases = {
-              cat = "bat";
+              cat = "bat -p";
               df = "duf";
               tree = "tree -lC";
               less = "less -R";
