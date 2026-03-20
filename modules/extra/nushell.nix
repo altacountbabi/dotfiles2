@@ -500,6 +500,11 @@
 
           prefs.user.shell = wrapped;
 
+          programs.helix.settings.editor.shell = [
+            (lib.getExe wrapped)
+            "-c"
+          ];
+
           # Remove pre-defined shell aliases from nixpkgs
           environment.shellAliases = {
             ls = "";
