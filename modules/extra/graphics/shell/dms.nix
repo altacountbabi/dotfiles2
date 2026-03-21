@@ -99,6 +99,9 @@
                 notificationPopupPosition = 3; # Bottom Right
 
                 osdAlwaysShowValue = true; # Show percentages in OSDs (volume, brightness, etc..)
+
+                powerMenuDefaultAction = "suspend";
+                powerActionConfirm = false;
               };
           };
 
