@@ -214,6 +214,8 @@
                 }
 
                 $env.PROMPT_COMMAND = {||
+                  stty sane
+
                   let dir = match (do -i { $env.PWD | path relative-to $env.HOME }) {
                     null => $env.PWD
                     "" => "~"
