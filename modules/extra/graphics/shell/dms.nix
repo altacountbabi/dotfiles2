@@ -31,6 +31,7 @@
         config = lib.mkIf cfg.enable {
           programs.dms-shell = {
             package = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.default;
+            quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
             systemd.enable = false;
 
             enableSystemMonitoring = true;
