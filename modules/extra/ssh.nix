@@ -51,7 +51,7 @@
 
         programs.nushell.extraConfig = # nu
           ''
-            $env.SSH_AUTH_SOCK = $env.XDG_RUNTIME_DIR | path join "ssh-agent.sock"
+            $env.SSH_AUTH_SOCK = $env.XDG_RUNTIME_DIR? | default $"/run/user/(id -u)" | path join "ssh-agent.sock"
           '';
       };
   };
