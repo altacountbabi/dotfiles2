@@ -5,47 +5,44 @@
     let
       profiles =
         lib:
-        let
-          inherit (lib) mkDefault;
-        in
-        {
+        lib.mkDefaultRec {
           minimal = {
-            programs.nushell.enable = mkDefault true;
-            programs.helix.enable = mkDefault true;
-            programs.nix-fzf.enable = mkDefault true;
-            programs.git.enable = mkDefault true;
-            programs.jujutsu.enable = mkDefault true;
+            programs.nushell.enable = true;
+            programs.helix.enable = true;
+            programs.nix-fzf.enable = true;
+            programs.git.enable = true;
+            programs.jujutsu.enable = true;
 
-            prefs.themes.base16-default-dark = mkDefault true;
+            prefs.themes.base16-default-dark = true;
           };
           server = {
-            prefs.profiles.minimal = mkDefault true;
-            services.openssh.enable = mkDefault true;
+            prefs.profiles.minimal = true;
+            services.openssh.enable = true;
           };
           desktop = {
-            prefs.profiles.minimal = mkDefault true;
+            prefs.profiles.minimal = true;
 
-            boot.plymouth.enable = mkDefault true;
+            boot.plymouth.enable = true;
 
-            services.printing.enable = mkDefault true;
-            hardware.bluetooth.enable = mkDefault true;
+            services.printing.enable = true;
+            hardware.bluetooth.enable = true;
 
-            programs.niri.enable = mkDefault true;
-            services.keyd.enable = mkDefault true;
+            programs.niri.enable = true;
+            services.keyd.enable = true;
 
-            programs.nautilus.enable = mkDefault true;
-            programs.wezterm.enable = mkDefault true;
-            programs.helium.enable = mkDefault true;
-            programs.loupe.enable = mkDefault true;
-            programs.mpv.enable = mkDefault true;
+            programs.nautilus.enable = true;
+            programs.wezterm.enable = true;
+            programs.helium.enable = true;
+            programs.loupe.enable = true;
+            programs.mpv.enable = true;
           };
           extraDesktopApps = {
-            programs.discord.enable = mkDefault true;
-            programs.steam.enable = mkDefault true;
-            programs.sober.enable = mkDefault true;
-            programs.loupe.enable = mkDefault true;
-            programs.zen.enable = mkDefault true;
-            programs.mpv.enable = mkDefault true;
+            programs.discord.enable = true;
+            programs.steam.enable = true;
+            programs.sober.enable = true;
+            programs.loupe.enable = true;
+            programs.zen.enable = true;
+            programs.mpv.enable = true;
           };
         };
     in

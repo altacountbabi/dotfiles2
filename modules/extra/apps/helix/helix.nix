@@ -111,7 +111,7 @@
           ];
 
           programs.helix = {
-            settings = lib.mkDefault {
+            settings = lib.mkDefaultRec {
               theme = "nix";
 
               editor = {

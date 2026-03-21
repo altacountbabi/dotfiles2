@@ -13,7 +13,7 @@
       }:
       {
         config = lib.mkIf cfg.enable {
-          programs.lazygit.settings = lib.mkDefault {
+          programs.lazygit.settings = lib.mkDefaultRec {
             gui = {
               # Hide some UI elements
               showRandomTip = false;

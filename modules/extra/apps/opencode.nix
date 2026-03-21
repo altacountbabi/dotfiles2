@@ -39,7 +39,7 @@
       in
       {
         config = lib.mkIf cfg.enable {
-          programs.opencode.settings = lib.mkDefault {
+          programs.opencode.settings = lib.mkDefaultRec {
             "$schema" = "https://opencode.ai/config.json";
             theme = "system";
             autoupdate = false;

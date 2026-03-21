@@ -48,7 +48,7 @@
       }:
       {
         config = lib.mkIf cfg.enable {
-          programs.hyprlock.settings = lib.mkDefault (
+          programs.hyprlock.settings = lib.mkDefaultRec (
             let
               color = x: "rgb(${lib.stripHex x})";
               inherit (config.prefs.theme) wallpaper;

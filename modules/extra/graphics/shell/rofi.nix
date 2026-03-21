@@ -78,7 +78,7 @@
           in
           {
             programs.rofi = {
-              settings = lib.mkDefault {
+              settings = lib.mkDefaultRec {
                 display-drun = ">";
                 matching = "fuzzy";
               };
@@ -93,7 +93,7 @@
                   fg = text;
                   fg-alt = subtext0;
                 in
-                mkDefault {
+                lib.mkDefaultRec {
                   configuration = {
                     font = "${lib.head config.fonts.fontconfig.defaultFonts.monospace} 12";
                     show-icons = true;

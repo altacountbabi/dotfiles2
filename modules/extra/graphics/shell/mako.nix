@@ -34,7 +34,7 @@
       in
       {
         config = lib.mkIf cfg.enable {
-          services.mako.settings = lib.mkDefault (
+          services.mako.settings = lib.mkDefaultRec (
             with config.prefs.theme.colors;
             {
               anchor = "bottom-center";

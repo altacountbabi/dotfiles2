@@ -320,7 +320,7 @@
           ];
 
           programs.nushell = {
-            settings = lib.mkDefault {
+            settings = lib.mkDefaultRec {
               show_banner = false;
 
               ls = {

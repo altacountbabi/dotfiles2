@@ -196,16 +196,14 @@
       in
       {
         config = lib.mkIf cfg.enable {
-          programs.helium = {
-            extensions =
-              {
-                darkReader = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
-                bitwarden = "nngceckbapebfimnlniiiahkandclblb";
-                inlineTranslator = "odibgflepadohfmpcemnjbhkionjkapk";
-              }
-              |> lib.mapAttrs (_: lib.mkDefault);
+          programs.helium = lib.mkDefaultRec {
+            extensions = {
+              darkReader = "eimadpbcbfnmbkopoojfekhnkhdbieeh";
+              bitwarden = "nngceckbapebfimnlniiiahkandclblb";
+              inlineTranslator = "odibgflepadohfmpcemnjbhkionjkapk";
+            };
             settings = {
-              browser.custom_chrome_frame = lib.mkDefault false;
+              browser.custom_chrome_frame = false;
               webkit.webprefs.fonts = with config.fonts.fontconfig.defaultFonts; {
                 standard.Zyyy = lib.head serif;
                 serif.Zyyy = lib.head serif;

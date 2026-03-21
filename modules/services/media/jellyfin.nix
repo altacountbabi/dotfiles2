@@ -35,14 +35,11 @@
             '';
 
             services.declarative-jellyfin =
-              let
-                inherit (lib) mkDefault;
-              in
-              {
+              lib.mkDefaultRec {
                 enable = true;
                 serverId = "cb86e9d95ec14b11b772bd43e82b4831";
 
-                system = mkDefault {
+                system = {
                   minResumePct = 2;
 
                   pluginRepositories = [
@@ -70,7 +67,7 @@
                   };
                 };
 
-                users = mkDefault {
+                users = {
                   admin = {
                     mutable = false;
                     password = "123";
@@ -78,11 +75,11 @@
                   };
                 };
 
-                network = mkDefault {
+                network = {
                   internalHttpPort = ports.jellyfin;
                 };
 
-                branding.customCss = mkDefault "@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/scyfin-theme.css');";
+                branding.customCss = "@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/scyfin-theme.css');";
               }
               // cfg.settings;
           }

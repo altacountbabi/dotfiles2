@@ -18,7 +18,7 @@
       }:
       {
         config = lib.mkIf config.hardware.nvidia.enable {
-          hardware.nvidia = lib.mkDefault {
+          hardware.nvidia = lib.mkDefaultRec {
             package = config.boot.kernelPackages.nvidiaPackages.stable;
             open = true;
           };

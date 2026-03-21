@@ -43,7 +43,7 @@
         config = lib.mkIf cfg.enable {
           environment.systemPackages = [ wrapped ];
 
-          programs.btop = lib.mkDefault {
+          programs.btop = lib.mkDefaultRec {
             settings = {
               shown_boxes = [
                 "cpu"
