@@ -45,8 +45,7 @@ rec {
     in
     prev.foldl' f { };
 
-  mkDefaultRec =
-    value: if prev.isAttrs value then prev.mapAttrs (_: mkDefaultRec) value else prev.mkDefault value;
+  mkDefaultRec = value: prev.mapAttrsRecursive (_: prev.mkDefault) value;
 
   enabled = merge { enable = true; };
   disabled = merge { enable = false; };

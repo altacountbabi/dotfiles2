@@ -38,13 +38,25 @@
           inherit system;
           modules = normalModules;
         };
-        "${name}Iso" = lib.nixosSystem {
+        "${name}-iso" = lib.nixosSystem {
           inherit system;
           modules = normalModules ++ [
             iso
             {
               prefs.iso.enable = true;
               programs.installer.enable = true;
+
+              # Minimize size
+              services.printing.enable = false;
+              hardware.bluetooth.enable = false;
+
+              programs.nautilus.enable = false;
+              programs.discord.enable = false;
+              programs.steam.enable = false;
+              programs.sober.enable = false;
+              programs.loupe.enable = false;
+              programs.zen.enable = false;
+              programs.mpv.enable = false;
             }
           ];
         };

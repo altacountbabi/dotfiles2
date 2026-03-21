@@ -40,9 +40,7 @@
             programs.discord.enable = true;
             programs.steam.enable = true;
             programs.sober.enable = true;
-            programs.loupe.enable = true;
             programs.zen.enable = true;
-            programs.mpv.enable = true;
           };
         };
     in
