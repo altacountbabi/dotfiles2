@@ -1,0 +1,13 @@
+diff --git a/src/systemctl/systemctl-set-environment.c b/src/systemctl/systemctl-set-environment.c
+index 008608f..cfe35ee 100644
+--- a/src/systemctl/systemctl-set-environment.c
++++ b/src/systemctl/systemctl-set-environment.c
+@@ -174,8 +174,6 @@ int verb_import_environment(int argc, char *argv[], uintptr_t _data, void *userd
+                 return bus_log_create_error(r);
+ 
+         if (argc < 2) {
+-                log_warning("Calling import-environment without a list of variable names is deprecated.");
+-
+                 _cleanup_strv_free_ char **copy = strv_copy(environ);
+                 if (!copy)
+                         return log_oom();
