@@ -19,12 +19,20 @@
         virtualisation = {
           cores = 8;
           memorySize = 8 * 1024;
+          useEFIBoot = true;
           qemu = {
-            consoles = lib.mkForce [
-              "ttyS0,115200n8"
-            ];
+            consoles = lib.mkForce [ "tty0" ];
             options = [
-              "-nographic"
+              "-no-user-config"
+              "-nodefaults"
+              # "-device qemu-xhci,p2=15,p3=15,id=usb"
+              "-device virtio-serial-pci,id=virtio-serial0"
+              "-chardev spicevmc,id=ch1,name=vdagent"
+              "-device virtserialport,bus=virtio-serial0.0,nr=1,chardev=ch1,name=com.redhat.spice.0"
+              "-device usb-tablet,id=input0"
+              "-spice unix,addr=$XDG_RUNTIME_DIR/spice.sock,disable-ticketing=on,image-compression=off,gl=on,seamless-migration=off"
+              "-device virtio-vga-gl"
+              "-display spice-app,gl=on"
             ];
           };
         };
