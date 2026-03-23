@@ -35,7 +35,9 @@
       }:
       {
         nix = {
-          package = inputs.detnix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+          package = inputs.detnix.packages.${pkgs.stdenv.hostPlatform.system}.default.appendPatches [
+            ./codeberg-flakeref-support.patch
+          ];
 
           settings = {
             experimental-features = [
