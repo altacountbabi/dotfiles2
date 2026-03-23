@@ -7,7 +7,12 @@
     opts = { mkOpt, types, ... }: mkOpt types.bool false "Enable green theme";
 
     cfg =
-      { lib, cfg, ... }:
+      {
+        config,
+        lib,
+        cfg,
+        ...
+      }:
       {
         config = lib.mkIf cfg {
           prefs.theme = {
@@ -46,6 +51,11 @@
 
               accent = "#89d6b9";
             };
+          };
+
+          # Custom helium user color doesn't work well for every theme, helium likes to do its own processing with the color which turns out bad for most colors
+          programs.helium.settings = {
+            browser.theme.user_color2 = lib.chromiumColor config.prefs.theme.colors.accent;
           };
         };
       };

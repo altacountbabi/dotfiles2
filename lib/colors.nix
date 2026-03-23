@@ -111,7 +111,7 @@ let
     if prev.stringLength h == 1 then "0${h}" else h;
 
 in
-{
+rec {
   # The args are ordered like this to be used for piping: `<base> |> mix <other> <amount>`
   mix =
     other': amount: base':
@@ -127,4 +127,13 @@ in
 
   # Strip `#` from the beginning of a hex color
   stripHex = x: prev.substring 1 ((prev.stringLength x) - 1) x;
+
+  chromiumColor =
+    hex:
+    let
+      rgb = hexToRGB (stripHex hex);
+      argb = (255 * 16777216) + (rgb.r * 65536) + (rgb.g * 256) + rgb.b;
+      toSigned32 = x: if x >= 2147483648 then x - 4294967296 else x;
+    in
+    toSigned32 argb;
 }
