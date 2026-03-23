@@ -28,13 +28,16 @@
             hardware.bluetooth.enable = true;
 
             programs.niri.enable = true;
-            services.keyd.enable = true;
+            programs.dms-shell.enable = true;
+            services.displayManager.dms-greeter.enable = true;
 
             programs.nautilus.enable = true;
             programs.wezterm.enable = true;
             programs.helium.enable = true;
             programs.loupe.enable = true;
             programs.mpv.enable = true;
+
+            services.keyd.enable = true;
           };
           extraDesktopApps = {
             programs.discord.enable = true;

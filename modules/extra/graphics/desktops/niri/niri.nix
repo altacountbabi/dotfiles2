@@ -348,8 +348,6 @@
               xwayland-satellite
             ];
 
-            programs.dms-shell.enable = true;
-
             systemd.user.tmpfiles.rules = with config.prefs.user; [
               "d ${home}/.local/share/icons 0755 ${name} users - -"
               "L ${home}/.local/share/icons/default - - - - ${pkgs.adwaita-icon-theme}/share/icons/Adwaita"

@@ -32,7 +32,6 @@
           programs.dms-shell = {
             package = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.default;
             quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
-            systemd.enable = false;
 
             enableSystemMonitoring = true;
             enableVPN = true;
@@ -149,42 +148,6 @@
                 spawn = lib.splitString " " v;
               }
             );
-
-          prefs.autostart = [
-            "dms run"
-          ];
-
-          services.displayManager.dms-greeter = {
-            enable = true;
-            compositor = {
-              name = "niri";
-              customConfig =
-                let
-                  conf =
-                    (inputs.wrappers.wrapperModules.niri.apply {
-                      inherit pkgs;
-                      settings = {
-                        inherit (config.programs.niri.settings)
-                          outputs
-                          input
-                          cursor
-                          hotkey-overlay
-                          ;
-
-                        layout.background-color = "#000000";
-                      };
-                    })."config.kdl".path;
-                in
-                # kdl
-                ''
-                  include "${conf}"
-                '';
-            };
-
-            configHome = config.prefs.user.home;
-
-            quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
-          };
         };
       };
   };
