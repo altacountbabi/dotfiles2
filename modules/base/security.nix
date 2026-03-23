@@ -24,7 +24,7 @@
           security.rtkit.enable = lib.mkDefault true;
 
           environment.shellAliases = {
-            run0 = "run0 --background=0";
+            run0 = "run0 --background=0 --unit=run0";
           };
 
           # TODO: Remove this workaround on next util-linux release
